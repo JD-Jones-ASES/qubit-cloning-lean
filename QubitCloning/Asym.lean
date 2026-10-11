@@ -266,4 +266,49 @@ theorem as_eq_asymChannel_of_span {r : ℕ} (a b : ℝ) (ha : a ≠ 0) (hb : b �
   rw [eq_inv_of_mul_eq_one_left hX2]
   simp
 
+/-- The kernel step of the uniqueness (ARCH.md §7): an operator on which every square of `af_sos` vanishes lies in
+the span of `A₀, A₁`, with coordinates `K (1,0) 1 / a` and `K (0,1) 0 / a` (only `a ≠ 0` is needed). -/
+theorem as_span_of_zero (a b : ℝ) (ha : a ≠ 0) (K : Matrix QQ Q ℂ)
+    (hu : ∀ j, ((a + 2 * b : ℝ) : ℂ) * (K (0, j) 0 + K (1, j) 1)
+      - ((2 * a + b : ℝ) : ℂ) * (K (j, 0) 0 + K (j, 1) 1) = 0)
+    (h₁ : K (1, 1) 0 = 0) (h₂ : K (0, 0) 1 = 0)
+    (h₃ : K (0, 0) 0 - K (1, 0) 1 - K (0, 1) 1 = 0) (h₄ : K (1, 1) 1 - K (0, 1) 0 - K (1, 0) 0 = 0) :
+    K = (K (1, 0) 1 / a) • asymA₀ a b + (K (0, 1) 0 / a) • asymA₁ a b := by
+  have haC : (a : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr ha
+  have hu0 := hu 0
+  have hu1 := hu 1
+  push_cast at hu0 hu1
+  have hq : K (0, 1) 1 * a = K (1, 0) 1 * b := by
+    linear_combination (-hu0 + ((b : ℂ) - a) * h₃) / 3
+  have hn : K (1, 0) 0 * a = K (0, 1) 0 * b := by
+    linear_combination (-hu1 + ((b : ℂ) - a) * h₄) / 3
+  ext ⟨x, y⟩ i
+  fin_cases x <;> fin_cases y <;> fin_cases i <;> simp [asymA₀, asymA₁]
+  · rw [div_mul_eq_mul_div, eq_div_iff haC]
+    linear_combination (a : ℂ) * h₃ + hq
+  · exact h₂
+  · rw [div_mul_cancel₀ _ haC]
+  · rw [div_mul_eq_mul_div, eq_div_iff haC]
+    linear_combination hq
+  · rw [div_mul_eq_mul_div, eq_div_iff haC]
+    linear_combination hn
+  · rw [div_mul_cancel₀ _ haC]
+  · exact h₁
+  · rw [div_mul_eq_mul_div, eq_div_iff haC]
+    linear_combination (a : ℂ) * h₄ + hn
+
+/-- The uniqueness step from the vanishing squares (ARCH.md §7, both halves after `af_sos`): for `a, b ≠ 0`, a
+channel each of whose Kraus operators annihilates every square of `af_sos` is the asymmetric cloner as a map. -/
+theorem as_eq_asymChannel_of_zero {r : ℕ} (a b : ℝ) (ha : a ≠ 0) (hb : b ≠ 0) (K : Fin r → Matrix QQ Q ℂ)
+    (hK : IsChannel K)
+    (hu : ∀ i j, ((a + 2 * b : ℝ) : ℂ) * (K i (0, j) 0 + K i (1, j) 1)
+      - ((2 * a + b : ℝ) : ℂ) * (K i (j, 0) 0 + K i (j, 1) 1) = 0)
+    (h₁ : ∀ i, K i (1, 1) 0 = 0) (h₂ : ∀ i, K i (0, 0) 1 = 0)
+    (h₃ : ∀ i, K i (0, 0) 0 - K i (1, 0) 1 - K i (0, 1) 1 = 0)
+    (h₄ : ∀ i, K i (1, 1) 1 - K i (0, 1) 0 - K i (1, 0) 0 = 0) :
+    ∀ ρ, krausApply K ρ = asymChannel a b ρ :=
+  as_eq_asymChannel_of_span a b ha hb K (fun i => K i (1, 0) 1 / a) (fun i => K i (0, 1) 0 / a)
+    (fun i => as_span_of_zero a b ha (K i) (hu i) (h₁ i) (h₂ i) (h₃ i) (h₄ i)) hK
+
+
 end QubitCloning
