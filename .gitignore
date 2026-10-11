@@ -1,0 +1,9 @@
+.lake/
+.lanes-lock/
+.scratch/
+lanes/
+scripts/lane-build.sh
+__pycache__/
+*.py[cod]
+.lanes-build-*.log
+.scratch_*

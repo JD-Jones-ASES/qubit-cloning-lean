@@ -1,0 +1,137 @@
+module
+
+public import QubitCloning
+
+/-!
+# Solution
+
+Each statement of `Challenge.lean`, restated verbatim and closed by the internal theorem of the same
+name with the suffix `_internal` (the modules of `QubitCloning/`; VERIFICATION.md names the module of
+each theorem). This module does not import `Challenge.lean`; the definitions come from
+`QubitCloning/Defs.lean`, which restates those of the Challenge character for character.
+-/
+
+@[expose] public section
+
+namespace QubitCloning
+
+open Matrix
+
+theorem proj_pauliVec (s : Fin 6) : proj (pauliVec s) = pauliState s :=
+  proj_pauliVec_internal s
+
+theorem pauliVec_unit (s : Fin 6) : star (pauliVec s) ⬝ᵥ pauliVec s = 1 :=
+  pauliVec_unit_internal s
+
+theorem sixAvg_le {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
+    (sixAvg₁ K + sixAvg₂ K) / 2 ≤ 5 / 6 :=
+  sixAvg_le_internal K hK
+
+theorem exists_unit_min_le {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
+    ∃ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 ∧ min (F₁ K ψ) (F₂ K ψ) ≤ 5 / 6 :=
+  exists_unit_min_le_internal K hK
+
+theorem sixAvg_ge_third {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
+    1 / 3 ≤ sixAvg₁ K ∧ 1 / 3 ≤ sixAvg₂ K :=
+  sixAvg_ge_third_internal K hK
+
+theorem exists_sixAvg_eq_third :
+    ∃ (r : ℕ) (K : Fin r → Matrix QQ Q ℂ), IsChannel K ∧ sixAvg₁ K = 1 / 3 :=
+  exists_sixAvg_eq_third_internal
+
+theorem bh_isChannel :
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ ∀ ρ, krausApply K ρ = bhChannel ρ :=
+  bh_isChannel_internal
+
+theorem bh_trace (ρ : Matrix Q Q ℂ) : Matrix.trace (bhChannel ρ) = Matrix.trace ρ :=
+  bh_trace_internal ρ
+
+theorem bh_traceSecond (ρ : Matrix Q Q ℂ) :
+    traceSecond (bhChannel ρ) = (2 / 3 : ℂ) • ρ + (1 / 6 : ℂ) • Matrix.trace ρ • (1 : Matrix Q Q ℂ) :=
+  bh_traceSecond_internal ρ
+
+theorem bh_traceFirst (ρ : Matrix Q Q ℂ) :
+    traceFirst (bhChannel ρ) = (2 / 3 : ℂ) • ρ + (1 / 6 : ℂ) • Matrix.trace ρ • (1 : Matrix Q Q ℂ) :=
+  bh_traceFirst_internal ρ
+
+theorem bh_fidelity {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : ∀ ρ, krausApply K ρ = bhChannel ρ)
+    (ψ : Q → ℂ) (hψ : star ψ ⬝ᵥ ψ = 1) : F₁ K ψ = 5 / 6 ∧ F₂ K ψ = 5 / 6 :=
+  bh_fidelity_internal K hK ψ hψ
+
+theorem bh_sixAvg {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : ∀ ρ, krausApply K ρ = bhChannel ρ) :
+    sixAvg₁ K = 5 / 6 ∧ sixAvg₂ K = 5 / 6 :=
+  bh_sixAvg_internal K hK
+
+theorem eq_bh_of_sixAvg {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : (sixAvg₁ K + sixAvg₂ K) / 2 = 5 / 6) : ∀ ρ, krausApply K ρ = bhChannel ρ :=
+  eq_bh_of_sixAvg_internal K hK h
+
+theorem eq_bh_of_forall {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → 5 / 6 ≤ F₁ K ψ ∧ 5 / 6 ≤ F₂ K ψ) :
+    ∀ ρ, krausApply K ρ = bhChannel ρ :=
+  eq_bh_of_forall_internal K hK h
+
+theorem isGreatest_cloning_fidelity :
+    IsGreatest {t : ℝ | ∃ (r : ℕ) (K : Fin r → Matrix QQ Q ℂ), IsChannel K ∧
+      ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → t ≤ F₁ K ψ ∧ t ≤ F₂ K ψ} (5 / 6) :=
+  isGreatest_cloning_fidelity_internal
+
+theorem asym_bound {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (ha : 0 ≤ a)
+    (hb : 0 ≤ b) : a * b ≤ a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) :=
+  asym_bound_internal K hK a b ha hb
+
+theorem asym_bound_forall {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (ha : 0 ≤ a)
+    (hb : 0 ≤ b) (f₁ f₂ : ℝ) (h : ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → f₁ ≤ F₁ K ψ ∧ f₂ ≤ F₂ K ψ) :
+    a * b ≤ a * (a + 2 * b) * (1 - f₁) + b * (2 * a + b) * (1 - f₂) :=
+  asym_bound_forall_internal K hK a b ha hb f₁ f₂ h
+
+theorem asym_isChannel (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) :
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ ∀ ρ, krausApply K ρ = asymChannel a b ρ :=
+  asym_isChannel_internal a b h
+
+theorem asym_traceSecond (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) (ρ : Matrix Q Q ℂ) :
+    traceSecond (asymChannel a b ρ) =
+      ((1 - b ^ 2 / (a ^ 2 + a * b + b ^ 2) : ℝ) : ℂ) • ρ +
+        ((b ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)) : ℝ) : ℂ) • Matrix.trace ρ • (1 : Matrix Q Q ℂ) :=
+  asym_traceSecond_internal a b h ρ
+
+theorem asym_traceFirst (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) (ρ : Matrix Q Q ℂ) :
+    traceFirst (asymChannel a b ρ) =
+      ((1 - a ^ 2 / (a ^ 2 + a * b + b ^ 2) : ℝ) : ℂ) • ρ +
+        ((a ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)) : ℝ) : ℂ) • Matrix.trace ρ • (1 : Matrix Q Q ℂ) :=
+  asym_traceFirst_internal a b h ρ
+
+theorem asym_fidelity {r : ℕ} (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) (K : Fin r → Matrix QQ Q ℂ)
+    (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) (ψ : Q → ℂ) (hψ : star ψ ⬝ᵥ ψ = 1) :
+    F₁ K ψ = 1 - b ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)) ∧
+      F₂ K ψ = 1 - a ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)) :=
+  asym_fidelity_internal a b h K hK ψ hψ
+
+theorem asym_equality {r : ℕ} (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) (K : Fin r → Matrix QQ Q ℂ)
+    (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) :
+    a * b = a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) :=
+  asym_equality_internal a b h K hK
+
+theorem eq_asym_of_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (ha : 0 < a)
+    (hb : 0 < b) (h : a * b = a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K)) :
+    ∀ ρ, krausApply K ρ = asymChannel a b ρ :=
+  eq_asym_of_equality_internal K hK a b ha hb h
+
+theorem bhChannel_eq_asymChannel (ρ : Matrix Q Q ℂ) : bhChannel ρ = asymChannel 1 1 ρ :=
+  bhChannel_eq_asymChannel_internal ρ
+
+theorem tradeoff_sqrt {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
+    sixAvg₁ K + sixAvg₂ K - 3 / 2 ≤ Real.sqrt ((1 - sixAvg₁ K) * (1 - sixAvg₂ K)) :=
+  tradeoff_sqrt_internal K hK
+
+theorem tradeoff_forall {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (f₁ f₂ : ℝ)
+    (h : ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → f₁ ≤ F₁ K ψ ∧ f₂ ≤ F₂ K ψ) :
+    f₁ + f₂ - 3 / 2 ≤ Real.sqrt ((1 - f₁) * (1 - f₂)) :=
+  tradeoff_forall_internal K hK f₁ f₂ h
+
+theorem tradeoff_attained {r : ℕ} (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h : a ^ 2 + a * b + b ^ 2 ≠ 0)
+    (K : Fin r → Matrix QQ Q ℂ) (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) :
+    sixAvg₁ K + sixAvg₂ K - 3 / 2 = Real.sqrt ((1 - sixAvg₁ K) * (1 - sixAvg₂ K)) :=
+  tradeoff_attained_internal a b ha hb h K hK
+
+end QubitCloning

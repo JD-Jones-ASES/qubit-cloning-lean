@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+"""Reject proof placeholders and prohibited declarations in QubitCloning, Solution and Test.
+
+Rejected outside comments and strings: sorry, sorryAx, admit, axiom, unsafe, partial,
+native_decide, implemented_by, extern, mutual, opaque, csimp, ofReduceNat, ofReduceBool (qualified or not), set_option, and
+every debug. option. Challenge.lean carries the submitted statements
+with intentional sorry placeholders, so it is checked for every token except sorry. lakefile.toml may
+set no debug. option and no leanOptions, moreLeanArgs, weakLeanArgs or -D argument. The Python scripts may
+hold no control character other than tab, newline and carriage return (a control byte inside a regex
+silently drops its alternatives). The compiled Test.Axioms module is a separate check.
+"""
+
+from pathlib import Path
+import re
+import sys
+
+FORBIDDEN = re.compile(
+    r"\b(?:sorry|sorryAx|admit|axiom|unsafe|partial|native_decide|implemented_by|extern|mutual|opaque|csimp|ofReduceNat)\b"
+    r"|\b(?:Lean\.)?ofReduceBool\b|\bset_option\b|\bdebug\.\w+")
+CHALLENGE_FORBIDDEN = re.compile(
+    r"\b(?:sorryAx|admit|axiom|unsafe|partial|native_decide|implemented_by|extern|mutual|opaque|csimp|ofReduceNat)\b"
+    r"|\b(?:Lean\.)?ofReduceBool\b|\bset_option\b|\bdebug\.\w+")
+LAKEFILE_DEBUG = re.compile(r"debug\.|-D|\b(?:moreLeanArgs|weakLeanArgs|leanOptions)\b")
+
+
+def code_without_comments_or_strings(source):
+    result = list(source)
+    index = 0
+    depth = 0
+    in_string = False
+    while index < len(source):
+        pair = source[index:index + 2]
+        if depth:
+            if pair == "/-":
+                depth += 1
+                result[index:index + 2] = "  "
+                index += 2
+            elif pair == "-/":
+                depth -= 1
+                result[index:index + 2] = "  "
+                index += 2
+            else:
+                result[index] = " " if source[index] != "\n" else "\n"
+                index += 1
+        elif in_string:
+            if source[index] == "\\":
+                result[index:index + 2] = "  "
+                index += 2
+            elif source[index] == '"':
+                in_string = False
+                result[index] = " "
+                index += 1
+            else:
+                result[index] = " " if source[index] != "\n" else "\n"
+                index += 1
+        elif pair == "/-":
+            depth = 1
+            result[index:index + 2] = "  "
+            index += 2
+        elif pair == "--":
+            end = source.find("\n", index)
+            if end < 0:
+                end = len(source)
+            result[index:end] = " " * (end - index)
+            index = end
+        elif source[index] == '"':
+            in_string = True
+            result[index] = " "
+            index += 1
+        else:
+            index += 1
+    if depth or in_string:
+        raise ValueError("unterminated Lean comment or string")
+    return "".join(result)
+
+
+def violations(source):
+    cleaned = code_without_comments_or_strings(source)
+    return [(cleaned.count("\n", 0, match.start()) + 1, match.group())
+            for match in FORBIDDEN.finditer(cleaned)]
+
+
+def main():
+    root = Path(__file__).resolve().parent.parent
+    files = sorted((root / "QubitCloning").rglob("*.lean"))
+    solution = root / "Solution.lean"
+    if not files or not solution.is_file():
+        print("Source guard requires QubitCloning/*.lean and Solution.lean", file=sys.stderr)
+        return 1
+    files.append(solution)
+    files.extend(sorted((root / "Test").rglob("*.lean")))
+    files.append(root / "Test.lean")
+    files.append(root / "QubitCloning.lean")
+    challenge = root / "Challenge.lean"
+    failures = 0
+    for path in files:
+        try:
+            found = violations(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, ValueError) as error:
+            print(f"{path.relative_to(root)}: {error}", file=sys.stderr)
+            failures += 1
+            continue
+        for line, token in found:
+            print(f"{path.relative_to(root)}:{line}: prohibited proof token {token}", file=sys.stderr)
+            failures += 1
+    try:
+        cleaned = code_without_comments_or_strings(challenge.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, ValueError) as error:
+        print(f"Challenge.lean: {error}", file=sys.stderr)
+        failures += 1
+    else:
+        for match in CHALLENGE_FORBIDDEN.finditer(cleaned):
+            line = cleaned.count("\n", 0, match.start()) + 1
+            print(f"Challenge.lean:{line}: prohibited token {match.group()}", file=sys.stderr)
+            failures += 1
+    lakefile = root / "lakefile.toml"
+    try:
+        options = lakefile.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as error:
+        print(f"lakefile.toml: {error}", file=sys.stderr)
+        failures += 1
+    else:
+        for number, text in enumerate(options.splitlines(), 1):
+            stripped = text.strip()
+            if LAKEFILE_DEBUG.search(text):
+                print(f"lakefile.toml:{number}: prohibited option or argument {stripped}", file=sys.stderr)
+                failures += 1
+    for script in sorted((root / "scripts").glob("*.py")):
+        bad = sorted({byte for byte in script.read_bytes() if byte < 32 and byte not in (9, 10, 13)})
+        if bad:
+            print(f"{script.relative_to(root)}: control characters {bad}", file=sys.stderr)
+            failures += 1
+    if failures:
+        return 1
+    print(f"Source guard passed for {len(files)} proof files, Challenge.lean (every token except sorry), "
+          "the lakefile options and the scripts' bytes.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
