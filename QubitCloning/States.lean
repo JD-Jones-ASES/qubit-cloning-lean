@@ -177,4 +177,121 @@ theorem proj_pauliVec_internal (s : Fin 6) : proj (pauliVec s) = pauliState s :=
 /-- The six vectors are unit vectors. -/
 theorem pauliVec_unit_internal (s : Fin 6) : star (pauliVec s) ⬝ᵥ pauliVec s = 1 := st_pauliVec_unit s
 
+/-! ## Extras for the neighbouring modules -/
+
+/-- A depolarizing first marginal fixes the first clone's fidelity on every unit vector. -/
+theorem st_F₁_of_marginal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (c d : ℝ)
+    (hm : ∀ ρ, traceSecond (krausApply K ρ) = (c : ℂ) • ρ + (d : ℂ) • Matrix.trace ρ • (1 : Matrix Q Q ℂ))
+    (ψ : Q → ℂ) (hψ : star ψ ⬝ᵥ ψ = 1) : F₁ K ψ = c + d := by
+  unfold F₁
+  rw [hm]
+  exact st_fidelity_depolarized ψ hψ c d
+
+/-- A depolarizing second marginal fixes the second clone's fidelity on every unit vector. -/
+theorem st_F₂_of_marginal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (c d : ℝ)
+    (hm : ∀ ρ, traceFirst (krausApply K ρ) = (c : ℂ) • ρ + (d : ℂ) • Matrix.trace ρ • (1 : Matrix Q Q ℂ))
+    (ψ : Q → ℂ) (hψ : star ψ ⬝ᵥ ψ = 1) : F₂ K ψ = c + d := by
+  unfold F₂
+  rw [hm]
+  exact st_fidelity_depolarized ψ hψ c d
+
+/-- A depolarizing first marginal fixes the first six-state average. -/
+theorem st_sixAvg₁_of_marginal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (c d : ℝ)
+    (hm : ∀ ρ, traceSecond (krausApply K ρ) = (c : ℂ) • ρ + (d : ℂ) • Matrix.trace ρ • (1 : Matrix Q Q ℂ)) :
+    sixAvg₁ K = c + d := by
+  have h : ∀ s, fidelity (pauliState s) (traceSecond (krausApply K (pauliState s))) = c + d := by
+    intro s
+    rw [← st_F₁_pauliVec]
+    exact st_F₁_of_marginal K c d hm _ (st_pauliVec_unit s)
+  unfold sixAvg₁
+  simp only [h, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+  push_cast
+  ring
+
+/-- A depolarizing second marginal fixes the second six-state average. -/
+theorem st_sixAvg₂_of_marginal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (c d : ℝ)
+    (hm : ∀ ρ, traceFirst (krausApply K ρ) = (c : ℂ) • ρ + (d : ℂ) • Matrix.trace ρ • (1 : Matrix Q Q ℂ)) :
+    sixAvg₂ K = c + d := by
+  have h : ∀ s, fidelity (pauliState s) (traceFirst (krausApply K (pauliState s))) = c + d := by
+    intro s
+    rw [← st_F₂_pauliVec]
+    exact st_F₂_of_marginal K c d hm _ (st_pauliVec_unit s)
+  unfold sixAvg₂
+  simp only [h, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+  push_cast
+  ring
+
+/-- `z̄ z = |z|²` with `star`. -/
+theorem st_star_mul_self (z : ℂ) : star z * z = ((Complex.normSq z : ℝ) : ℂ) := by
+  rw [Complex.normSq_eq_conj_mul_self]
+  rfl
+
+theorem st_one_apply_00 : (1 : Matrix Q Q ℂ) 0 0 = 1 := Matrix.one_apply_eq 0
+
+theorem st_one_apply_11 : (1 : Matrix Q Q ℂ) 1 1 = 1 := Matrix.one_apply_eq 1
+
+theorem st_one_apply_01 : (1 : Matrix Q Q ℂ) 0 1 = 0 := Matrix.one_apply_ne (by decide)
+
+theorem st_one_apply_10 : (1 : Matrix Q Q ℂ) 1 0 = 0 := Matrix.one_apply_ne (by decide)
+
+/-- The six Pauli eigenstates form a 2-design: `Σₛ ρₛ(a, b) ρₛ(c, d) = δ_ab δ_cd + δ_ad δ_cb`. -/
+theorem st_pauliState_design (a b c d : Q) :
+    ∑ s, pauliState s a b * pauliState s c d =
+      (1 : Matrix Q Q ℂ) a b * (1 : Matrix Q Q ℂ) c d + (1 : Matrix Q Q ℂ) a d * (1 : Matrix Q Q ℂ) c b := by
+  fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;> apply Complex.ext <;>
+    simp [pauliState, Fin.sum_univ_six] <;> norm_num
+
+/-- One Kraus operator: `krausApply ![A] ρ = A ρ Aᴴ`. -/
+theorem st_krausApply_single (A : Matrix QQ Q ℂ) (ρ : Matrix Q Q ℂ) :
+    krausApply ![A] ρ = A * ρ * Aᴴ := by
+  simp only [krausApply, Fin.sum_univ_one, Matrix.cons_val_zero]
+
+/-- The first-clone overlap of one Kraus operator as a quadratic form in `ρ`. -/
+theorem st_trace_traceSecond_single (A : Matrix QQ Q ℂ) (ρ : Matrix Q Q ℂ) :
+    Matrix.trace (ρ * traceSecond (A * ρ * Aᴴ)) =
+      ∑ a, ∑ b, ∑ c, ∑ d, ρ a b * ρ c d * ∑ k, A (b, k) c * star (A (a, k) d) := by
+  simp only [Matrix.trace_fin_two, Matrix.mul_apply, traceSecond, Matrix.of_apply,
+    Matrix.conjTranspose_apply, Fin.sum_univ_two]
+  ring
+
+/-- The second-clone overlap of one Kraus operator as a quadratic form in `ρ`. -/
+theorem st_trace_traceFirst_single (A : Matrix QQ Q ℂ) (ρ : Matrix Q Q ℂ) :
+    Matrix.trace (ρ * traceFirst (A * ρ * Aᴴ)) =
+      ∑ a, ∑ b, ∑ c, ∑ d, ρ a b * ρ c d * ∑ k, A (k, b) c * star (A (k, a) d) := by
+  simp only [Matrix.trace_fin_two, Matrix.mul_apply, traceFirst, Matrix.of_apply,
+    Matrix.conjTranspose_apply, Fin.sum_univ_two]
+  ring
+
+/-- The one-operator six-state sum of the first clone (the statement of `form_six_one`), by the 2-design. -/
+theorem st_six_one (K : Matrix QQ Q ℂ) :
+    6 * sixAvg₁ ![K] = ∑ x, ∑ i, Complex.normSq (K x i) + ∑ j, Complex.normSq (K (0, j) 0 + K (1, j) 1) := by
+  have hc : ∑ s, Matrix.trace (pauliState s * traceSecond (K * pauliState s * Kᴴ)) =
+      ∑ x, ∑ i, star (K x i) * K x i + ∑ j, star (K (0, j) 0 + K (1, j) 1) * (K (0, j) 0 + K (1, j) 1) := by
+    simp only [st_trace_traceSecond_single]
+    simp only [Fin.sum_univ_two, Finset.sum_add_distrib, ← Finset.sum_mul, st_pauliState_design,
+      st_one_apply_00, st_one_apply_01, st_one_apply_10, st_one_apply_11, Fintype.sum_prod_type, star_add]
+    ring
+  have e : 6 * sixAvg₁ ![K] = (∑ s, Matrix.trace (pauliState s * traceSecond (K * pauliState s * Kᴴ))).re := by
+    unfold sixAvg₁
+    simp only [st_krausApply_single, Complex.re_sum, fidelity]
+    ring
+  rw [e, hc]
+  simp only [st_star_mul_self, Complex.add_re, Complex.re_sum, Complex.ofReal_re]
+
+/-- The one-operator six-state sum of the second clone (the statement of `form_six_two`), by the 2-design. -/
+theorem st_six_two (K : Matrix QQ Q ℂ) :
+    6 * sixAvg₂ ![K] = ∑ x, ∑ i, Complex.normSq (K x i) + ∑ j, Complex.normSq (K (j, 0) 0 + K (j, 1) 1) := by
+  have hc : ∑ s, Matrix.trace (pauliState s * traceFirst (K * pauliState s * Kᴴ)) =
+      ∑ x, ∑ i, star (K x i) * K x i + ∑ j, star (K (j, 0) 0 + K (j, 1) 1) * (K (j, 0) 0 + K (j, 1) 1) := by
+    simp only [st_trace_traceFirst_single]
+    simp only [Fin.sum_univ_two, Finset.sum_add_distrib, ← Finset.sum_mul, st_pauliState_design,
+      st_one_apply_00, st_one_apply_01, st_one_apply_10, st_one_apply_11, Fintype.sum_prod_type, star_add]
+    ring
+  have e : 6 * sixAvg₂ ![K] = (∑ s, Matrix.trace (pauliState s * traceFirst (K * pauliState s * Kᴴ))).re := by
+    unfold sixAvg₂
+    simp only [st_krausApply_single, Complex.re_sum, fidelity]
+    ring
+  rw [e, hc]
+  simp only [st_star_mul_self, Complex.add_re, Complex.re_sum, Complex.ofReal_re]
+
 end QubitCloning
