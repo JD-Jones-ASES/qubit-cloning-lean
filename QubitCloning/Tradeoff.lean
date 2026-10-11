@@ -268,4 +268,48 @@ theorem tr_asym_isChannel (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) :
       Matrix.mul_smul, smul_smul]
     rw [hcC, ← smul_add]
 
+/-- `st_fidelity_depolarized`: `fidelity (proj ψ) (c • proj ψ + d • Tr(proj ψ) • 1) = c + d` for a unit `ψ`. -/
+theorem tr_fidelity_depolarized (ψ : Q → ℂ) (hψ : star ψ ⬝ᵥ ψ = 1) (c d : ℝ) :
+    fidelity (proj ψ) ((c : ℂ) • proj ψ + (d : ℂ) • Matrix.trace (proj ψ) • (1 : Matrix Q Q ℂ)) = c + d := by
+  have hP : proj ψ * proj ψ = proj ψ := by
+    rw [proj, Matrix.vecMulVec_mul_vecMulVec, hψ, one_smul]
+  have htr : Matrix.trace (proj ψ) = 1 := by
+    rw [proj, Matrix.trace_vecMulVec, dotProduct_comm, hψ]
+  rw [fidelity, htr, one_smul, Matrix.mul_add, Matrix.mul_smul, hP, Matrix.mul_smul, Matrix.mul_one,
+    Matrix.trace_add, Matrix.trace_smul, Matrix.trace_smul, htr]
+  simp
+
+/-- `proj_pauliVec_internal`: each Pauli eigenstate is the projector onto its unit vector. -/
+theorem tr_proj_pauliVec (s : Fin 6) : proj (pauliVec s) = pauliState s := by
+  have h2 : ((Real.sqrt 2 : ℂ))⁻¹ * ((Real.sqrt 2 : ℂ))⁻¹ = 1 / 2 := by
+    rw [← mul_inv, ← Complex.ofReal_mul, Real.mul_self_sqrt (by norm_num)]
+    push_cast
+    ring
+  ext i j
+  fin_cases s <;> fin_cases i <;> fin_cases j <;>
+    simp [proj, pauliVec, pauliState, Matrix.vecMulVec_apply, Complex.conj_ofReal]
+  all_goals first
+    | linear_combination h2
+    | linear_combination (-1 : ℂ) * h2
+    | linear_combination Complex.I * h2
+    | linear_combination (-Complex.I) * h2
+    | linear_combination h2 - ((Real.sqrt 2 : ℂ)⁻¹ * (Real.sqrt 2 : ℂ)⁻¹) * Complex.I_sq
+
+/-- `pauliVec_unit_internal`: the six vectors are unit vectors (the trace of `pauliState s` is `1`). -/
+theorem tr_pauliVec_unit (s : Fin 6) : star (pauliVec s) ⬝ᵥ pauliVec s = 1 := by
+  rw [dotProduct_comm, ← Matrix.trace_vecMulVec]
+  show Matrix.trace (proj (pauliVec s)) = 1
+  rw [tr_proj_pauliVec]
+  fin_cases s <;> simp [pauliState, Matrix.trace, Fin.sum_univ_two] <;> norm_num
+
+/-- `st_F₁_pauliVec`: the first clone's fidelity on the six vectors is the six-state term. -/
+theorem tr_F₁_pauliVec {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (s : Fin 6) :
+    F₁ K (pauliVec s) = fidelity (pauliState s) (traceSecond (krausApply K (pauliState s))) := by
+  rw [F₁, tr_proj_pauliVec]
+
+/-- `st_F₂_pauliVec`: the second clone's fidelity on the six vectors is the six-state term. -/
+theorem tr_F₂_pauliVec {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (s : Fin 6) :
+    F₂ K (pauliVec s) = fidelity (pauliState s) (traceFirst (krausApply K (pauliState s))) := by
+  rw [F₂, tr_proj_pauliVec]
+
 end QubitCloning
