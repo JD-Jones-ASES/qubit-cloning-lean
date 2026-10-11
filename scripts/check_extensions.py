@@ -333,6 +333,6 @@ check("E5 (9/10, 1/3) passes the square-root form but fails the full-range form"
       fake_f1 + fake_f2 - F(3, 2) <= 0 and
       fake_left > 0 and fake_left ** 2 > fake_rad)
 
-print(f"{CHECKS} exact extension checks, {len(FAILURES)} failures")
+print(f"{CHECKS} extension checks, {len(FAILURES)} failures")
 print("VERDICT: PASS" if not FAILURES else "VERDICT: FAIL")
 sys.exit(bool(FAILURES))
