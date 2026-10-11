@@ -62,3 +62,32 @@ the eight entries, and every identity is closed by `ring` after unfolding (the e
    `1 ≤ (2 + t) D₂` for every `t > 0`, so `D₂ ≥ 1/2` (`tr_of_bounds`). Applied to `asym_bound` and `asym_bound_forall` with
    `Dᵢ = 1 − F̄ᵢ` resp. `1 − fᵢ` this is `tradeoff_sqrt` and `tradeoff_forall`. Along the family with `a, b ≥ 0`, both
    sides equal `ab/(2s)` (`tradeoff_attained`).
+
+9. **The full-range necessary inequality** (`FullTradeoff.lean`). Let `N = Σᵢ ‖Kᵢ‖²`,
+   `U = Σᵢⱼ |uⱼ(Kᵢ)|²`, `V = Σᵢⱼ |vⱼ(Kᵢ)|²`, and
+   `C = Re Σᵢⱼ conjugate(uⱼ(Kᵢ)) vⱼ(Kᵢ)`. The exact Gram identity (`fr_gram_identity`) expresses
+   `3N − 2U − 2V + 2C` as four nonnegative squared moduli. Therefore `U + V − C ≤ 3` for a channel.
+   Cauchy–Schwarz (`fr_cauchy`) gives `C ≤ √(UV)`, while the six-state quadratic forms give
+   `U = 6F̄₁ − 2` and `V = 6F̄₂ − 2`. Dividing by two proves
+   `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))` (`tradeoff_full_sqrt`). This is necessity across
+   the full fidelity range, including clone/anticlone behavior. It is a direct proof of the qubit condition
+   described by Hashagen 2017, Theorem 6.4, and Nechita–Pellegrini–Rochette 2021, Theorem 6; it does not formalize
+   their converse realization result.
+10. **Signed bounds and extremizers** (`Signed.lean`). The polynomial identity `af_sos` only needs
+    `(2a+b)(a+2b) ≥ 0` for positivity, rather than `a,b ≥ 0` (`signed_asym_bound`). With strict product positivity,
+    every vanishing square gives the same null-space equations as in step 7; nonzero `a,b` make the
+    trace-preservation solve nonsingular (`eq_asym_of_signed_equality`). At `(a,b)=(3,−1)`, the support is
+    `3F̄₁ − 5F̄₂ ≤ 1`, attained uniquely by `Λ_{3,−1}` with averages `(13/14,5/14)`. To prove the floor companion
+    bound without a limit, suppose `F̄₂=1/3` and `d=F̄₁−5/6>0`; choose `a=1`, `b=3d/2−1/2`. The required product
+    is `9d(1+d)/2>0`, but the inequality's slack is `−3d²/2<0`. Thus `F̄₁≤5/6`; exchanging the output roles gives
+    the other bound. The existing channel `Λ_{2,−1}` attains `(5/6,1/3)` on every pure input.
+11. **Quantitative stability** (`Stability.lean`). The Hilbert–Schmidt orthogonal projection onto
+    `span{V₁,V₂}` has coefficients
+    `x=(2K(00,0)+K(01,1)+K(10,1))/6` and
+    `y=(K(01,0)+K(10,0)+2K(11,1))/3`. An exact identity (`sb_projection_distance`) identifies the residual squared norm.
+    The symmetric certificate equals twice this residual squared norm plus four nonnegative terms
+    (`sb_coercivity_identity`). Summing the certificate gives `12ε` for mean-fidelity deficit `ε`, hence total
+    squared distance at most `6ε` (`sb_channel_coercivity`, `kraus_span_stability`). The factor is sharp along
+    `Λ_{1+t,1−t}`. [STABILITY.md](STABILITY.md) gives the full derivation and separate handwritten Choi and
+    diamond-norm consequences; those norm consequences and the sharpness formulas are not additional Lean
+    theorems in the comparison list.

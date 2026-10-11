@@ -9,3 +9,6 @@ public import QubitCloning.AsymForm
 public import QubitCloning.Asym
 public import QubitCloning.AsymUnique
 public import QubitCloning.Tradeoff
+public import QubitCloning.Signed
+public import QubitCloning.FullTradeoff
+public import QubitCloning.Stability

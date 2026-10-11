@@ -45,7 +45,13 @@ run_cmd do
       `QubitCloning.asym_fidelity, `QubitCloning.asym_equality,
       `QubitCloning.eq_asym_of_equality, `QubitCloning.bhChannel_eq_asymChannel,
       `QubitCloning.tradeoff_sqrt, `QubitCloning.tradeoff_forall,
-      `QubitCloning.tradeoff_attained] do
+      `QubitCloning.tradeoff_attained, `QubitCloning.tradeoff_full_sqrt,
+      `QubitCloning.signed_asym_bound, `QubitCloning.eq_asym_of_signed_equality,
+      `QubitCloning.clone_anticlone_bound, `QubitCloning.clone_anticlone_attained,
+      `QubitCloning.eq_clone_anticlone_of_equality,
+      `QubitCloning.sixAvg₁_le_of_sixAvg₂_eq_third,
+      `QubitCloning.sixAvg₂_le_of_sixAvg₁_eq_third, `QubitCloning.floor_companion_attained,
+      `QubitCloning.kraus_span_stability] do
     unless env.contains n do
       logError m!"Compared theorem is missing from the environment: {n}"
   logInfo m!"Audited {checked} project constants; unexpected axiom dependencies: {rejected}."

@@ -293,4 +293,71 @@ theorem tradeoff_attained {r : ℕ} (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h
     (K : Fin r → Matrix QQ Q ℂ) (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) :
     sixAvg₁ K + sixAvg₂ K - 3 / 2 = Real.sqrt ((1 - sixAvg₁ K) * (1 - sixAvg₂ K)) := sorry
 
+/-! ## The full-range average-fidelity trade-off -/
+
+/-- The trade-off for the full fidelity range. Together with `F̄ᵢ ≥ 1/3`,
+this is the necessary inequality of the complete qubit cloning region:
+`3(F̄₁+F̄₂)-7/2 ≤ sqrt((3F̄₁-1)(3F̄₂-1))`.
+Only necessity is formalized; no converse realization theorem is asserted. -/
+theorem tradeoff_full_sqrt {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
+    (hK : IsChannel K) :
+    3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 ≤
+      Real.sqrt ((3 * sixAvg₁ K - 1) * (3 * sixAvg₂ K - 1)) := sorry
+
+/-! ## Signed supporting bounds and clone/anticlone extremizers -/
+
+/-- The asymmetric certificate bounds a signed fidelity objective whenever its
+complement coefficient `(2a + b)(a + 2b)` is nonnegative. -/
+theorem signed_asym_bound {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ)
+    (hP : 0 ≤ (2 * a + b) * (a + 2 * b)) : a * b ≤ a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) := sorry
+
+/-- For nonzero parameters and positive complement coefficient, equality in the
+signed bound forces the asymmetric channel as a map, including mixed-sign parameters. -/
+theorem eq_asym_of_signed_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (hP : 0 < (2 * a + b) * (a + 2 * b))
+    (ha : a ≠ 0) (hb : b ≠ 0) (h : a * b = a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K)) :
+    ∀ ρ, krausApply K ρ = asymChannel a b ρ := sorry
+
+/-- A sharp cloning-versus-anticloning inequality: `3 F̄₁ − 5 F̄₂ ≤ 1`. -/
+theorem clone_anticlone_bound {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
+    3 * sixAvg₁ K - 5 * sixAvg₂ K ≤ 1 := sorry
+
+/-- The mixed-sign asymmetric channel at `(3, -1)` attains the fidelity pair
+`(13/14, 5/14)`, and therefore the sharp bound `3 F̄₁ − 5 F̄₂ ≤ 1`. -/
+theorem clone_anticlone_attained :
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ sixAvg₁ K = 13 / 14 ∧ sixAvg₂ K = 5 / 14 := sorry
+
+/-- The channel attaining `3 F̄₁ − 5 F̄₂ = 1` is uniquely `Λ_{3,-1}`. -/
+theorem eq_clone_anticlone_of_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : 3 * sixAvg₁ K - 5 * sixAvg₂ K = 1) :
+    ∀ ρ, krausApply K ρ = asymChannel 3 (-1) ρ := sorry
+
+/-- If the second clone attains the universal-NOT floor, the first clone's average
+fidelity is at most `5/6`. -/
+theorem sixAvg₁_le_of_sixAvg₂_eq_third {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : sixAvg₂ K = 1 / 3) : sixAvg₁ K ≤ 5 / 6 := sorry
+
+/-- If the first clone attains the universal-NOT floor, the second clone's average
+fidelity is at most `5/6`. -/
+theorem sixAvg₂_le_of_sixAvg₁_eq_third {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : sixAvg₁ K = 1 / 3) : sixAvg₂ K ≤ 5 / 6 := sorry
+
+/-- The mixed-sign channel at `(2, -1)` simultaneously reaches the universal-NOT
+floor on its second output and the sharp companion fidelity `5/6` on its first,
+both in six-state average and on every pure input. -/
+theorem floor_companion_attained :
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ sixAvg₁ K = 5 / 6 ∧ sixAvg₂ K = 1 / 3 ∧
+      ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → F₁ K ψ = 5 / 6 ∧ F₂ K ψ = 1 / 3 := sorry
+
+/-! ## Quantitative stability of the optimal Kraus space -/
+
+/-- Quantitative stability in the optimal Kraus space: if a channel's six-state
+mean fidelity is at least `5/6 - ε`, every Kraus representation lies within
+total squared Hilbert–Schmidt distance `6 ε` of the Bužek–Hillery Kraus space. -/
+theorem kraus_span_stability {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
+    (hK : IsChannel K) (ε : ℝ)
+    (hε : 5 / 6 - ε ≤ (sixAvg₁ K + sixAvg₂ K) / 2) :
+    ∃ x y : Fin r → ℂ,
+      ∑ i, ∑ z, ∑ j,
+        Complex.normSq (K i z j - (x i • bhV₁ + y i • bhV₂) z j) ≤ 6 * ε := sorry
+
 end QubitCloning

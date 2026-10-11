@@ -7,7 +7,8 @@ In order: the pins (lean-toolchain and the Mathlib revision of lake-manifest.jso
 ones), the source guard and its subprocess controls for prohibited Lake options, the definition
 comparison between Challenge.lean and QubitCloning/Defs.lean, the
 statement comparison between Challenge.lean and Solution.lean, the standard-library replays
-scripts/check_cloning.py (every identity, exact where rational), the metadata (formalization.yaml parses;
+scripts/check_cloning.py and scripts/check_extensions.py (every identity, exact where rational,
+each under isolated Python and optimized isolated Python), the metadata (formalization.yaml parses;
 its title length, main results and alignment against comparator.json, every alignment status proved; no
 definition holes; no original-proof source), the Lean build of every target (including the Test audit, which fails on
 any axiom beyond propext, Classical.choice and Quot.sound), the module-resolution check, the
@@ -69,13 +70,24 @@ def check_script(name, args):
 
 
 def check_replay():
-    result = run([sys.executable, "-I", "scripts/check_cloning.py"], capture_output=True)
-    lines = result.stdout.strip().splitlines()
-    optimized = run([sys.executable, "-O", "-I", "scripts/check_cloning.py"], capture_output=True)
-    good = (result.returncode == 0 and lines[-1:] == ["VERDICT: PASS"] and optimized.returncode == 0
-            and optimized.stdout.strip().splitlines()[-1:] == ["VERDICT: PASS"])
-    return step("check_cloning.py (the standard-library replay of the identities, under -I and under -O -I)", good,
-                lines[-1] if lines else (result.stderr.strip().splitlines()[-1:] or [""])[0])
+    ok = True
+    for script in ("check_cloning.py", "check_extensions.py"):
+        results = [
+            ("-I", run([sys.executable, "-I", f"scripts/{script}"], capture_output=True)),
+            ("-O -I", run([sys.executable, "-O", "-I", f"scripts/{script}"],
+                          capture_output=True)),
+        ]
+        good = all(result.returncode == 0 and
+                   result.stdout.strip().splitlines()[-1:] == ["VERDICT: PASS"]
+                   for _, result in results)
+        details = []
+        for mode, result in results:
+            lines = (result.stdout + result.stderr).strip().splitlines()
+            details.append(f"{mode}: " + ("; ".join(lines[-2:]) if lines else
+                                          f"exited with status {result.returncode}, no output"))
+        ok &= step(f"{script} (standard-library replay under -I and -O -I)", good,
+                   " / ".join(details))
+    return ok
 
 
 def check_yaml():

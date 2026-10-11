@@ -2,7 +2,7 @@
 version: "v0.4"
 
 project:
-  name: "Universal 1 -> 2 qubit cloning: the single-clone fidelity bound 5/6 with the Buzek-Hillery channel as its unique optimum, the universal-NOT floor 1/3, and the asymmetric trade-off sqrt((1 - F1)(1 - F2)) >= F1 + F2 - 3/2 with its equality family"
+  name: "Universal 1 -> 2 qubit cloning: optimality, uniqueness, fidelity trade-offs, and quantitative stability"
   description: >-
     A Lean 4 development of the optimal universal 1 -> 2 cloning of a qubit, with every figure of merit
     finite: a channel from one qubit to two is a finite Kraus family K_i : C^2 -> C^2 (x) C^2 with
@@ -41,8 +41,13 @@ project:
     symmetrized channels); a = b is the Buzek-Hillery channel; hence the square-root form
     sqrt((1 - F1-bar)(1 - F2-bar)) >= F1-bar + F2-bar - 3/2 (Scarani-Iblisdir-Gisin-Acin 2005, (23)), its
     worst-case form, and equality along the family for a, b >= 0 (the curve of Niu-Griffiths (6.29)).
-    Twenty-seven compared statements over twenty fully specified definitions; the identities behind every
-    statement are replayed exactly in the standard library by scripts/check_cloning.py. As of 2026-10-11 no
+    The signed certificate extends to (2a + b)(a + 2b) >= 0, with uniqueness when the product is positive
+    and a,b are nonzero; the full-range necessary bound is 3(F1-bar + F2-bar) - 7/2 <=
+    sqrt((3F1-bar - 1)(3F2-bar - 1)). Sharp clone/anticlone examples include (13/14,5/14) and (5/6,1/3).
+    Mean fidelity at least 5/6 - epsilon gives total squared Frobenius distance at most 6 epsilon
+    from the Buzek-Hillery Kraus span. Thirty-seven compared statements over twenty fully specified
+    definitions; the certificates are replayed exactly in the standard library by scripts/check_cloning.py
+    (582 checks) and scripts/check_extensions.py (62 checks). As of 2026-10-11 no
     formalization of the fidelity bound, of the Buzek-Hillery marginals, of the uniqueness, of the floor or of any
     asymmetric trade-off was located in the Palomar registry, Mathlib, formal-conjectures, openai/math, physlib,
     Lean-QIT, QICLean, csd-lean4, atlas-lean, trureturing, JWang226/Cloning (asymptotic global-fidelity cloning,
@@ -273,28 +278,33 @@ sources:
       pp. 6-26: the figures of merit (3.1)-(3.5); the reduction to twirled channels (4.2); Theorem 5.5, (5.10), the
       optimal map; the uniqueness remark for d = 2 within symmetrized channels, p. 18; Theorem 6.4, the region by its
       polar (6.4a) and its upper boundary (6.4b); the floor (5.6b). The journal print was not read.
-    relationship: "background"
+    relationship: "formalizes"
     author_endorsement: "not-contacted"
     note: >-
       The full description of the achievable single-clone fidelities in every dimension; at d = 2 her (5.10) is
       asymChannel with alpha_2 = alpha, alpha_1 = beta, and 2 lambda_max of her (6.4a) is (a + b) + sqrt(a^2 - ab +
-      b^2). Nothing from it is formalized; her uniqueness is within symmetrized channels, the uniqueness here is over
-      all channels.
+      b^2). tradeoff_full_sqrt formalizes the qubit necessary inequality of the full region by a direct
+      Kraus Gram argument; general sufficiency is not formalized. Her uniqueness is within symmetrized
+      channels, while the equality proofs here concern all finite Kraus channels.
   - title: "A geometrical description of the universal 1 -> 2 asymmetric quantum cloning region"
     authors: ["Ion Nechita", "Clément Pellegrini", "Denis Rochette"]
     id: "doi:10.1007/s11128-021-03258-y"
     type: "paper"
     location: >-
       Quantum Information Processing (2021), doi:10.1007/s11128-021-03258-y; read as arXiv:2106.09655v1 (https://arxiv.org/abs/2106.09655),
-      pp. 1-6 and 9-13: Definition 2 (worst-case and Haar-average fidelity) and Theorem 4 (equal suprema); Theorem 5,
+      pp. 1-6 and 9-13: Definition 2 (worst-case and Haar-average fidelity) and Theorem 4 (equal suprema); Theorem 5
+      for the restricted four-permutation family,
       (1 - p_1)(1 - p_2)/d^2 >= ((p_1 + p_2 - 1)/2)^2 for singlet fractions p in [-1/(d^2 - 1), 1]; Theorem 6, the region
       as a union of ellipses; "can be chosen", p. 10. The journal print was not read.
-    relationship: "background"
+    relationship: "formalizes"
     author_endorsement: "not-contacted"
     note: >-
-      The full region in the singlet-fraction plane, negative singlet fractions included; at d = 2 their Theorem 5 is
-      the squared square-root form. Nothing from it is formalized, and the region beyond the trade-off curve (the
-      negative side) is not treated here; they claim no uniqueness.
+      The full region in the singlet-fraction plane, negative singlet fractions included; at d = 2 their Theorem 5
+      describes the restricted-family ellipse, whose upper arc agrees with the square-root trade-off. Squaring
+      the latter inequality without its sign condition would incorrectly restrict the full region. Theorem 6
+      describes the general region. tradeoff_full_sqrt proves its necessary qubit inequality,
+      including the negative side, by a direct Kraus Gram argument; it does not prove the
+      converse realization of every point. They claim no uniqueness.
   - title: "Optimal universal quantum cloning: asymmetries and fidelity measures"
     authors: ["Alastair Kay"]
     id: "arXiv:1407.4951"
@@ -309,12 +319,13 @@ sources:
     note: >-
       Asymmetric trade-offs under several fidelity measures; his (5) at d = 2 is the same curve (checked by the
       replay). Nothing from it is formalized; no uniqueness of the map.
-  - title: "Optimal cloning of pure states: the two-qubit case"
-    authors: ["Benjamin Roubert", "Daniel Braun"]
+  - title: "Role of interference in quantum cloning"
+    authors: ["Benoit Roubert", "Daniel Braun"]
     id: "doi:10.1103/PhysRevA.78.042311"
     type: "paper"
     location: >-
-      Physical Review A 78 (2008), 042311; read as arXiv:0807.1657 (https://arxiv.org/abs/0807.1657), pp. 6-12: the
+      Physical Review A 78 (2008), 042311; the arXiv title is "Quantum Cloning without Interference".
+      Read as arXiv:0807.1657 (https://arxiv.org/abs/0807.1657), pp. 6-12: the
       two-qubit machines and their average fidelities (6)-(7); the 64-parameter family (20)-(22) with the same
       reduced states as Bužek-Hillery, (24); the numerical floor F >= 1/3 within a restricted class, p. 9. The journal
       print was not read.
@@ -420,7 +431,7 @@ related_formalizations:
 
 status:
   scope: >-
-    Twenty-seven compared theorems over twenty compared definitions (namespace QubitCloning): the six Pauli
+    Thirty-seven compared theorems over twenty fully specified definitions (namespace QubitCloning): the six Pauli
     eigenstates as projectors of their unit vectors (2); Gisin-Massar's bound (F1-bar + F2-bar)/2 <= 5/6 for every
     channel and its pointwise consequence (2); the floor F-bar >= 1/3 and its attainment (2); the Buzek-Hillery
     channel as a Kraus family, its trace preservation, its two marginals, its fidelities 5/6 on every unit vector and
@@ -429,7 +440,9 @@ status:
     for all a, b >= 0 and its worst-case form (2); the asymmetric family as a Kraus family, its two marginals, its
     fidelities and its equality in the bound (5); uniqueness of the asymmetric optimum for a, b > 0 (1); the
     Buzek-Hillery channel as the symmetric member (1); the square-root form of the trade-off, its worst-case form
-    and its equality along the family (3). All proved; no sorry, no axiom beyond propext, Classical.choice and
+    and its equality along the family (3); the necessary full-range trade-off (1); signed supporting
+    bounds and uniqueness (2); clone/anticlone support, attainment and uniqueness (3); sharp floor
+    companion bounds and pointwise attainment (3); quantitative Kraus-span stability (1). All proved; no sorry, no axiom beyond propext, Classical.choice and
     Quot.sound; no native_decide; Lean v4.35.0-rc2 with Mathlib at the same tag, pinned by the committed manifest.
   completeness: "complete"
   main_results:
@@ -569,6 +582,57 @@ status:
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator.json"
 
+    - declaration: "QubitCloning.tradeoff_full_sqrt"
+      file: "Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+    - declaration: "QubitCloning.signed_asym_bound"
+      file: "Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+    - declaration: "QubitCloning.eq_asym_of_signed_equality"
+      file: "Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+    - declaration: "QubitCloning.clone_anticlone_bound"
+      file: "Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+    - declaration: "QubitCloning.clone_anticlone_attained"
+      file: "Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+    - declaration: "QubitCloning.eq_clone_anticlone_of_equality"
+      file: "Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+    - declaration: "QubitCloning.sixAvg₁_le_of_sixAvg₂_eq_third"
+      file: "Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+    - declaration: "QubitCloning.sixAvg₂_le_of_sixAvg₁_eq_third"
+      file: "Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+    - declaration: "QubitCloning.floor_companion_attained"
+      file: "Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+    - declaration: "QubitCloning.kraus_span_stability"
+      file: "Solution.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator.json"
+
 automation:
   methods:
     - method: "agent"
@@ -581,10 +645,23 @@ automation:
         by Claude Fable 5.1 and Claude Opus 5.5 subagents in Claude Code, with the proofs audited in separate
         passes. Lean v4.35.0-rc2 and Mathlib v4.35.0-rc2 (commit
         065356127b1dc0016f66b7283ce0ce2c4055aa55) are pinned by the committed manifest and lake update is never run;
-        there are no GitHub Actions workflows. There is no native_decide and no decide +kernel: the proofs are
+        the review adds a pinned GitHub Actions verification workflow (not yet run upstream). There is no
+        native_decide and no decide +kernel: the proofs are
         polynomial identities in the real and imaginary parts of the Kraus entries closed by ring and
         linear_combination, entrywise computations over Fin 2 x Fin 2 and Fin 6 by fin_cases and simp, and real
         analysis with Real.sqrt for the square-root form.
+    - method: "agent"
+      models: ["GPT-6 Astra Pro (OpenAI)"]
+      framework: "ChatGPT with parallel review and proof subagents"
+      tool_setup: >-
+        On 2026-10-11, an OpenAI-assisted consultation audited the original commit, corrected the
+        bibliography and audit-floor documentation, added ten statements in FullTradeoff, Signed
+        and Stability, extended the exact replay, synchronized the Challenge and Solution, and
+        prepared CI and review documentation. The pinned official Lean frontend was invoked at
+        trust level 0 from a Lake script because the normal Lean launcher cannot resolve its
+        executable in this execution environment. Mathlib used the exact pinned official cache.
+        VERIFICATION.md and REVIEW_VALIDATION.md distinguish this validation from normal CI and
+        the registry Comparator/NanoDa gate. No upstream change or human endorsement is claimed.
   spend_usd: "not tracked"
 
 fidelity:
@@ -613,8 +690,12 @@ fidelity:
     Buzek-Hillery-Werner state the worst-case form and Gisin-Popescu the Bloch-average form. The square-root
     statements use Real.sqrt and hold with Lean's Real.sqrt of a negative number equal to 0, the hypotheses being
     those printed; tradeoff_forall is stated for every f_1, f_2 with f_i <= F_i(psi) on every unit psi, the
-    nonnegativity of 1 - f_i being a consequence. The region beyond the trade-off curve (both clones below 1/2,
-    Nechita-Pellegrini-Rochette's negative singlet fractions) is not treated.
+    nonnegativity of 1 - f_i being a consequence. The full-range necessary inequality now includes average fidelities below 1/2; a converse
+    theorem realizing every point is not formalized. Signed bounds and the full-range inequality
+    concern actual averages and cannot be transferred to arbitrary pointwise lower bounds by
+    monotonicity. The stability theorem bounds distance to the fixed Kraus span; the sharpness
+    example and the Choi and diamond-norm consequences in STABILITY.md are handwritten results,
+    not additional Lean statements.
 
 review:
   status: "self-assessed"
@@ -622,13 +703,14 @@ review:
     No independent human expert review and no source-author endorsement is claimed; AI agents wrote the proofs
     and audited them in separate passes, the statements were checked against the printed pages of the papers by
     a separate reading pass, the identities behind every statement are replayed exactly by scripts/check_cloning.py
-    in the standard library, and VERIFICATION.md states what is checked and what is not. Mechanical correctness and
+    and scripts/check_extensions.py in the standard library, and VERIFICATION.md states what is checked and what is not. Mechanical correctness and
     agreement of formal statements do not establish significance: the bound is Gisin-Massar's, the channel and
     its fidelity Buzek-Hillery's, the asymmetric bound, the family and its fidelities Fiurasek-Filip-Cerf's
     (the curve Niu-Griffiths's, the conic Cerf's), the square-root form Scarani-Iblisdir-Gisin-Acin's, the floor
     Buzek-Hillery-Werner's and Gisin-Popescu's; what this development adds is the six-state form, the explicit
     sums of squares in the Kraus entries, the homogeneous weight form, and the uniqueness statements under the
-    average-fidelity criterion (Keyl-Werner's uniqueness is for the trace-norm one-clone criterion, Werner's for
+    average-fidelity criterion, the signed-weight boundary results, and quantitative Kraus-span stability
+    (Keyl-Werner's uniqueness is for the trace-norm one-clone criterion, Werner's for
     the global criterion, Hashagen's within symmetrized channels). No earlier kernel check of any of these
     statements was found by the dated searches (Palomar's feed and day index, Mathlib, formal-conjectures,
     openai/math, physlib, Lean-QIT, QICLean, csd-lean4, atlas-lean, trureturing, JWang226/Cloning, lean-eval,
@@ -776,3 +858,53 @@ alignment:
       module: "Solution"
       status: "proved"
       note: "The asymmetric cloners with `a, b ≥ 0` lie on the trade-off curve: equality in the square-root form (the curve of Niu–Griffiths 1998, Eq. (6.29))."
+    - source: "Hashagen 2017, Theorem 6.4; Nechita-Pellegrini-Rochette 2021, Theorem 6, qubit necessity; direct Gram proof in this development"
+      lean: "QubitCloning.tradeoff_full_sqrt"
+      module: "Solution"
+      status: "proved"
+      note: "The actual six-state averages satisfy 3(F1-bar + F2-bar) - 7/2 <= sqrt((3F1-bar - 1)(3F2-bar - 1)); no converse realization theorem is asserted."
+    - source: "This development (signed extension of the homogeneous Kraus sum-of-squares certificate)"
+      lean: "QubitCloning.signed_asym_bound"
+      module: "Solution"
+      status: "proved"
+      note: "The homogeneous supporting bound holds for arbitrary real a,b when (2a+b)(a+2b) >= 0."
+    - source: "This development (signed equality-case analysis of the same Kraus certificate)"
+      lean: "QubitCloning.eq_asym_of_signed_equality"
+      module: "Solution"
+      status: "proved"
+      note: "Equality uniquely identifies asymChannel a b if (2a+b)(a+2b) > 0 and both parameters are nonzero."
+    - source: "This development (signed support at a = 3, b = -1)"
+      lean: "QubitCloning.clone_anticlone_bound"
+      module: "Solution"
+      status: "proved"
+      note: "Every channel satisfies 3 F1-bar - 5 F2-bar <= 1."
+    - source: "This development (the existing asymmetric family at a = 3, b = -1)"
+      lean: "QubitCloning.clone_anticlone_attained"
+      module: "Solution"
+      status: "proved"
+      note: "A two-Kraus channel attains the average-fidelity pair (13/14, 5/14)."
+    - source: "This development (uniqueness of the signed support at a = 3, b = -1)"
+      lean: "QubitCloning.eq_clone_anticlone_of_equality"
+      module: "Solution"
+      status: "proved"
+      note: "Equality in 3 F1-bar - 5 F2-bar <= 1 forces the channel asymChannel 3 (-1)."
+    - source: "This development (sharp companion bound at the universal-NOT floor)"
+      lean: "QubitCloning.sixAvg₁_le_of_sixAvg₂_eq_third"
+      module: "Solution"
+      status: "proved"
+      note: "If the second average fidelity is 1/3 then the first is at most 5/6."
+    - source: "This development (sharp companion bound with outputs exchanged)"
+      lean: "QubitCloning.sixAvg₂_le_of_sixAvg₁_eq_third"
+      module: "Solution"
+      status: "proved"
+      note: "If the first average fidelity is 1/3 then the second is at most 5/6."
+    - source: "This development (the existing asymmetric family at a = 2, b = -1)"
+      lean: "QubitCloning.floor_companion_attained"
+      module: "Solution"
+      status: "proved"
+      note: "A two-Kraus channel attains fidelities (5/6, 1/3) on every pure input and in the six-state averages."
+    - source: "This development (quantitative coercivity of the symmetric Kraus certificate)"
+      lean: "QubitCloning.kraus_span_stability"
+      module: "Solution"
+      status: "proved"
+      note: "Mean fidelity at least 5/6 - epsilon implies a Kraus-span approximation with total squared Frobenius error at most 6 epsilon; sharpness and full-channel norm consequences are separate handwritten results."

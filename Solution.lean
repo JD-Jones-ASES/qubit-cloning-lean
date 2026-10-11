@@ -134,4 +134,53 @@ theorem tradeoff_attained {r : ℕ} (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h
     sixAvg₁ K + sixAvg₂ K - 3 / 2 = Real.sqrt ((1 - sixAvg₁ K) * (1 - sixAvg₂ K)) :=
   tradeoff_attained_internal a b ha hb h K hK
 
+theorem tradeoff_full_sqrt {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
+    (hK : IsChannel K) :
+    3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 ≤
+      Real.sqrt ((3 * sixAvg₁ K - 1) * (3 * sixAvg₂ K - 1)) :=
+  tradeoff_full_sqrt_internal K hK
+
+theorem signed_asym_bound {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ)
+    (hP : 0 ≤ (2 * a + b) * (a + 2 * b)) : a * b ≤ a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) :=
+  signed_asym_bound_internal K hK a b hP
+
+theorem eq_asym_of_signed_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (hP : 0 < (2 * a + b) * (a + 2 * b))
+    (ha : a ≠ 0) (hb : b ≠ 0) (h : a * b = a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K)) :
+    ∀ ρ, krausApply K ρ = asymChannel a b ρ :=
+  eq_asym_of_signed_equality_internal K hK a b hP ha hb h
+
+theorem clone_anticlone_bound {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
+    3 * sixAvg₁ K - 5 * sixAvg₂ K ≤ 1 :=
+  clone_anticlone_bound_internal K hK
+
+theorem clone_anticlone_attained :
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ sixAvg₁ K = 13 / 14 ∧ sixAvg₂ K = 5 / 14 :=
+  clone_anticlone_attained_internal
+
+theorem eq_clone_anticlone_of_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : 3 * sixAvg₁ K - 5 * sixAvg₂ K = 1) :
+    ∀ ρ, krausApply K ρ = asymChannel 3 (-1) ρ :=
+  eq_clone_anticlone_of_equality_internal K hK h
+
+theorem sixAvg₁_le_of_sixAvg₂_eq_third {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : sixAvg₂ K = 1 / 3) : sixAvg₁ K ≤ 5 / 6 :=
+  sixAvg₁_le_of_sixAvg₂_eq_third_internal K hK h
+
+theorem sixAvg₂_le_of_sixAvg₁_eq_third {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : sixAvg₁ K = 1 / 3) : sixAvg₂ K ≤ 5 / 6 :=
+  sixAvg₂_le_of_sixAvg₁_eq_third_internal K hK h
+
+theorem floor_companion_attained :
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ sixAvg₁ K = 5 / 6 ∧ sixAvg₂ K = 1 / 3 ∧
+      ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → F₁ K ψ = 5 / 6 ∧ F₂ K ψ = 1 / 3 :=
+  floor_companion_attained_internal
+
+theorem kraus_span_stability {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
+    (hK : IsChannel K) (ε : ℝ)
+    (hε : 5 / 6 - ε ≤ (sixAvg₁ K + sixAvg₂ K) / 2) :
+    ∃ x y : Fin r → ℂ,
+      ∑ i, ∑ z, ∑ j,
+        Complex.normSq (K i z j - (x i • bhV₁ + y i • bhV₂) z j) ≤ 6 * ε :=
+  kraus_span_stability_internal K hK ε hε
+
 end QubitCloning
