@@ -3,14 +3,9 @@ module
 public import QubitCloning.AsymForm
 
 /-!
-# A trade-off valid across the full fidelity range
+# FullTradeoff
 
-The ordinary error-form trade-off loses information when a marginal fidelity
-is below one half. A Gram identity and Cauchy–Schwarz give the necessary
-inequality for the full region, including the clone/anticlone boundary.
-This is the qubit specialization of the region described by Hashagen (2017)
-and Nechita–Pellegrini–Rochette (2021), proved here directly on Kraus entries.
-The converse realization of every point in that region is not asserted here.
+The full-range trade-off `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))`, from the Gram identity and Cauchy–Schwarz, and its two corollaries at the universal-NOT floor. Every public theorem is the `_internal` twin of a Challenge statement (header verbatim) or a helper prefixed `fr_`.
 -/
 
 @[expose] public section
@@ -28,8 +23,9 @@ def fr_u (K : Matrix QQ Q ℂ) (j : Q) : ℂ :=
 def fr_v (K : Matrix QQ Q ℂ) (j : Q) : ℂ :=
   K (j, 0) 0 + K (j, 1) 1
 
-/-- The Gram inverse of the two contraction vectors is
-`(1/3) * !![2,-1;-1,2]`. Its orthogonal complement has four squares. -/
+/-- The Gram identity: with `uⱼ = K (0, j) 0 + K (1, j) 1` and `vⱼ = K (j, 0) 0 + K (j, 1) 1`,
+`3‖K‖² − 2 Σⱼ |uⱼ|² − 2 Σⱼ |vⱼ|² + 2 Σⱼ Re(ūⱼ vⱼ) = 3|K (1,1) 0|² + 3|K (0,0) 1|²
+  + |K (0,0) 0 − K (1,0) 1 − K (0,1) 1|² + |K (1,1) 1 − K (0,1) 0 − K (1,0) 0|²`. -/
 theorem fr_gram_identity (K : Matrix QQ Q ℂ) :
     3 * (∑ x, ∑ i, Complex.normSq (K x i)) -
       2 * (∑ j, Complex.normSq (fr_u K j)) -
@@ -60,10 +56,8 @@ theorem fr_cauchy {ι : Type*} [Fintype ι] (u v : ι → ℂ) :
       simp only [Complex.normSq_eq_norm_sq]
       rw [Real.sqrt_mul (Finset.sum_nonneg fun j _ => sq_nonneg _)]
 
-/-- The trade-off for the full fidelity range. Together with `F̄ᵢ ≥ 1/3`,
-this is the necessary inequality of the complete qubit cloning region:
-`3(F̄₁+F̄₂)-7/2 ≤ sqrt((3F̄₁-1)(3F̄₂-1))`.
-Only necessity is formalized; no converse realization theorem is asserted. -/
+/-- For every channel, `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))`: the full-range trade-off, which
+binds where a clone's average fidelity is below `1/2` (the square-root form does not). -/
 theorem tradeoff_full_sqrt_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
     (hK : IsChannel K) :
     3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 ≤
@@ -71,10 +65,6 @@ theorem tradeoff_full_sqrt_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
   let U := ∑ i, ∑ j, Complex.normSq (fr_u (K i) j)
   let V := ∑ i, ∑ j, Complex.normSq (fr_v (K i) j)
   let C := ∑ i, ∑ j, (star (fr_u (K i) j) * fr_v (K i) j).re
-  have hU : 0 ≤ U := Finset.sum_nonneg fun i _ =>
-    Finset.sum_nonneg fun j _ => Complex.normSq_nonneg _
-  have hV : 0 ≤ V := Finset.sum_nonneg fun i _ =>
-    Finset.sum_nonneg fun j _ => Complex.normSq_nonneg _
   have hc : C ≤ Real.sqrt (U * V) := by
     simpa only [Fintype.sum_prod_type] using
       fr_cauchy (fun p : Fin r × Q => fr_u (K p.1) p.2)
@@ -107,6 +97,22 @@ theorem tradeoff_full_sqrt_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
       show V = 6 * sixAvg₂ K - 2 by linarith]
     ring
   rw [hprod, Real.sqrt_mul (by norm_num), Real.sqrt_sq (by norm_num)] at hc
+  linarith
+
+/-- If the second clone attains the universal-NOT floor, the first clone's average
+fidelity is at most `5/6`. -/
+theorem sixAvg₁_le_of_sixAvg₂_eq_third_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : sixAvg₂ K = 1 / 3) : sixAvg₁ K ≤ 5 / 6 := by
+  have ht := tradeoff_full_sqrt_internal K hK
+  rw [h, show (3 : ℝ) * (1 / 3) - 1 = 0 by norm_num, mul_zero, Real.sqrt_zero] at ht
+  linarith
+
+/-- If the first clone attains the universal-NOT floor, the second clone's average
+fidelity is at most `5/6`. -/
+theorem sixAvg₂_le_of_sixAvg₁_eq_third_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : sixAvg₁ K = 1 / 3) : sixAvg₂ K ≤ 5 / 6 := by
+  have ht := tradeoff_full_sqrt_internal K hK
+  rw [h, show (3 : ℝ) * (1 / 3) - 1 = 0 by norm_num, zero_mul, Real.sqrt_zero] at ht
   linarith
 
 end QubitCloning

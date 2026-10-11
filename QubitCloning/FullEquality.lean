@@ -119,7 +119,7 @@ theorem fe_channel_of_kernel {r : ℕ} (a b : ℝ) (ha : a ≠ 0) (hb : b ≠ 0)
     intro i
     obtain ⟨c1, c2, c3, c4⟩ := fe_squares K hK hg i
     exact au_kraus_eq a b ha (K i) c1 c2 c3 c4 (huv i 0) (huv i 1)
-  exact sg_channel_of_span a b ha hb K hK _ _ hdec
+  exact au_eq_asym_of_span a b ha hb K hK _ _ hdec
 
 /-- Along the asymmetric family with `(2a + b)(a + 2b) ≥ 0` the full-range trade-off is an equality: both
 sides equal `(2a + b)(a + 2b)/(2(a² + ab + b²))`. -/
@@ -180,7 +180,7 @@ theorem eq_asym_of_floor₁_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (
 
 /-- Equality in the full-range trade-off away from the perfect-clone endpoints forces a member of the
 asymmetric family with both weights nonzero and `(2a + b)(a + 2b) ≥ 0`: the boundary arc of the region
-is the family. (At the endpoints `F̄₁ = 1` or `F̄₂ = 1` the channel is not unique.) -/
+is the family. -/
 theorem eq_asym_of_tradeoff_full_equality_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
     (h : 3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 =
       Real.sqrt ((3 * sixAvg₁ K - 1) * (3 * sixAvg₂ K - 1)))
@@ -254,7 +254,7 @@ theorem eq_asym_of_tradeoff_full_equality_internal {r : ℕ} (K : Fin r → Matr
   rw [hab1, hab2]
   exact hv0 i j
 
-/-- A perfect first clone on average forces the second output's average fidelity to be exactly `1/2`. -/
+/-- A perfect first clone on average forces the second output's average fidelity to be `1/2`. -/
 theorem sixAvg₂_eq_half_of_sixAvg₁_eq_one_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
     (h : sixAvg₁ K = 1) : sixAvg₂ K = 1 / 2 := by
   have ht := tradeoff_full_sqrt_internal K hK
@@ -268,7 +268,7 @@ theorem sixAvg₂_eq_half_of_sixAvg₁_eq_one_internal {r : ℕ} (K : Fin r → 
   have h1 := (pow_eq_zero_iff two_ne_zero).mp h0
   linarith
 
-/-- A perfect second clone on average forces the first output's average fidelity to be exactly `1/2`. -/
+/-- A perfect second clone on average forces the first output's average fidelity to be `1/2`. -/
 theorem sixAvg₁_eq_half_of_sixAvg₂_eq_one_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
     (h : sixAvg₂ K = 1) : sixAvg₁ K = 1 / 2 := by
   have ht := tradeoff_full_sqrt_internal K hK

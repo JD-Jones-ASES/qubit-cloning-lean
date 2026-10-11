@@ -54,13 +54,13 @@ theorem af_weighted_eq {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel
   linear_combination (a * (a + 2 * b)) * h1 + (b * (2 * a + b)) * h2
     + (a * (a + 2 * b) + b * (2 * a + b)) * hN
 
-/-- The asymmetric cloning bound: for every channel and all weights `a, b ≥ 0`,
-`a b ≤ a (a + 2b) (1 − F̄₁) + b (2a + b) (1 − F̄₂)`. -/
-theorem asym_bound_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (ha : 0 ≤ a)
-    (hb : 0 ≤ b) : a * b ≤ a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) := by
+/-- The asymmetric bound for all real weights with `(2a + b)(a + 2b) ≥ 0`, where every operator's
+certificate is a sum of nonnegative terms: `a b ≤ a (a + 2b) (1 − F̄₁) + b (2a + b) (1 − F̄₂)`. -/
+theorem af_bound_of_nonneg {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ)
+    (hP : 0 ≤ (2 * a + b) * (a + 2 * b)) :
+    a * b ≤ a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) := by
   have hN := st_isChannel_normSq_sum K hK
   have hW := af_weighted_eq K hK a b
-  have hab : 0 ≤ (2 * a + b) * (a + 2 * b) := mul_nonneg (by linarith) (by linarith)
   have hS : 0 ≤ ∑ i, ((2 * a + b) * (a + 2 * b) * ∑ x, ∑ j, Complex.normSq (K i x j)
         - a * (a + 2 * b) * ∑ j, Complex.normSq (K i (0, j) 0 + K i (1, j) 1)
         - b * (2 * a + b) * ∑ j, Complex.normSq (K i (j, 0) 0 + K i (j, 1) 1)) := by
@@ -69,7 +69,7 @@ theorem asym_bound_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsCh
     rw [af_sos a b (K i)]
     apply add_nonneg
     · exact mul_nonneg (by norm_num) (Finset.sum_nonneg (fun j _ => Complex.normSq_nonneg _))
-    · refine mul_nonneg hab ?_
+    · refine mul_nonneg hP ?_
       have h3 : (0 : ℝ) < 3 := by norm_num
       exact add_nonneg (add_nonneg (add_nonneg (Complex.normSq_nonneg _) (Complex.normSq_nonneg _))
         (div_nonneg (Complex.normSq_nonneg _) h3.le)) (div_nonneg (Complex.normSq_nonneg _) h3.le)
@@ -83,6 +83,12 @@ theorem asym_bound_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsCh
     exact Finset.sum_congr rfl (fun i _ => by ring)
   rw [hS', hN] at hS
   linarith
+
+/-- The asymmetric cloning bound: for every channel and all weights `a, b ≥ 0`,
+`a b ≤ a (a + 2b) (1 − F̄₁) + b (2a + b) (1 − F̄₂)`. -/
+theorem asym_bound_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (ha : 0 ≤ a)
+    (hb : 0 ≤ b) : a * b ≤ a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) :=
+  af_bound_of_nonneg K hK a b (mul_nonneg (by linarith) (by linarith))
 
 /-- The same bound for worst-case fidelities: if `f₁ ≤ F₁(ψ)` and `f₂ ≤ F₂(ψ)` for every unit `ψ`, then
 `a b ≤ a (a + 2b) (1 − f₁) + b (2a + b) (1 − f₂)`. -/

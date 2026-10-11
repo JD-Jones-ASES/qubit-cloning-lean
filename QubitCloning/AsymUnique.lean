@@ -64,8 +64,9 @@ theorem au_expand_kraus (P R : Matrix QQ Q ℂ) (ρ : Matrix Q Q ℂ) (x y : ℂ
     Matrix.mul_smul, smul_add, smul_smul]
   module
 
-/-- The vanishing of the certificate's right-hand side for one operator gives the six linear conditions. -/
-theorem au_conditions (a b : ℝ) (ha : 0 < a) (hb : 0 < b) (K : Matrix QQ Q ℂ)
+/-- The vanishing of the certificate's right-hand side for one operator gives the six linear conditions when
+`(2a + b)(a + 2b) > 0`. -/
+theorem au_conditions (a b : ℝ) (hP : 0 < (2 * a + b) * (a + 2 * b)) (K : Matrix QQ Q ℂ)
     (h : (1 / 3) * ∑ j, Complex.normSq (((a + 2 * b : ℝ) : ℂ) * (K (0, j) 0 + K (1, j) 1)
           - ((2 * a + b : ℝ) : ℂ) * (K (j, 0) 0 + K (j, 1) 1))
         + (2 * a + b) * (a + 2 * b) * (Complex.normSq (K (1, 1) 0) + Complex.normSq (K (0, 0) 1)
@@ -76,7 +77,6 @@ theorem au_conditions (a b : ℝ) (ha : 0 < a) (hb : 0 < b) (K : Matrix QQ Q ℂ
       ((a + 2 * b : ℝ) : ℂ) * (K (0, 0) 0 + K (1, 0) 1) - ((2 * a + b : ℝ) : ℂ) * (K (0, 0) 0 + K (0, 1) 1) = 0 ∧
       ((a + 2 * b : ℝ) : ℂ) * (K (0, 1) 0 + K (1, 1) 1) - ((2 * a + b : ℝ) : ℂ) * (K (1, 0) 0 + K (1, 1) 1) = 0 := by
   rw [Fin.sum_univ_two] at h
-  have hP : 0 < (2 * a + b) * (a + 2 * b) := by positivity
   have n1 := Complex.normSq_nonneg (K (1, 1) 0)
   have n2 := Complex.normSq_nonneg (K (0, 0) 1)
   have n3 := Complex.normSq_nonneg (K (0, 0) 0 - K (1, 0) 1 - K (0, 1) 1)
@@ -130,49 +130,11 @@ theorem au_kraus_eq (a b : ℝ) (ha : a ≠ 0) (K : Matrix QQ Q ℂ) (c1 : K (1,
   fin_cases p <;> fin_cases q <;> fin_cases i <;>
     simp [asymA₀, asymA₁, h00, h01, h10, h11, c1, c2, ha']
 
-/-- Uniqueness of the asymmetric optimum: for `a, b > 0`, a channel with equality in the bound at the weights
-`(a, b)` is the asymmetric cloner `Λ_{a,b}` as a map. -/
-theorem eq_asym_of_equality_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (ha : 0 < a)
-    (hb : 0 < b) (h : a * b = a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K)) :
+/-- The trace-preservation solve: a channel whose Kraus operators all lie in `span{A₀, A₁}` (with `a, b ≠ 0`)
+is the asymmetric cloner `Λ_{a,b}` as a map. -/
+theorem au_eq_asym_of_span {r : ℕ} (a b : ℝ) (ha : a ≠ 0) (hb : b ≠ 0) (K : Fin r → Matrix QQ Q ℂ)
+    (hK : IsChannel K) (x y : Fin r → ℂ) (hxy : ∀ i, K i = x i • asymA₀ a b + y i • asymA₁ a b) :
     ∀ ρ, krausApply K ρ = asymChannel a b ρ := by
-  have hP : 0 < (2 * a + b) * (a + 2 * b) := by positivity
-  -- the certificate's right-hand side, operator by operator
-  obtain ⟨R, hR⟩ : ∃ R : Fin r → ℝ, ∀ i, R i =
-      (1 / 3) * ∑ j, Complex.normSq (((a + 2 * b : ℝ) : ℂ) * (K i (0, j) 0 + K i (1, j) 1)
-          - ((2 * a + b : ℝ) : ℂ) * (K i (j, 0) 0 + K i (j, 1) 1))
-        + (2 * a + b) * (a + 2 * b) * (Complex.normSq (K i (1, 1) 0) + Complex.normSq (K i (0, 0) 1)
-          + Complex.normSq (K i (0, 0) 0 - K i (1, 0) 1 - K i (0, 1) 1) / 3
-          + Complex.normSq (K i (1, 1) 1 - K i (0, 1) 0 - K i (1, 0) 0) / 3) := ⟨_, fun i => rfl⟩
-  have hsos : ∀ i, (2 * a + b) * (a + 2 * b) * ∑ x, ∑ j, Complex.normSq (K i x j)
-        - a * (a + 2 * b) * ∑ j, Complex.normSq (K i (0, j) 0 + K i (1, j) 1)
-        - b * (2 * a + b) * ∑ j, Complex.normSq (K i (j, 0) 0 + K i (j, 1) 1) = R i := by
-    intro i
-    rw [hR i]
-    exact af_sos a b (K i)
-  have hRnn : ∀ i ∈ Finset.univ, 0 ≤ R i := by
-    intro i _
-    rw [hR i]
-    exact add_nonneg (mul_nonneg (by norm_num) (Finset.sum_nonneg fun j _ => Complex.normSq_nonneg _))
-      (mul_nonneg hP.le (add_nonneg (add_nonneg (add_nonneg (Complex.normSq_nonneg _) (Complex.normSq_nonneg _))
-        (div_nonneg (Complex.normSq_nonneg _) (by norm_num))) (div_nonneg (Complex.normSq_nonneg _) (by norm_num))))
-  have e1 : ∑ i, R i = (2 * a + b) * (a + 2 * b) * ∑ i, ∑ x, ∑ j, Complex.normSq (K i x j)
-      - ∑ i, (a * (a + 2 * b) * ∑ j, Complex.normSq (K i (0, j) 0 + K i (1, j) 1)
-          + b * (2 * a + b) * ∑ j, Complex.normSq (K i (j, 0) 0 + K i (j, 1) 1)) := by
-    rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
-    refine Finset.sum_congr rfl fun i _ => ?_
-    rw [← hsos i]
-    ring
-  have e2 := st_isChannel_normSq_sum K hK
-  have e3 := af_weighted_eq K hK a b
-  have hsum : ∑ i, R i = 0 := by
-    linear_combination e1 + (2 * a + b) * (a + 2 * b) * e2 + e3 - 6 * h
-  have hR0 : ∀ i, R i = 0 := fun i => (Finset.sum_eq_zero_iff_of_nonneg hRnn).mp hsum i (Finset.mem_univ i)
-  -- each operator lies in the span of `A₀, A₁`
-  have hdec : ∀ i, K i = (K i (1, 0) 1 / (a : ℂ)) • asymA₀ a b + (K i (0, 1) 0 / (a : ℂ)) • asymA₁ a b := by
-    intro i
-    obtain ⟨c1, c2, c3, c4, c5, c6⟩ := au_conditions a b ha hb (K i) (by rw [← hR i]; exact hR0 i)
-    exact au_kraus_eq a b ha.ne' (K i) c1 c2 c3 c4 c5 c6
-  obtain ⟨x, y, hxy⟩ : ∃ x y : Fin r → ℂ, ∀ i, K i = x i • asymA₀ a b + y i • asymA₁ a b := ⟨_, _, hdec⟩
   -- trace preservation in the coordinates `x, y`
   have hK' : (∑ i, star (x i) * x i) • ((asymA₀ a b)ᴴ * asymA₀ a b)
       + (∑ i, star (x i) * y i) • ((asymA₀ a b)ᴴ * asymA₁ a b)
@@ -207,7 +169,7 @@ theorem eq_asym_of_equality_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (
     simp [-mul_eq_zero] at this
     linear_combination this
   have h2ab : (2 * (a : ℂ) * b) ≠ 0 := by
-    have : (2 * a * b : ℝ) ≠ 0 := by positivity
+    have : (2 * a * b : ℝ) ≠ 0 := mul_ne_zero (mul_ne_zero two_ne_zero ha) hb
     exact_mod_cast this
   have hXY : X = Y := by
     have h' : (X - Y) * (2 * (a : ℂ) * b) = 0 := by
@@ -251,5 +213,50 @@ theorem eq_asym_of_equality_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (
     refine Finset.sum_congr rfl fun i _ => ?_
     rw [hxy i, au_expand_kraus]
   rw [hexp, sxx, sxy, syx, syy, zero_smul, zero_smul, add_zero, add_zero, asymChannel, smul_add]
+
+/-- Uniqueness of the asymmetric optimum: for `a, b > 0`, a channel with equality in the bound at the weights
+`(a, b)` is the asymmetric cloner `Λ_{a,b}` as a map. -/
+theorem eq_asym_of_equality_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (ha : 0 < a)
+    (hb : 0 < b) (h : a * b = a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K)) :
+    ∀ ρ, krausApply K ρ = asymChannel a b ρ := by
+  have hP : 0 < (2 * a + b) * (a + 2 * b) := by positivity
+  -- the certificate's right-hand side, operator by operator
+  obtain ⟨R, hR⟩ : ∃ R : Fin r → ℝ, ∀ i, R i =
+      (1 / 3) * ∑ j, Complex.normSq (((a + 2 * b : ℝ) : ℂ) * (K i (0, j) 0 + K i (1, j) 1)
+          - ((2 * a + b : ℝ) : ℂ) * (K i (j, 0) 0 + K i (j, 1) 1))
+        + (2 * a + b) * (a + 2 * b) * (Complex.normSq (K i (1, 1) 0) + Complex.normSq (K i (0, 0) 1)
+          + Complex.normSq (K i (0, 0) 0 - K i (1, 0) 1 - K i (0, 1) 1) / 3
+          + Complex.normSq (K i (1, 1) 1 - K i (0, 1) 0 - K i (1, 0) 0) / 3) := ⟨_, fun i => rfl⟩
+  have hsos : ∀ i, (2 * a + b) * (a + 2 * b) * ∑ x, ∑ j, Complex.normSq (K i x j)
+        - a * (a + 2 * b) * ∑ j, Complex.normSq (K i (0, j) 0 + K i (1, j) 1)
+        - b * (2 * a + b) * ∑ j, Complex.normSq (K i (j, 0) 0 + K i (j, 1) 1) = R i := by
+    intro i
+    rw [hR i]
+    exact af_sos a b (K i)
+  have hRnn : ∀ i ∈ Finset.univ, 0 ≤ R i := by
+    intro i _
+    rw [hR i]
+    exact add_nonneg (mul_nonneg (by norm_num) (Finset.sum_nonneg fun j _ => Complex.normSq_nonneg _))
+      (mul_nonneg hP.le (add_nonneg (add_nonneg (add_nonneg (Complex.normSq_nonneg _) (Complex.normSq_nonneg _))
+        (div_nonneg (Complex.normSq_nonneg _) (by norm_num))) (div_nonneg (Complex.normSq_nonneg _) (by norm_num))))
+  have e1 : ∑ i, R i = (2 * a + b) * (a + 2 * b) * ∑ i, ∑ x, ∑ j, Complex.normSq (K i x j)
+      - ∑ i, (a * (a + 2 * b) * ∑ j, Complex.normSq (K i (0, j) 0 + K i (1, j) 1)
+          + b * (2 * a + b) * ∑ j, Complex.normSq (K i (j, 0) 0 + K i (j, 1) 1)) := by
+    rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [← hsos i]
+    ring
+  have e2 := st_isChannel_normSq_sum K hK
+  have e3 := af_weighted_eq K hK a b
+  have hsum : ∑ i, R i = 0 := by
+    linear_combination e1 + (2 * a + b) * (a + 2 * b) * e2 + e3 - 6 * h
+  have hR0 : ∀ i, R i = 0 := fun i => (Finset.sum_eq_zero_iff_of_nonneg hRnn).mp hsum i (Finset.mem_univ i)
+  -- each operator lies in the span of `A₀, A₁`
+  have hdec : ∀ i, K i = (K i (1, 0) 1 / (a : ℂ)) • asymA₀ a b + (K i (0, 1) 0 / (a : ℂ)) • asymA₁ a b := by
+    intro i
+    obtain ⟨c1, c2, c3, c4, c5, c6⟩ := au_conditions a b hP (K i) (by rw [← hR i]; exact hR0 i)
+    exact au_kraus_eq a b ha.ne' (K i) c1 c2 c3 c4 c5 c6
+  obtain ⟨x, y, hxy⟩ : ∃ x y : Fin r → ℂ, ∀ i, K i = x i • asymA₀ a b + y i • asymA₁ a b := ⟨_, _, hdec⟩
+  exact au_eq_asym_of_span a b ha.ne' hb.ne' K hK x y hxy
 
 end QubitCloning

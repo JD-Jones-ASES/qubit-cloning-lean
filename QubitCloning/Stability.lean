@@ -3,13 +3,9 @@ module
 public import QubitCloning.Form
 
 /-!
-# Stability of the optimal Kraus space
+# Stability
 
-The symmetric sum of squares has a spectral gap of `2` away from its kernel.
-This file proves that fact by a polynomial identity, without spectral theory,
-and obtains a sharp quantitative estimate for every Kraus representation of a
-near-optimal cloning channel. The conclusion controls distance to the
-Bužek–Hillery Kraus space; it does not by itself assert a channel-norm bound.
+The symmetric certificate is twice the squared distance to `span{V₁, V₂}` plus four squares, so a channel with `(F̄₁ + F̄₂)/2 ≥ 5/6 − ε` has Kraus operators within total squared distance `6ε` of that span. Every public theorem is the `_internal` twin of a Challenge statement (header verbatim) or a helper prefixed `sb_`.
 -/
 
 @[expose] public section
@@ -41,15 +37,16 @@ theorem sb_projection_distance (K : Matrix QQ Q ℂ) (x y : ℂ) :
     ∑ z, ∑ i, Complex.normSq (K z i - (x • bhV₁ + y • bhV₂) z i) =
       sb_distanceSq K + 6 * Complex.normSq (x - sb_x K) +
         (3 / 2) * Complex.normSq (y - sb_y K) := by
-  simp [sb_distanceSq, sb_project, sb_x, sb_y, bhV₁, bhV₂,
-    Fintype.sum_prod_type, Fin.sum_univ_two, Complex.normSq_apply,
-    Complex.mul_re, Complex.mul_im, Complex.add_re, Complex.add_im,
-    Complex.sub_re, Complex.sub_im, Complex.div_ofNat_re,
+  simp only [bhV₁, Fin.isValue, smul_of, bhV₂, one_div, Matrix.add_apply, of_apply, Pi.smul_apply, smul_eq_mul,
+    mul_ite, mul_one, mul_zero, Complex.normSq_apply, Complex.sub_re, Complex.add_re, Complex.sub_im, Complex.add_im,
+    Fin.sum_univ_two, and_true, zero_ne_one, and_false, ↓reduceIte, one_ne_zero, Fintype.sum_prod_type, Prod.mk.injEq,
+    false_or, Complex.zero_re, add_zero, Complex.zero_im, or_false, zero_add, Complex.mul_re, Complex.re_ofNat,
+    Complex.im_ofNat, sub_zero, Complex.mul_im, Complex.inv_re, div_self_mul_self',
+    Complex.inv_im, neg_zero, zero_div, sb_distanceSq, sb_project, sb_x, sb_y, Complex.div_ofNat_re, zero_mul,
     Complex.div_ofNat_im]
   ring
 
-/-- An exact coercivity identity: the symmetric certificate is twice squared
-distance to its kernel, plus four nonnegative residual squares. -/
+/-- The symmetric certificate is twice the squared distance to `span{V₁, V₂}` plus four squares. -/
 theorem sb_coercivity_identity (K : Matrix QQ Q ℂ) :
     5 * ∑ x, ∑ i, Complex.normSq (K x i) -
         6 * (sixAvg₁ ![K] + sixAvg₂ ![K]) =
@@ -58,11 +55,13 @@ theorem sb_coercivity_identity (K : Matrix QQ Q ℂ) :
         Complex.normSq (K (0, 0) 0 - K (0, 1) 1 - K (1, 0) 1) / 3 +
         Complex.normSq (K (1, 1) 1 - K (0, 1) 0 - K (1, 0) 0) / 3 := by
   rw [form_sos]
-  simp [sb_distanceSq, sb_project, sb_x, sb_y, bhV₁, bhV₂,
-    Fintype.sum_prod_type, Fin.sum_univ_two, Complex.normSq_apply,
-    Complex.mul_re, Complex.mul_im, Complex.add_re, Complex.add_im,
-    Complex.sub_re, Complex.sub_im, Complex.div_ofNat_re,
-    Complex.div_ofNat_im]
+  simp only [Complex.normSq_apply, Fin.sum_univ_two, Fin.isValue, Fintype.sum_prod_type, Complex.sub_re,
+    Complex.sub_im, Complex.div_ofNat_re, Complex.div_ofNat_im, sub_sub_cancel, sb_distanceSq, sb_project, sb_x, bhV₁,
+    smul_of, sb_y, bhV₂, one_div, Matrix.add_apply, of_apply, Pi.smul_apply, smul_eq_mul, mul_ite, mul_one, mul_zero,
+    Complex.add_re, Complex.add_im, and_true, zero_ne_one, and_false, ↓reduceIte, one_ne_zero, Prod.mk.injEq, false_or,
+    Complex.zero_re, add_zero, Complex.zero_im, or_false, zero_add, Complex.mul_re, Complex.re_ofNat, Complex.im_ofNat,
+    zero_mul, sub_zero, Complex.mul_im, Complex.inv_re, div_self_mul_self', Complex.inv_im,
+    neg_zero, zero_div]
   ring
 
 /-- The symmetric certificate dominates twice squared distance to its kernel. -/
@@ -89,9 +88,8 @@ theorem sb_channel_coercivity {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
   rw [st_isChannel_normSq_sum K hK] at h
   linarith
 
-/-- Quantitative stability in the optimal Kraus space: if a channel's six-state
-mean fidelity is at least `5/6 - ε`, every Kraus representation lies within
-total squared Hilbert–Schmidt distance `6 ε` of the Bužek–Hillery Kraus space. -/
+/-- If `(F̄₁ + F̄₂)/2 ≥ 5/6 − ε`, there are coefficients `xᵢ, yᵢ` with `Σᵢ ‖Kᵢ − xᵢV₁ − yᵢV₂‖² ≤ 6ε`:
+every Kraus family of a near-optimal channel is near the Bužek–Hillery Kraus space. -/
 theorem kraus_span_stability_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
     (hK : IsChannel K) (ε : ℝ)
     (hε : 5 / 6 - ε ≤ (sixAvg₁ K + sixAvg₂ K) / 2) :
