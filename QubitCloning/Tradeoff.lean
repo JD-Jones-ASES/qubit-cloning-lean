@@ -6,7 +6,7 @@ public import QubitCloning.Asym
 /-!
 # Tradeoff
 
-Cerf's form of the trade-off from the homogeneous bound (ARCH.md §8). Lane `tradeoff`.
+the square-root form of the trade-off from the homogeneous bound (ARCH.md §8). Lane `tradeoff`.
 Every public theorem of this module is the `_internal` twin of a Challenge statement (header verbatim) or a desk-pinned helper; helpers of this lane are prefixed `tr_`.
 -/
 

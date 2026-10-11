@@ -87,7 +87,7 @@ From `af_sos` summed with equality (as in §5): every square vanishes, so for ea
 conditions. Then `IsChannel K` with `A₀ᴴA₀ = diag((a+b)², a² + b²)`, `A₁ᴴA₁ = diag(a² + b², (a+b)²)`, `A₀ᴴA₁ = 2ab E₁₀`:
 `Σ xᵢ conj yᵢ = 0`, `X = Y = 1/(2s)` (`(X − Y) · 2ab = 0`, `X · 2s = 1`), and the expansion gives `asymChannel a b ρ`.
 
-## §8 Tradeoff (lane `tradeoff`) — Cerf's form
+## §8 Tradeoff (lane `tradeoff`) — the square-root form (Scarani–Iblisdir–Gisin–Acín 2005, Eq. (23))
 `tr_of_bounds`: `a = 1, b = 0` gives `0 ≤ D₁`; `a = 0, b = 1` gives `0 ≤ D₂`. If `1/2 ≤ D₁ + D₂` done
 (`Real.sqrt_nonneg`). Else with `g = √(D₁ D₂)` and `a = √(2 D₂)`, `b = √(2 D₁)`: `a² = 2D₂`, `b² = 2D₁`, `ab = 2g`
 (`Real.sqrt_mul`, `Real.sq_sqrt`, `Real.mul_self_sqrt`), the bound reads `2g ≤ 4D₁D₂ + 4g(D₁ + D₂) = 4g² + 4g(D₁ + D₂)`

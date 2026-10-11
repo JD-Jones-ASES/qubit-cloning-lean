@@ -28,8 +28,9 @@ used and not claimed). This file states, and `Solution.lean` proves kernel-only 
   `Δ_one`; under the average-fidelity criterion it is proved here from the certificate;
 * **the floor**: `F̄₁, F̄₂ ≥ 1/3` for every channel, attained (`sixAvg_ge_third`, `exists_sixAvg_eq_third`:
   the universal-NOT bound of Bužek–Hillery–Werner 1999 and Gisin–Popescu 1999, in the six-state average form);
-* **the asymmetric trade-off** (Niu–Griffiths 1998; Cerf 1998, 2000; Bužek–Hillery–Bednik 1998; the full region
-  in Hashagen 2017 and Nechita–Pellegrini–Rochette 2021): for every channel and all `a, b ≥ 0`,
+* **the asymmetric trade-off** (Niu–Griffiths 1998; Cerf 1998, 2000; Bužek–Hillery–Bednik 1998;
+  Fiurášek–Filip–Cerf 2005 for the operator method in every dimension; the full region in Hashagen 2017 and
+  Nechita–Pellegrini–Rochette 2021): for every channel and all `a, b ≥ 0`,
   `a b ≤ a (a + 2b)(1 − F̄₁) + b (2a + b)(1 − F̄₂)` (`asym_bound`), also with worst-case fidelities in place of the
   averages (`asym_bound_forall`); the family `Λ_{a,b}(ρ) = (A₀ ρ A₀ᴴ + A₁ ρ A₁ᴴ) / (2(a² + ab + b²))` with
   `A₀|0⟩ = (a + b)|00⟩`, `A₀|1⟩ = a|10⟩ + b|01⟩`, `A₁|0⟩ = a|01⟩ + b|10⟩`, `A₁|1⟩ = (a + b)|11⟩` consists of
@@ -37,14 +38,16 @@ used and not claimed). This file states, and `Solution.lean` proves kernel-only 
   `s = a² + ab + b²`, so `F₁(ψ) = 1 − b²/2s`, `F₂(ψ) = 1 − a²/2s` for every unit `ψ`, with equality in the bound
   at the weights `(a, b)` (`asym_isChannel`, `asym_traceSecond`, `asym_traceFirst`, `asym_fidelity`,
   `asym_equality`); for `a, b > 0` equality holds only for `Λ_{a,b}` (`eq_asym_of_equality`); `Λ_{1,1} = Λ_BH`
-  (`bhChannel_eq_asymChannel`); hence Cerf's printed form `√((1 − F̄₁)(1 − F̄₂)) ≥ F̄₁ + F̄₂ − 3/2`, its
-  worst-case form, and equality along the family (`tradeoff_sqrt`, `tradeoff_forall`, `tradeoff_attained`).
+  (`bhChannel_eq_asymChannel`); hence the square-root form `√((1 − F̄₁)(1 − F̄₂)) ≥ F̄₁ + F̄₂ − 3/2`
+  (Scarani–Iblisdir–Gisin–Acín 2005, Eq. (23); the equality curve of Niu–Griffiths (6.29)), its worst-case form,
+  and equality along the family (`tradeoff_sqrt`, `tradeoff_forall`, `tradeoff_attained`).
 
 Twenty-seven statements over twenty definitions; `comparator.json` lists no definition holes. The certificates
-are the identities `6 F̄ᵢ(K) = Σᵢ ‖Kᵢ‖² + Σᵢ ⟨kᵢ, Ωᵢ kᵢ⟩` with `Ωᵢ = |Ω⟩⟨Ω|_{R Aᵢ} ⊗ 1`, `|Ω⟩ = |00⟩ + |11⟩`,
-and `(2a + b)(a + 2b) ‖k‖² − ⟨k, (a(a + 2b) Ω₁ + b(2a + b) Ω₂) k⟩ = (1/3) Σⱼ |⟨(a + 2b) ũⱼ − (2a + b) ṽⱼ, k⟩|²
-+ (2a + b)(a + 2b) ‖Π⊥ k‖²`, polynomial in `a, b`; nothing uses Choi's theorem, positive semidefinite matrix
-theory or Haar measure.
+are the identities `6 F̄ᵢ(K) = Σᵢ ‖Kᵢ‖² + Σᵢ ⟨kᵢ, Ωᵢ kᵢ⟩` with `Ωᵢ = |Ω⟩⟨Ω|_{R Aᵢ} ⊗ 1`, `|Ω⟩ = |00⟩ + |11⟩`
+(the averaged operators of Gisin–Massar's and Fiurášek–Filip–Cerf's largest-eigenvalue method, written as
+quadratic forms in the Kraus entries), and `(2a + b)(a + 2b) ‖k‖² − ⟨k, (a(a + 2b) Ω₁ + b(2a + b) Ω₂) k⟩
+= (1/3) Σⱼ |⟨(a + 2b) ũⱼ − (2a + b) ṽⱼ, k⟩|² + (2a + b)(a + 2b) ‖Π⊥ k‖²`, polynomial in `a, b`; nothing uses
+Choi's theorem, positive semidefinite matrix theory or Haar measure.
 -/
 
 @[expose] public section
@@ -272,7 +275,8 @@ theorem eq_asym_of_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsCh
 /-- The Bužek–Hillery channel is the symmetric member `a = b` of the family. -/
 theorem bhChannel_eq_asymChannel (ρ : Matrix Q Q ℂ) : bhChannel ρ = asymChannel 1 1 ρ := sorry
 
-/-- The trade-off in Cerf's form: `F̄₁ + F̄₂ − 3/2 ≤ √((1 − F̄₁)(1 − F̄₂))` for every channel. -/
+/-- The trade-off in square-root form (Scarani–Iblisdir–Gisin–Acín 2005, Eq. (23)):
+`F̄₁ + F̄₂ − 3/2 ≤ √((1 − F̄₁)(1 − F̄₂))` for every channel. -/
 theorem tradeoff_sqrt {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
     sixAvg₁ K + sixAvg₂ K - 3 / 2 ≤ Real.sqrt ((1 - sixAvg₁ K) * (1 - sixAvg₂ K)) := sorry
 
@@ -282,7 +286,8 @@ theorem tradeoff_forall {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChanne
     (h : ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → f₁ ≤ F₁ K ψ ∧ f₂ ≤ F₂ K ψ) :
     f₁ + f₂ - 3 / 2 ≤ Real.sqrt ((1 - f₁) * (1 - f₂)) := sorry
 
-/-- The asymmetric cloners with `a, b ≥ 0` lie on the trade-off curve: equality in Cerf's form. -/
+/-- The asymmetric cloners with `a, b ≥ 0` lie on the trade-off curve: equality in the square-root form
+(the curve of Niu–Griffiths 1998, Eq. (6.29)). -/
 theorem tradeoff_attained {r : ℕ} (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h : a ^ 2 + a * b + b ^ 2 ≠ 0)
     (K : Fin r → Matrix QQ Q ℂ) (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) :
     sixAvg₁ K + sixAvg₂ K - 3 / 2 = Real.sqrt ((1 - sixAvg₁ K) * (1 - sixAvg₂ K)) := sorry
