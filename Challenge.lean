@@ -360,4 +360,53 @@ theorem kraus_span_stability {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
       ∑ i, ∑ z, ∑ j,
         Complex.normSq (K i z j - (x i • bhV₁ + y i • bhV₂) z j) ≤ 6 * ε := sorry
 
+/-! ## The equality cases of the full-range trade-off -/
+
+/-- Along the asymmetric family with `(2a + b)(a + 2b) ≥ 0` the full-range trade-off is an equality: both
+sides equal `(2a + b)(a + 2b)/(2(a² + ab + b²))`. -/
+theorem tradeoff_full_attained {r : ℕ} (a b : ℝ) (hP : 0 ≤ (2 * a + b) * (a + 2 * b))
+    (hs : a ^ 2 + a * b + b ^ 2 ≠ 0) (K : Fin r → Matrix QQ Q ℂ)
+    (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) :
+    3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 =
+      Real.sqrt ((3 * sixAvg₁ K - 1) * (3 * sixAvg₂ K - 1)) := sorry
+
+/-- Equality in the full-range trade-off away from the perfect-clone endpoints forces a member of the
+asymmetric family with both weights nonzero and `(2a + b)(a + 2b) ≥ 0`: the boundary arc of the region
+is the family. (At the endpoints `F̄₁ = 1` or `F̄₂ = 1` the channel is not unique.) -/
+theorem eq_asym_of_tradeoff_full_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : 3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 =
+      Real.sqrt ((3 * sixAvg₁ K - 1) * (3 * sixAvg₂ K - 1)))
+    (h₁ : sixAvg₁ K ≠ 1) (h₂ : sixAvg₂ K ≠ 1) :
+    ∃ a b : ℝ, a ≠ 0 ∧ b ≠ 0 ∧ 0 ≤ (2 * a + b) * (a + 2 * b) ∧
+      ∀ ρ, krausApply K ρ = asymChannel a b ρ := sorry
+
+/-- The companion of the universal-NOT floor on the second clone is unique: `F̄₁ = 5/6` and `F̄₂ = 1/3`
+force `Λ_{2,−1}` as a map. -/
+theorem eq_asym_of_floor₂ {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h₁ : sixAvg₁ K = 5 / 6) (h₂ : sixAvg₂ K = 1 / 3) :
+    ∀ ρ, krausApply K ρ = asymChannel 2 (-1) ρ := sorry
+
+/-- The companion of the universal-NOT floor on the first clone is unique: `F̄₁ = 1/3` and `F̄₂ = 5/6`
+force `Λ_{−1,2}` as a map. -/
+theorem eq_asym_of_floor₁ {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h₁ : sixAvg₁ K = 1 / 3) (h₂ : sixAvg₂ K = 5 / 6) :
+    ∀ ρ, krausApply K ρ = asymChannel (-1) 2 ρ := sorry
+
+/-- A perfect first clone on average forces the second output's average fidelity to be exactly `1/2`. -/
+theorem sixAvg₂_eq_half_of_sixAvg₁_eq_one {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : sixAvg₁ K = 1) : sixAvg₂ K = 1 / 2 := sorry
+
+/-- A perfect second clone on average forces the first output's average fidelity to be exactly `1/2`. -/
+theorem sixAvg₁_eq_half_of_sixAvg₂_eq_one {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : sixAvg₂ K = 1) : sixAvg₁ K = 1 / 2 := sorry
+
+/-! ## Quantitative uniqueness of the optimum as a channel -/
+
+/-- If the six-state mean fidelity is at least `5/6 − ε`, the channel is within Frobenius distance
+`200 √ε ‖ρ‖_F` of the Bužek–Hillery channel on every input `ρ`. -/
+theorem channel_stability {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (ε : ℝ)
+    (hε : 5 / 6 - ε ≤ (sixAvg₁ K + sixAvg₂ K) / 2) (ρ : Matrix Q Q ℂ) :
+    Real.sqrt (∑ x, ∑ y, Complex.normSq ((krausApply K ρ - bhChannel ρ) x y)) ≤
+      200 * Real.sqrt ε * Real.sqrt (∑ i, ∑ j, Complex.normSq (ρ i j)) := sorry
+
 end QubitCloning
