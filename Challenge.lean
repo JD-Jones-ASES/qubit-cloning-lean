@@ -305,8 +305,8 @@ theorem tradeoff_full_sqrt {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
 /-! ## Signed bounds and their equality cases -/
 
 /-- For every channel and all real `a, b` with `(2a + b)(a + 2b) ≥ 0`,
-`ab ≤ a(a + 2b)(1 − F̄₁) + b(2a + b)(1 − F̄₂)`: the bound `asym_bound` without the sign conditions on the
-weights. -/
+`ab ≤ a(a + 2b)(1 − F̄₁) + b(2a + b)(1 − F̄₂)`: the bound `asym_bound` with `0 ≤ a`, `0 ≤ b` replaced by
+`(2a + b)(a + 2b) ≥ 0`. -/
 theorem signed_asym_bound {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ)
     (hP : 0 ≤ (2 * a + b) * (a + 2 * b)) :
     a * b ≤ a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) := sorry
