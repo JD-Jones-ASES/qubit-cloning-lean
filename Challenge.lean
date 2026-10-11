@@ -3,7 +3,7 @@ module
 public import Mathlib
 
 /-!
-# Universal 1 → 2 qubit cloning: the single-clone fidelity bound 5/6 with the Bužek–Hillery channel as its unique optimum, the universal-NOT floor 1/3, and the asymmetric trade-off √((1 − F₁)(1 − F₂)) ≥ F₁ + F₂ − 3/2 with its equality family
+# Universal 1 → 2 qubit cloning: (F₁ + F₂)/2 ≤ 5/6 with the Bužek–Hillery channel as its unique optimum and its stability, the universal-NOT floor 1/3 and its companion 5/6, the trade-off 3(F₁ + F₂) − 7/2 ≤ √((3F₁ − 1)(3F₂ − 1)) with its equality family, and the anticloning bound 3F₁ − 5F₂ ≤ 1
 
 A *channel from one qubit to two* is a finite Kraus family `K : Fin r → Matrix (Fin 2 × Fin 2) (Fin 2) ℂ` with
 `Σᵢ Kᵢᴴ Kᵢ = 1`, acting by `ρ ↦ Σᵢ Kᵢ ρ Kᵢᴴ` (the Choi–Kraus theorem, not proved here, says every completely
@@ -41,14 +41,36 @@ averages of Gisin–Massar; that equality is not used and not claimed). This fil
   `asym_equality`); for `a, b > 0` equality holds only for `Λ_{a,b}` (`eq_asym_of_equality`); `Λ_{1,1} = Λ_BH`
   (`bhChannel_eq_asymChannel`); hence the square-root form `√((1 − F̄₁)(1 − F̄₂)) ≥ F̄₁ + F̄₂ − 3/2`
   (Scarani–Iblisdir–Gisin–Acín 2005, Eq. (23); the equality curve of Niu–Griffiths (6.29)), its worst-case form,
-  and equality along the family (`tradeoff_sqrt`, `tradeoff_forall`, `tradeoff_attained`).
+  and equality along the family (`tradeoff_sqrt`, `tradeoff_forall`, `tradeoff_attained`);
+* **the full-range trade-off** (the necessity half of Nechita–Pellegrini–Rochette 2021, Theorem 6, at `d = 2`, and
+  of Hashagen 2017, Theorem 6.4, in entanglement fidelity; proved here by a Gram identity in the Kraus entries): for
+  every channel `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))` (`tradeoff_full_sqrt`), which binds where a clone's
+  average fidelity is below `1/2` and excludes `(1, 1/3)`; along `Λ_{a,b}` with `(2a + b)(a + 2b) ≥ 0` it is an
+  equality (`tradeoff_full_attained`), and equality with `F̄₁, F̄₂ ≠ 1` holds only for such a member with `a, b ≠ 0`
+  (`eq_asym_of_tradeoff_full_equality`); a perfect average clone forces the other output's average fidelity to `1/2`
+  (`sixAvg₂_eq_half_of_sixAvg₁_eq_one`, `sixAvg₁_eq_half_of_sixAvg₂_eq_one`; Hashagen 2017, p. 20);
+* **signed bounds and the anticloning point**: `asym_bound` holds for all real weights with `(2a + b)(a + 2b) ≥ 0`
+  (`signed_asym_bound`), with equality only for `Λ_{a,b}` when the product is positive and `a, b ≠ 0`
+  (`eq_asym_of_signed_equality`); at `(3, −1)`, `3F̄₁ − 5F̄₂ ≤ 1` for every channel, attained by `Λ_{3,−1}` at
+  `(13/14, 5/14)` and only by it (`clone_anticlone_bound`, `clone_anticlone_attained`,
+  `eq_clone_anticlone_of_equality`); `F̄₂ = 1/3` forces `F̄₁ ≤ 5/6`, and the mirror (`sixAvg₁_le_of_sixAvg₂_eq_third`,
+  `sixAvg₂_le_of_sixAvg₁_eq_third`), with `(5/6, 1/3)` attained on every pure input by `Λ_{2,−1}` — the Bužek–Hillery
+  clone and anti-clone of Scarani–Iblisdir–Gisin–Acín 2005, (12)–(15) — and only by it, as `(1/3, 5/6)` is by
+  `Λ_{−1,2}` (`floor_companion_attained`, `eq_asym_of_floor₂`, `eq_asym_of_floor₁`);
+* **stability of the optimum**: if `(F̄₁ + F̄₂)/2 ≥ 5/6 − ε`, every Kraus family lies within total squared
+  Hilbert–Schmidt distance `6ε` of `span{V₁, V₂}` (`kraus_span_stability`; the constant `6` is the spectral gap of the
+  symmetric certificate, attained along `Λ_{1+t,1−t}`), and the channel is within Frobenius distance `200 √ε ‖ρ‖_F`
+  of `Λ_BH` on every input `ρ` (`channel_stability`; the proof gives `78√3`; the rate `√ε` is attained along the same
+  family).
 
-Twenty-seven statements over twenty definitions; `comparator.json` lists no definition holes. The certificates
+Forty-four statements over twenty definitions; `comparator.json` lists no definition holes. The certificates
 are the identities `6 F̄ᵢ(K) = Σⱼ ‖Kⱼ‖² + Σⱼ ⟨kⱼ, Ωᵢ kⱼ⟩` with `Ωᵢ = |Ω⟩⟨Ω|_{R Aᵢ} ⊗ 1`, `|Ω⟩ = |00⟩ + |11⟩`
 (the averaged operators of Gisin–Massar's and Fiurášek–Filip–Cerf's largest-eigenvalue method, written as
 quadratic forms in the Kraus entries), and `(2a + b)(a + 2b) ‖k‖² − ⟨k, (a(a + 2b) Ω₁ + b(2a + b) Ω₂) k⟩
-= (1/3) Σⱼ |⟨(a + 2b) ũⱼ − (2a + b) ṽⱼ, k⟩|² + (2a + b)(a + 2b) ‖Π⊥ k‖²`, polynomial in `a, b`; nothing uses
-Choi's theorem, positive semidefinite matrix theory or Haar measure.
+= (1/3) Σⱼ |⟨(a + 2b) ũⱼ − (2a + b) ṽⱼ, k⟩|² + (2a + b)(a + 2b) ‖Π⊥ k‖²`, polynomial in `a, b`; the full-range form
+adds the Gram identity `3‖k‖² − 2Σⱼ|⟨ũⱼ, k⟩|² − 2Σⱼ|⟨ṽⱼ, k⟩|² + 2Σⱼ Re(conj⟨ũⱼ, k⟩ ⟨ṽⱼ, k⟩) = 3‖Π⊥ k‖²` of the
+four contraction vectors and Cauchy–Schwarz, and the stability the decomposition `3‖k‖² − ⟨k, (Ω₁ + Ω₂) k⟩ = 2‖(1 − P) k‖² + ‖Π⊥ k‖²` with `P` the
+projection onto `span{V₁, V₂}`; nothing uses Choi's theorem, the spectral theorem or Haar measure.
 -/
 
 @[expose] public section

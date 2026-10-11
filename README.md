@@ -1,13 +1,14 @@
-# Universal 1 → 2 qubit cloning: optimality, uniqueness, fidelity trade-offs, and quantitative stability
+# Universal 1 → 2 qubit cloning: (F₁ + F₂)/2 ≤ 5/6 with the Bužek–Hillery channel as its unique optimum and its stability, the universal-NOT floor 1/3 and its companion 5/6, the trade-off 3(F₁ + F₂) − 7/2 ≤ √((3F₁ − 1)(3F₂ − 1)) with its equality family, and the anticloning bound 3F₁ − 5F₂ ≤ 1
 
 A channel from one qubit to two is a finite Kraus family `K : Fin r → Matrix (Fin 2 × Fin 2) (Fin 2) ℂ` with
 `Σᵢ Kᵢᴴ Kᵢ = 1`, acting by `ρ ↦ Σᵢ Kᵢ ρ Kᵢᴴ` (the blank qubit is fixed: a `1 → 2` map). For a pure input `ψ` the clone
 fidelities are `F₁(ψ) = Re ⟨ψ| Tr₂ Λ(ψψ†) |ψ⟩` and `F₂(ψ) = Re ⟨ψ| Tr₁ Λ(ψψ†) |ψ⟩`; `F̄₁, F̄₂` are their averages over
 the six Pauli eigenstates `(1 ± σ)/2` (the six states form a 2-design, the octahedron being a spherical 3-design, so
-these equal the Bloch-sphere averages of Gisin–Massar; that equality is neither used nor claimed). Every averaging
-state is Gaussian-rational, so every statement is finite.
+these equal the Bloch-sphere averages of Gisin–Massar, as Bowdrey–Oi–Short–Banaszek–Jones 2002, (11), print for qubit
+maps; that equality is neither used nor claimed here). Every averaging state is Gaussian-rational, so every statement
+is finite.
 
-[Challenge.lean](Challenge.lean) states twenty definitions and thirty-seven theorems; [Solution.lean](Solution.lean)
+[Challenge.lean](Challenge.lean) states twenty definitions and forty-four theorems; [Solution.lean](Solution.lean)
 proves them, kernel-only; the table in [VERIFICATION.md](VERIFICATION.md) names each:
 
 - **the bound:** for every channel `(F̄₁ + F̄₂)/2 ≤ 5/6`, so some unit `ψ` has `min(F₁(ψ), F₂(ψ)) ≤ 5/6`
@@ -39,41 +40,42 @@ proves them, kernel-only; the table in [VERIFICATION.md](VERIFICATION.md) names 
   `Λ_{a,b}` (proved here; Hashagen's uniqueness is within symmetrized channels); `Λ_{1,1} = Λ_BH`;
 - **the square-root form:** `√((1 − F̄₁)(1 − F̄₂)) ≥ F̄₁ + F̄₂ − 3/2` for every channel (Scarani–Iblisdir–Gisin–Acín 2005,
   (23)), its worst-case form, and equality along the family for `a, b ≥ 0` (the curve of Niu–Griffiths (6.29));
-- **the full-range necessary trade-off:** `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))`, including fidelities below `1/2`
-  (Hashagen 2017, Theorem 6.4; Nechita–Pellegrini–Rochette 2021, Theorem 6; a direct Kraus Gram proof here);
-- **signed bounds and extremizers:** the homogeneous bound holds for `(2a + b)(a + 2b) ≥ 0`; for a positive product
-  and nonzero `a,b`, equality uniquely determines `Λ_{a,b}`. In particular, `3F̄₁ − 5F̄₂ ≤ 1`, with unique extremizer
-  `Λ_{3,−1}` at `(13/14,5/14)`. If either average is `1/3`, the other is at most `5/6`; `Λ_{2,−1}` attains `(5/6,1/3)`
-  on every pure input;
-- **quantitative stability:** mean fidelity at least `5/6 − ε` implies coefficients `xᵢ,yᵢ` with
-  `Σᵢ ‖Kᵢ − xᵢV₁ − yᵢV₂‖²_F ≤ 6ε`. [STABILITY.md](STABILITY.md) proves sharpness of `6` within the asymmetric family
-  and derives separate handwritten Choi and diamond-norm bounds. Only the Kraus-span inequality is a Lean main result.
+- **the full-range trade-off:** `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))` for every channel, by a Gram identity and
+  Cauchy–Schwarz (the necessity half of Nechita–Pellegrini–Rochette 2021, Theorem 6, at `d = 2`; Hashagen 2017, Theorem
+  6.4, in entanglement fidelity), with equality along `Λ_{a,b}` when `(2a + b)(a + 2b) ≥ 0` and, with neither clone
+  perfect, only there; `F̄₁ = 1` forces `F̄₂ = 1/2`, and vice versa (Hashagen 2017, p. 20, via Nielsen 2002, (3));
+- **signed weights** (proved here): the asymmetric bound for all real `a, b` with `(2a + b)(a + 2b) ≥ 0`, with `Λ_{a,b}`
+  its only equality case when the product is positive and `a, b ≠ 0`; at `(3, −1)` the anticloning bound
+  `3F̄₁ − 5F̄₂ ≤ 1`, attained only by `Λ_{3,−1}`, at `(13/14, 5/14)`;
+- **the floor's companion:** `F̄₂ = 1/3` forces `F̄₁ ≤ 5/6`, and `(5/6, 1/3)` is attained only by `Λ_{2,−1}` (proved
+  here), on every unit `ψ`: the Bužek–Hillery clone with its anti-clone (Scarani–Iblisdir–Gisin–Acín 2005, (12)–(15));
+  likewise with the clones exchanged;
+- **stability** (proved here): if `(F̄₁ + F̄₂)/2 ≥ 5/6 − ε`, the Kraus operators lie within total squared Frobenius
+  distance `6ε` of `span{V₁, V₂}` (`6` is attained along `Λ_{1+t,1−t}`, as the replay checks), and
+  `‖Λ(ρ) − Λ_BH(ρ)‖_F ≤ 200 √ε ‖ρ‖_F` for every input `ρ`.
 
 Not claimed: the equality of the six-state and Bloch-sphere averages; the Choi–Kraus theorem (a channel is a finite
-Kraus family here); uniqueness of two-qubit machines, dilations or Kraus representations; realization of every point allowed by
-the full-range inequality; formalized Choi or diamond-norm stability; higher dimensions or `N → M`; any priority.
-The full-range and signed inequalities concern actual average fidelities; arbitrary pointwise lower bounds cannot
-be substituted into them. See [PRE_SUBMISSION_REVIEW.md](PRE_SUBMISSION_REVIEW.md) for the distinction and an application
-to compatible depolarizing marginals. The nearest formal work
-holds the qualitative no-cloning theorem (physlib, atlas-lean, csd-lean4, the Isabelle AFP),
-channel-level no-broadcasting with Kraus and partial-trace machinery (zblore/csd-lean4, which names a quantitative
-cloning bound as a later tranche), the spectrum of the Bužek–Hillery ancilla state (the-omega-institute/trureturing), and
-asymptotic global-fidelity mixed-state cloning (JWang226/Cloning, Fei–Wang 2026); physlib's `docs/WildeTODO.md` lists the
-`5/6` bound as wanted. Hettel 2026 certifies optimal cloners numerically by semidefinite programming. No code is shared
-with any of them.
+Kraus family here); uniqueness of two-qubit machines, dilations or Kraus representations; that every point allowed by
+the full-range trade-off and the floors is attained (the boundary arc is); the trace-norm, Choi and diamond-norm forms
+of the stability; higher dimensions or `N → M`. The nearest formal work holds the qualitative no-cloning theorem
+(physlib, atlas-lean, csd-lean4, the Isabelle AFP), channel-level no-broadcasting with Kraus and partial-trace machinery
+(zblore/csd-lean4, which names a quantitative cloning bound as a later tranche), the spectrum of the Bužek–Hillery
+ancilla state (the-omega-institute/trureturing), and asymptotic global-fidelity mixed-state cloning (JWang226/Cloning,
+Fei–Wang 2026); physlib's `docs/WildeTODO.md` lists the `5/6` bound as wanted. Hettel 2026 certifies optimal cloners
+numerically by semidefinite programming. No code is shared with any of them.
 
 ## Verifying
 
 Lean `v4.35.0-rc2` with Mathlib at the same tag (pinned by `lake-manifest.json`). `python scripts/verify.py` runs the pins,
-the source guard and its controls, the definition and statement checks, the standard-library replay of every identity
+the source guard and its controls, the definition and statement checks, the standard-library replays of every identity
 (`scripts/check_cloning.py`: the quadratic forms, the sums of squares and their kernels, the channels, marginals and
-fidelities, the trace-preservation solves, 582 exact checks; `scripts/check_extensions.py`: the full-range Gram identity,
-signed certificates, extremizers and stability identities, 62 exact checks), the metadata check, the build with the axiom audit
-(`Test/Axioms.lean` rejects any axiom beyond `propext`, `Classical.choice`, `Quot.sound`), the module-resolution check,
+fidelities, the trace-preservation solves, 582 checks; `scripts/check_extensions.py`: the Gram, signed and coercivity
+identities as coefficient matrices, the signed channels on the six states, the constant `6`, 62 checks), the metadata
+check, the build with the axiom audit (`Test/Axioms.lean` rejects any axiom beyond `propext`, `Classical.choice`,
+`Quot.sound`), the module-resolution check,
 the `pp.all` elaboration check of the definitions and Palomar's core-notation audit, and ends with `VERIFY: PASS`
 (`--skip-build` leaves out the Lean steps and ends with `VERIFY (source/replay only)`, which does not check the proofs).
-The review validation record is [REVIEW_VALIDATION.md](REVIEW_VALIDATION.md); the new GitHub Actions workflow still
-needs an upstream run. [PROOF.md](PROOF.md) gives the proofs with the Lean names; [DISCLOSURE.md](DISCLOSURE.md) says how the repository was made.
+[PROOF.md](PROOF.md) gives the proofs with the Lean names; [DISCLOSURE.md](DISCLOSURE.md) says how the repository was made.
 
 License: [MIT](LICENSE) for the Lean files and scripts; `scripts/core_notation_audit.lean` is Palomar's, under its MIT
 licence ([LICENSES/PalomarSubmission-MIT.txt](LICENSES/PalomarSubmission-MIT.txt)). The papers are cited, not copied.

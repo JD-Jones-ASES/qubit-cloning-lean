@@ -4,7 +4,8 @@ A Kraus operator `K : Matrix (Fin 2 × Fin 2) (Fin 2) ℂ` has entries `K (a, b)
 clone `b`); `‖K‖² = Σ |K x i|²`; `uⱼ(K) = K (0, j) 0 + K (1, j) 1` and `vⱼ(K) = K (j, 0) 0 + K (j, 1) 1` (`j = 0, 1`) are
 the pairings of `vec K` with `|00j⟩ + |11j⟩` and `|0j0⟩ + |1j1⟩`. The six Pauli eigenstates are the density matrices
 `(1 ± σ)/2` (`pauliState`); every six-state sum below is a quadratic form in the sixteen real and imaginary parts of
-the eight entries, and every identity is closed by `ring` after unfolding (the exact replay is `scripts/check_cloning.py`).
+the eight entries, and every identity is closed by `ring` after unfolding (the replays are `scripts/check_cloning.py` and
+`scripts/check_extensions.py`).
 
 1. **The ground floor** (`QubitCloning/States.lean`). `fidelity (proj ψ) σ = Re (ψ† σ ψ)`; the Kraus action, the
    partial traces and the fidelity are additive, so `sixAvgᵢ K = Σᵢ sixAvgᵢ ![K i]` (`st_sixAvg₁_eq_sum`,
@@ -17,7 +18,7 @@ the eight entries, and every identity is closed by `ring` after unfolding (the e
    `6 · sixAvg₂ ![K] = ‖K‖² + Σⱼ |vⱼ(K)|²` (`form_six_one`, `form_six_two`: the six-state average of `ψ̄ψ̄† ⊗ ψψ†` over
    the octahedron is `(1 + Ω)/6`, Gisin–Massar's and Fiurášek–Filip–Cerf's averaged operator, written out). The
    six-term sum of squares (`form_sos`): `5 ‖K‖² − 6 (sixAvg₁ + sixAvg₂) ![K] = |k₀₀₀ − k₁₀₁ − k₁₁₀|² + 2|k₀₀₁ − k₁₁₁/2|²
-   + 2|k₀₁₀ − k₁₁₁/2|² + 3|k₀₁₁|² + 3|k₁₀₀|² + |k₁₀₁ − k₁₁₀|²` (`k_{rab} = K (a, b) r`; the exact LDL of `5·1 − 12W`, whose
+   + 2|k₀₁₀ − k₁₁₁/2|² + 3|k₀₁₁|² + 3|k₁₀₀|² + |k₁₀₁ − k₁₁₀|²` (`k_{rab} = K (a, b) r`; the rational LDL of `5·1 − 12W`, whose
    kernel is `span{vec V₁, vec V₂}`). Summing over the family and using `Σ ‖Kᵢ‖² = 2`: `6 (sixAvg₁ + sixAvg₂) ≤ 10`, i.e.
    `(F̄₁ + F̄₂)/2 ≤ 5/6` (`sixAvg_le`); the squares in `form_six_one` give `F̄ᵢ ≥ 2/6 = 1/3` (`sixAvg_ge_third`); if every
    six-state mean exceeded `5/6` so would the average, so some `pauliVec s` has `min(F₁, F₂) ≤ 5/6` (`exists_unit_min_le`).
@@ -62,32 +63,50 @@ the eight entries, and every identity is closed by `ring` after unfolding (the e
    `1 ≤ (2 + t) D₂` for every `t > 0`, so `D₂ ≥ 1/2` (`tr_of_bounds`). Applied to `asym_bound` and `asym_bound_forall` with
    `Dᵢ = 1 − F̄ᵢ` resp. `1 − fᵢ` this is `tradeoff_sqrt` and `tradeoff_forall`. Along the family with `a, b ≥ 0`, both
    sides equal `ab/(2s)` (`tradeoff_attained`).
-
-9. **The full-range necessary inequality** (`FullTradeoff.lean`). Let `N = Σᵢ ‖Kᵢ‖²`,
-   `U = Σᵢⱼ |uⱼ(Kᵢ)|²`, `V = Σᵢⱼ |vⱼ(Kᵢ)|²`, and
-   `C = Re Σᵢⱼ conjugate(uⱼ(Kᵢ)) vⱼ(Kᵢ)`. The exact Gram identity (`fr_gram_identity`) expresses
-   `3N − 2U − 2V + 2C` as four nonnegative squared moduli. Therefore `U + V − C ≤ 3` for a channel.
-   Cauchy–Schwarz (`fr_cauchy`) gives `C ≤ √(UV)`, while the six-state quadratic forms give
-   `U = 6F̄₁ − 2` and `V = 6F̄₂ − 2`. Dividing by two proves
-   `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))` (`tradeoff_full_sqrt`). This is necessity across
-   the full fidelity range, including clone/anticlone behavior. It is a direct proof of the qubit condition
-   described by Hashagen 2017, Theorem 6.4, and Nechita–Pellegrini–Rochette 2021, Theorem 6; it does not formalize
-   their converse realization result.
-10. **Signed bounds and extremizers** (`Signed.lean`). The polynomial identity `af_sos` only needs
-    `(2a+b)(a+2b) ≥ 0` for positivity, rather than `a,b ≥ 0` (`signed_asym_bound`). With strict product positivity,
-    every vanishing square gives the same null-space equations as in step 7; nonzero `a,b` make the
-    trace-preservation solve nonsingular (`eq_asym_of_signed_equality`). At `(a,b)=(3,−1)`, the support is
-    `3F̄₁ − 5F̄₂ ≤ 1`, attained uniquely by `Λ_{3,−1}` with averages `(13/14,5/14)`. To prove the floor companion
-    bound without a limit, suppose `F̄₂=1/3` and `d=F̄₁−5/6>0`; choose `a=1`, `b=3d/2−1/2`. The required product
-    is `9d(1+d)/2>0`, but the inequality's slack is `−3d²/2<0`. Thus `F̄₁≤5/6`; exchanging the output roles gives
-    the other bound. The existing channel `Λ_{2,−1}` attains `(5/6,1/3)` on every pure input.
-11. **Quantitative stability** (`Stability.lean`). The Hilbert–Schmidt orthogonal projection onto
-    `span{V₁,V₂}` has coefficients
-    `x=(2K(00,0)+K(01,1)+K(10,1))/6` and
-    `y=(K(01,0)+K(10,0)+2K(11,1))/3`. An exact identity (`sb_projection_distance`) identifies the residual squared norm.
-    The symmetric certificate equals twice this residual squared norm plus four nonnegative terms
-    (`sb_coercivity_identity`). Summing the certificate gives `12ε` for mean-fidelity deficit `ε`, hence total
-    squared distance at most `6ε` (`sb_channel_coercivity`, `kraus_span_stability`). The factor is sharp along
-    `Λ_{1+t,1−t}`. [STABILITY.md](STABILITY.md) gives the full derivation and separate handwritten Choi and
-    diamond-norm consequences; those norm consequences and the sharpness formulas are not additional Lean
-    theorems in the comparison list.
+9. **The full-range trade-off** (`FullTradeoff.lean`). For one Kraus operator, the Gram identity (`fr_gram_identity`):
+   `3‖K‖² − 2Σⱼ|uⱼ|² − 2Σⱼ|vⱼ|² + 2Σⱼ Re(ūⱼvⱼ) = 3|k₀₁₁|² + 3|k₁₀₀|² + |k₀₀₀ − k₁₁₀ − k₁₀₁|² + |k₁₁₁ − k₀₀₁ − k₀₁₀|²`.
+   Summed over the family with `Σᵢ ‖Kᵢ‖² = 2`, `U = Σᵢⱼ |uⱼ(Kᵢ)|² = 6F̄₁ − 2` and `V = Σᵢⱼ |vⱼ(Kᵢ)|² = 6F̄₂ − 2` (the sums
+   of `form_six_one`, `form_six_two`), it gives `U + V − 3 ≤ C = Σᵢⱼ Re(ūⱼvⱼ)`; Cauchy–Schwarz over `(i, j)` gives
+   `C ≤ √(UV)` (`fr_cauchy`), and halving is `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))` (`tradeoff_full_sqrt`). In
+   `X = 3F̄₁ − 1`, `Y = 3F̄₂ − 1` the equality curve is the ellipse `X² + XY + Y² − 3(X + Y) + 9/4 = 0`, tangent to the
+   floors at `(5/6, 1/3)` and `(1/3, 5/6)`; the inequality binds on its arc `X + Y ≥ 3/2`. At `F̄₂ = 1/3` the right side
+   is `0`, so `F̄₁ ≤ 5/6` (`sixAvg₁_le_of_sixAvg₂_eq_third`, and the mirror). This is the necessity half of
+   Nechita–Pellegrini–Rochette's Theorem 6 at `d = 2` (Hashagen's Theorem 6.4 in entanglement fidelity); the
+   Gram-identity route is this development's.
+10. **Signed weights** (`Signed.lean`). The identity `af_sos` of step 5 holds for all real `a, b`, and its right side
+    is nonnegative as soon as `P = (2a + b)(a + 2b) ≥ 0`, so the computation of step 5 (`af_bound_of_nonneg`) gives
+    `ab ≤ a(a + 2b)(1 − F̄₁) + b(2a + b)(1 − F̄₂)` under `P ≥ 0` alone (`signed_asym_bound`; `asym_bound` is the case
+    `a, b ≥ 0`); at `(1, −1)`, where `P < 0`, it fails for a channel with `F̄₁ = F̄₂ = 1/3`. For `P > 0` equality makes
+    every square of `af_sos` vanish, which gives the span conditions of step 7, and its trace-preservation solve needs
+    only `ab ≠ 0` (`au_eq_asym_of_span`; `eq_asym_of_signed_equality`). At `(3, −1)`, `P = 5` and the bound reads
+    `3F̄₁ − 5F̄₂ ≤ 1` (`clone_anticlone_bound`), attained by `Λ_{3,−1}` (`s = 7`, `F̄₁ = 13/14`, `F̄₂ = 5/14`;
+    `clone_anticlone_attained`) and only by it (`eq_clone_anticlone_of_equality`). `Λ_{2,−1}` (`s = 3`) has
+    `F₁ = 5/6`, `F₂ = 1/3` on every unit `ψ` (`floor_companion_attained`); at `(2, −1)`, `P = 0` and the bound is the
+    floor. These bounds concern the averages themselves: a lower bound on `F̄ᵢ` cannot be substituted into them.
+11. **Stability in the Kraus space** (`Stability.lean`). With `x(K) = (2k₀₀₀ + k₁₀₁ + k₁₁₀)/6` and
+    `y(K) = (k₀₀₁ + k₀₁₀ + 2k₁₁₁)/3`, `xV₁ + yV₂` is the orthogonal projection of `K` onto `span{V₁, V₂}`
+    (`‖V₁‖² = 6`, `‖V₂‖² = 3/2`), and the symmetric certificate of step 2 is twice the squared distance to that span
+    plus four squares (`sb_coercivity_identity`): `5‖K‖² − 6(sixAvg₁ + sixAvg₂) ![K] = 2‖K − xV₁ − yV₂‖² + |k₀₁₁|² +
+    |k₁₀₀|² + |k₀₀₀ − k₁₀₁ − k₁₁₀|²/3 + |k₁₁₁ − k₀₀₁ − k₀₁₀|²/3`. Summed with `Σᵢ ‖Kᵢ‖² = 2`:
+    `2Σᵢ ‖Kᵢ − xᵢV₁ − yᵢV₂‖² ≤ 10 − 6(F̄₁ + F̄₂) ≤ 12ε` (`sb_channel_coercivity`, `kraus_span_stability`). The constant `6`
+    is attained along `Λ_{1+t,1−t}`, where `ε = t²/(3(3 + t²))` and the distance is `6ε` (checked by
+    `scripts/check_extensions.py`; not a compared statement).
+12. **The equality cases** (`FullEquality.lean`). Along `Λ_{a,b}`, `X = (2a + b)²/2s`, `Y = (a + 2b)²/2s`, so for
+    `P ≥ 0` both sides of step 9 equal `P/2s` (`tradeoff_full_attained`). Conversely, equality makes both steps of
+    step 9 equalities: the summed Gram identity vanishes, so its four squares vanish for every `Kᵢ`, and `C = √U√V`,
+    so `Σᵢⱼ |√V uⱼ(Kᵢ) − √U vⱼ(Kᵢ)|² = 2UV − 2√U√V C = 0`; with `a = (2√U − √V)/3`, `b = (2√V − √U)/3` (`2a + b = √U`,
+    `a + 2b = √V`, `P = √U√V`) these are the span conditions of step 7, so the channel is `Λ_{a,b}`, and `a = 0` would
+    give `√V = 2√U`, `U = 1`, `V = 4`, `F̄₂ = 1` (`b = 0` likewise `F̄₁ = 1`; `eq_asym_of_tradeoff_full_equality`).
+    `F̄ᵢ ≠ 1` is needed: `ρ ↦ ρ ⊗ σ` attains `(1, 1/2)` for every state `σ`. At `(5/6, 1/3)`, `V = 0`, so `v ≡ 0`,
+    `C = 0` and the summed Gram identity is `6 − 6 = 0`: the span conditions hold at `(2, −1)`, and the channel is
+    `Λ_{2,−1}` (`eq_asym_of_floor₂`; `eq_asym_of_floor₁` the mirror). At `F̄₁ = 1`, `X = 2` and step 9 reads
+    `(Y − 1/2)² ≤ 0`, so `F̄₂ = 1/2` (`sixAvg₂_eq_half_of_sixAvg₁_eq_one`, and the mirror).
+13. **Stability as a channel** (`ChannelStability.lean`). Write `Kᵢ = Pᵢ + Rᵢ` with `Pᵢ = xᵢV₁ + yᵢV₂` the projection
+    of step 11, so `D = Σᵢ ‖Rᵢ‖² ≤ 6ε` and `Σᵢ ‖Pᵢ‖² = 2 − D`. Trace preservation reads `Σᵢ PᵢᴴPᵢ + E = 1` with
+    `E = Σᵢ (PᵢᴴRᵢ + RᵢᴴPᵢ + RᵢᴴRᵢ)`, and by the products of step 4 `Σᵢ PᵢᴴPᵢ = [[4X + Y/2, Z], [Z̄, 2X + Y]]`
+    (`X = Σ|xᵢ|²`, `Y = Σ|yᵢ|²`, `Z = Σ xᵢȳᵢ`), so `X − 1/6`, `Y − 2/3` and `Z` are combinations of the entries of `E`
+    (`cs_trace_solve`). Then `Λ(ρ) − Λ_BH(ρ) = (X − 1/6) V₁ρV₁ᴴ + (Y − 2/3) V₂ρV₂ᴴ + Z V₁ρV₂ᴴ + Z̄ V₂ρV₁ᴴ +
+    Σᵢ (PᵢρRᵢᴴ + RᵢρPᵢᴴ + RᵢρRᵢᴴ)`; with `‖E‖_F ≤ S = Σᵢ (2‖Pᵢ‖‖Rᵢ‖ + ‖Rᵢ‖²)` and `‖AρBᴴ‖_F ≤ ‖A‖_F ‖ρ‖_F ‖B‖_F`
+    (Mathlib's Frobenius norm) the difference is at most `13S ‖ρ‖_F` (`cs_delta_le`), and Cauchy–Schwarz with `D ≤ 2`
+    gives `S ≤ 3√2 · √D` (`cs_S_le`): at most `78√3 · √ε ‖ρ‖_F ≤ 200 √ε ‖ρ‖_F` (`channel_stability`). The order `√ε`
+    cannot be lowered: along `Λ_{1+t,1−t}`, at `ρ = |0⟩⟨0|`, the distance divided by `√ε` tends to `√2` as `t → 0`.
