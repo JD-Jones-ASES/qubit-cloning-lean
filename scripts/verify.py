@@ -71,8 +71,10 @@ def check_script(name, args):
 def check_replay():
     result = run([sys.executable, "-I", "scripts/check_cloning.py"], capture_output=True)
     lines = result.stdout.strip().splitlines()
-    good = result.returncode == 0 and lines[-1:] == ["VERDICT: PASS"]
-    return step("check_cloning.py (the standard-library replay of the identities)", good,
+    optimized = run([sys.executable, "-O", "-I", "scripts/check_cloning.py"], capture_output=True)
+    good = (result.returncode == 0 and lines[-1:] == ["VERDICT: PASS"] and optimized.returncode == 0
+            and optimized.stdout.strip().splitlines()[-1:] == ["VERDICT: PASS"])
+    return step("check_cloning.py (the standard-library replay of the identities, under -I and under -O -I)", good,
                 lines[-1] if lines else (result.stderr.strip().splitlines()[-1:] or [""])[0])
 
 

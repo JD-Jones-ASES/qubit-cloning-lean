@@ -2,15 +2,16 @@
 version: "v0.4"
 
 project:
-  name: "Universal 1 -> 2 qubit cloning: the single-clone fidelity bound 5/6 with the Buzek-Hillery channel as its unique optimum, the universal-NOT floor 1/3, and the asymmetric trade-off sqrt((1 - F1)(1 - F2)) >= F1 + F2 - 3/2 with the Niu-Griffiths-Cerf family as its unique equality case"
+  name: "Universal 1 -> 2 qubit cloning: the single-clone fidelity bound 5/6 with the Buzek-Hillery channel as its unique optimum, the universal-NOT floor 1/3, and the asymmetric trade-off sqrt((1 - F1)(1 - F2)) >= F1 + F2 - 3/2 with its equality family"
   description: >-
     A Lean 4 development of the optimal universal 1 -> 2 cloning of a qubit, with every figure of merit
     finite: a channel from one qubit to two is a finite Kraus family K_i : C^2 -> C^2 (x) C^2 with
     sum K_i^* K_i = 1 (the blank qubit is fixed, so this is a 1 -> 2 map; the Choi-Kraus theorem is not
     proved), the two clone fidelities of a pure input psi are Re <psi| Tr_2 Lambda(psi psi^*) |psi> and
     Re <psi| Tr_1 Lambda(psi psi^*) |psi>, and F1-bar, F2-bar are their averages over the six Pauli
-    eigenstates (1 +- sigma)/2, Gaussian-rational density matrices (the octahedron is a spherical 3-design, so
-    these equal the Bloch-sphere averages of Gisin-Massar; that equality is neither used nor claimed). Theorems,
+    eigenstates (1 +- sigma)/2, Gaussian-rational density matrices (the six states form a 2-design, the octahedron
+    being a spherical 3-design, so these equal the Bloch-sphere averages of Gisin-Massar; that equality is neither
+    used nor claimed). Theorems,
     kernel-only: for every channel (F1-bar + F2-bar)/2 <= 5/6, so some unit psi has min(F1, F2) <= 5/6
     (Gisin-Massar 1997, their largest-eigenvalue bound; Bruss-DiVincenzo-Ekert-Fuchs-Macchiavello-Smolin 1998
     within the symmetric isotropic ansatz), proved by a six-term sum of squares in the Kraus entries; the
@@ -22,16 +23,17 @@ project:
     here from the certificate; Keyl-Werner 1999 prove uniqueness under the worst-case one-clone criterion
     Delta_one and Werner 1998 under the global criterion; the Kraus family and the dilation are not unique,
     Roubert-Braun 2008), so 5/6 is the greatest t for which some channel has t <= F1(psi), F2(psi) for every unit
-    psi, in Lean's IsGreatest form; F1-bar, F2-bar >= 1/3 for every channel, attained by the universal NOT on one
-    clone with a maximally mixed other clone (the universal-NOT bound of Buzek-Hillery-Werner 1999 and
+    psi, in Lean's IsGreatest form; F1-bar, F2-bar >= 1/3 for every channel, attained for the first clone by the
+    universal NOT on it with a maximally mixed second clone (the universal-NOT bound of Buzek-Hillery-Werner 1999 and
     Gisin-Popescu 1999, in six-state average form); the asymmetric trade-off a b <= a(a + 2b)(1 - F1-bar) +
     b(2a + b)(1 - F2-bar) for every channel and all weights a, b >= 0, also with worst-case fidelities in place of
     the averages (the largest-eigenvalue bound of Fiurasek-Filip-Cerf 2005, Section II, in every dimension, with
-    their conic alpha^2 + alpha beta + beta^2 = 1 written homogeneously; Niu-Griffiths 1998 (6.29), Cerf 1998 and 2000
-    (the conic (2.31) and x^2 + x'^2 + x x' >= 1/4), Buzek-Hillery-Bednik 1998 (11); the full achievable region in
+    their conic alpha^2 + alpha beta + beta^2 = 1 written homogeneously; Hashagen 2017, (6.4a); the curve of Niu-Griffiths
+    1998, (6.29); the conic of Cerf, J. Mod. Opt. 2000, (2.31), and x^2 + x'^2 + x x' >= 1/4 of Cerf, PRL 2000, (6);
+    Buzek-Hillery-Bednik 1998, (11); the full achievable region in
     Hashagen 2017 and Nechita-Pellegrini-Rochette 2021), proved by a sum of squares polynomial in a, b; the
     family (A0 rho A0^* + A1 rho A1^*)/(2(a^2 + ab + b^2)) with A0|0> = (a + b)|00>, A0|1> = a|10> + b|01>,
-    A1|0> = a|01> + b|10>, A1|1> = (a + b)|11> (the optimal asymmetric cloner of Niu-Griffiths (4.13), Cerf (2.28),
+    A1|0> = a|01> + b|10>, A1|1> = (a + b)|11> (the optimal asymmetric cloner of Niu-Griffiths (4.13), Cerf, J. Mod. Opt. 2000, (2.28),
     Fiurasek-Filip-Cerf (19), Scarani-Iblisdir-Gisin-Acin 2005 (27)) consists of channels with marginals
     rho -> (1 - b^2/s) rho + (b^2/2s) Tr(rho) 1 and rho -> (1 - a^2/s) rho + (a^2/2s) Tr(rho) 1, s = a^2 + ab + b^2,
     so F1 = 1 - b^2/2s and F2 = 1 - a^2/2s on every unit psi, with equality in the bound at the weights (a, b),
@@ -45,7 +47,7 @@ project:
     asymmetric trade-off was located in the Palomar registry, Mathlib, formal-conjectures, openai/math, physlib,
     Lean-QIT, QICLean, csd-lean4, atlas-lean, trureturing, JWang226/Cloning (asymptotic global-fidelity cloning,
     a different figure of merit), the Isabelle AFP, the Rocq package index or arXiv; physlib's wishlist names the
-    5/6 bound as wanted and csd-lean4 holds the qualitative no-cloning and no-broadcasting theorems. No first is
+    5/6 bound as wanted and csd-lean4 holds the qualitative no-cloning and no-broadcasting theorems. No priority is
     claimed.
   url: "https://github.com/JD-Jones-ASES/qubit-cloning-lean"
   license: "MIT"
@@ -256,8 +258,8 @@ sources:
     type: "paper"
     location: >-
       Physical Review Letters 83 (1999), 432; read as arXiv:quant-ph/9901072 (https://arxiv.org/abs/quant-ph/9901072),
-      pp. 3-4: the spin-flip fidelity int dn <-n| rho |-n>, its optimum 2/3, p. 4 (by reference to
-      Bechmann-Pasquinucci-Gisin), so the average fidelity to the input is at least 1/3. The journal print was not read.
+      pp. 3-4: the spin-flip fidelity int dn <-n| rho |-n>, its optimum 2/3, p. 4 (stated there by reference), so the
+      average fidelity to the input is at least 1/3. The journal print was not read.
     relationship: "background"
     author_endorsement: "not-contacted"
     note: >-
@@ -344,6 +346,36 @@ sources:
       Asymptotic cloning of mixed states under the global root fidelity, with a Lean development (27 named
       results on an adapted physlib, Lean 4.29.0-rc6); a different figure of merit, no single-clone fidelity, no
       1 -> 2 bound, no uniqueness. Nothing from it is used; the nearest formal neighbour.
+  - title: "Completely positive linear maps on complex matrices"
+    authors: ["Man-Duen Choi"]
+    id: "doi:10.1016/0024-3795(75)90075-0"
+    type: "paper"
+    location: "Linear Algebra and its Applications 10 (1975), 285-290 (not read; named for the theorem that is not proved here)"
+    relationship: "background"
+    author_endorsement: "not-contacted"
+    note: >-
+      Named in the docs for the Choi-Kraus theorem (every completely positive map has a Kraus form), which this
+      development does not prove: a channel is defined as a finite Kraus family. Nothing is taken from it.
+  - title: "States, effects, and operations: fundamental notions of quantum theory"
+    authors: ["Karl Kraus"]
+    id: "doi:10.1007/3-540-12732-1"
+    type: "book"
+    location: "Lecture Notes in Physics 190, Springer (1983) (not read; named for the Kraus form of a channel)"
+    relationship: "background"
+    author_endorsement: "not-contacted"
+    note: >-
+      Named for the Kraus form rho -> sum K_i rho K_i^* with sum K_i^* K_i = 1 that defines a channel here. Nothing is
+      taken from it.
+  - title: "PalomarSubmission: the registry's submission checks and core-notation audit"
+    authors: ["The Palomar registry (PalomarRegistry/PalomarSubmission)"]
+    id: "https://github.com/PalomarRegistry/PalomarSubmission"
+    type: "other"
+    location: "scripts/core_notation_audit.lean in this repository, copied with a three-line provenance comment; MIT (LICENSES/PalomarSubmission-MIT.txt)"
+    relationship: "other"
+    author_endorsement: "not-contacted"
+    note: >-
+      The registry's own renderability audit script, run locally by scripts/verify.py. No mathematics is taken from
+      it.
 
 related_formalizations:
   - id: "https://github.com/leanprover-community/physlib/blob/a4ef461/docs/WildeTODO.md"
@@ -378,10 +410,13 @@ related_formalizations:
     note: "Channel infrastructure (symmetric subspace, unitary twirl, Choi characterization, pure-target fidelity) with no cloning statement. No code is shared."
   - id: "https://github.com/LionSR/QICLean/tree/34fe86c"
     relationship: "other"
-    note: "Channels, Choi matrices and partial traces following Wolf's notes, with no cloning statement. No code is shared."
+    note: "Channels, Choi matrices and partial traces, with no cloning statement. No code is shared."
+  - id: "https://github.com/isabelle-prover/mirror-afp-devel/blob/80985fd/thys/Isabelle_Marries_Dirac/No_Cloning.thy"
+    relationship: "other"
+    note: "The qualitative no-cloning theorem in Isabelle/HOL (the Archive of Formal Proofs, Isabelle Marries Dirac); no quantitative bound. No code is shared."
   - id: "https://github.com/google-deepmind/formal-conjectures/issues/3437"
     relationship: "other"
-    note: "An open issue (2026-03-06) proposing Open Quantum Problem 22, asymptotic cloning is state estimation (N -> M, solved by Bae-Acín 2006); no statement file, no PR; a different statement."
+    note: "An open issue (2026-03-06) proposing Open Quantum Problem 22, asymptotic cloning is state estimation (N -> M, solved in 2006); no statement file, no PR; a different statement."
 
 status:
   scope: >-
@@ -542,10 +577,9 @@ automation:
       tool_setup: >-
         The project was directed by its author. Claude (Anthropic) in Claude Code was used throughout: the
         reading of the papers as printed pages, the statements and their check against them, the exact replay of
-        the identities in the standard library, the Lean proofs, the prior-art searches and the repository text;
-        Claude Fable 5.1 derived the certificates, pinned the statements, wrote the replay checker, merged the proof
-        modules and wrote the documents, and Claude Opus 5.5 subagents read the sources and the prior art, wrote
-        the Lean proofs and audited them in separate passes. Lean v4.35.0-rc2 and Mathlib v4.35.0-rc2 (commit
+        the identities in the standard library, the Lean proofs, the prior-art searches and the repository text,
+        by Claude Fable 5.1 and Claude Opus 5.5 subagents in Claude Code, with the proofs audited in separate
+        passes. Lean v4.35.0-rc2 and Mathlib v4.35.0-rc2 (commit
         065356127b1dc0016f66b7283ce0ce2c4055aa55) are pinned by the committed manifest and lake update is never run;
         there are no GitHub Actions workflows. There is no native_decide and no decide +kernel: the proofs are
         polynomial identities in the real and imaginary parts of the Kraus entries closed by ring and
@@ -556,9 +590,9 @@ automation:
 fidelity:
   divergences: >-
     The figure of merit is the average of the single-clone fidelity over the six Pauli eigenstates (1 +- sigma)/2
-    (sixAvg_1, sixAvg_2), not the Bloch-sphere (Haar) average of Gisin-Massar, Fiurasek-Filip-Cerf, Hashagen and
-    Nechita-Pellegrini-Rochette; the octahedron is a spherical 3-design, so the two averages agree for every
-    channel, but that equality is neither used nor stated. The pointwise statements (exists_unit_min_le,
+    (sixAvg₁, sixAvg₂), not the Bloch-sphere (Haar) average of Gisin-Massar, Fiurasek-Filip-Cerf, Hashagen and
+    Nechita-Pellegrini-Rochette; the six states form a 2-design (the octahedron is a spherical 3-design), so the two
+    averages agree for every channel, but that equality is neither used nor stated. The pointwise statements (exists_unit_min_le,
     eq_bh_of_forall, isGreatest_cloning_fidelity, asym_bound_forall, tradeoff_forall, bh_fidelity, asym_fidelity)
     quantify over unit vectors psi with star psi . psi = 1, so they are the worst-case forms over pure inputs. A
     channel is a finite Kraus family K : Fin r -> Matrix (Fin 2 x Fin 2) (Fin 2) C with sum K_i^* K_i = 1 acting by
@@ -568,7 +602,7 @@ fidelity:
     fidelity of a pure state with a matrix is Re Tr(rho sigma) (fidelity), with rho = psi psi^* (proj). The
     partial traces are explicit index sums (traceSecond over the second clone, traceFirst over the first). The
     Buzek-Hillery channel and the asymmetric family are defined as maps on matrices (bhChannel, asymChannel) with
-    rational coefficients, their Kraus families carrying the square roots only inside the existence statements
+    coefficients rational in the weights, their Kraus families carrying the square roots only inside the existence statements
     (bh_isChannel, asym_isChannel); asymChannel a b is parametrized by unnormalized real weights (a, b) with the
     factor 1/(2(a^2 + ab + b^2)) in place of the conic alpha^2 + alpha beta + beta^2 = 1 of Fiurasek-Filip-Cerf,
     Cerf and Scarani et al. ((alpha, beta) = (a, b)/sqrt(a^2 + ab + b^2)), and the asymmetric bound is stated
@@ -611,13 +645,13 @@ alignment:
       lean: "QubitCloning.proj_pauliVec"
       module: "Solution"
       status: "proved"
-      note: "One qubit: the index type `Fin 2`. -/ abbrev Q : Type := Fin 2 /-- Two qubits, the first clone then the second: the index type `Fin 2 × Fin 2`. -/ abbrev QQ : Type := Fin 2 × Fin 2 /-- The action of a Kraus family on a one-qubit matrix: `ρ ↦ Σᵢ Kᵢ ρ Kᵢᴴ`. -/ def krausApply {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (ρ : Matrix Q Q ℂ) : Matrix QQ QQ ℂ := ∑ i, K i * ρ * (K i)ᴴ /-- A channel from one qubit to two: a finite Kraus family with `Σᵢ Kᵢᴴ Kᵢ = 1` (trace preservation; complete positivity is built into the Kraus form). -/ def IsChannel {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) : Prop := ∑ i, (K i)ᴴ * K i = 1 /-- The partial trace over the second clone: `(a, b) ↦ Σ_k M (a, k) (b, k)`. -/ def traceSecond (M : Matrix QQ QQ ℂ) : Matrix Q Q ℂ := Matrix.of fun a b => ∑ k, M (a, k) (b, k) /-- The partial trace over the first clone: `(a, b) ↦ Σ_k M (k, a) (k, b)`. -/ def traceFirst (M : Matrix QQ QQ ℂ) : Matrix Q Q ℂ := Matrix.of fun a b => ∑ k, M (k, a) (k, b) /-- The projector `ψ ψ†` onto a vector. -/ def proj (ψ : Q → ℂ) : Matrix Q Q ℂ := Matrix.vecMulVec ψ (star ψ) /-- The fidelity of the pure state `ρ = ψψ†` with a state `σ`: `Re Tr(ρ σ) = ⟨ψ|σ|ψ⟩`. -/ def fidelity (ρ σ : Matrix Q Q ℂ) : ℝ := (Matrix.trace (ρ * σ)).re /-- The first clone's fidelity on the pure input `ψ`. -/ def F₁ {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (ψ : Q → ℂ) : ℝ := fidelity (proj ψ) (traceSecond (krausApply K (proj ψ))) /-- The second clone's fidelity on the pure input `ψ`. -/ def F₂ {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (ψ : Q → ℂ) : ℝ := fidelity (proj ψ) (traceFirst (krausApply K (proj ψ))) /-- The six Pauli eigenstates as density matrices `(1 ± σ)/2`: `0, 1` the `σ_z` eigenstates `|0⟩, |1⟩`; `2, 3` the `σ_x` eigenstates `|±⟩`; `4, 5` the `σ_y` eigenstates `|±i⟩`. -/ def pauliState : Fin 6 → Matrix Q Q ℂ := ![!![1, 0; 0, 0], !![0, 0; 0, 1], !![1 / 2, 1 / 2; 1 / 2, 1 / 2], !![1 / 2, -1 / 2; -1 / 2, 1 / 2], !![1 / 2, -Complex.I / 2; Complex.I / 2, 1 / 2], !![1 / 2, Complex.I / 2; -Complex.I / 2, 1 / 2]] /-- The six Pauli eigenstates as unit vectors: `|0⟩, |1⟩, (|0⟩ ± |1⟩)/√2, (|0⟩ ± i|1⟩)/√2`. -/ def pauliVec : Fin 6 → (Q → ℂ) := ![![1, 0], ![0, 1], ![(Real.sqrt 2 : ℂ)⁻¹, (Real.sqrt 2 : ℂ)⁻¹], ![(Real.sqrt 2 : ℂ)⁻¹, -(Real.sqrt 2 : ℂ)⁻¹], ![(Real.sqrt 2 : ℂ)⁻¹, Complex.I * (Real.sqrt 2 : ℂ)⁻¹], ![(Real.sqrt 2 : ℂ)⁻¹, -(Complex.I * (Real.sqrt 2 : ℂ)⁻¹)]] /-- The six-state average of the first clone's fidelity. -/ def sixAvg₁ {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) : ℝ := (∑ s, fidelity (pauliState s) (traceSecond (krausApply K (pauliState s)))) / 6 /-- The six-state average of the second clone's fidelity. -/ def sixAvg₂ {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) : ℝ := (∑ s, fidelity (pauliState s) (traceFirst (krausApply K (pauliState s)))) / 6 /-- Bužek–Hillery's first operator: `V₁|0⟩ = 2|00⟩`, `V₁|1⟩ = |01⟩ + |10⟩`. -/ def bhV₁ : Matrix QQ Q ℂ := Matrix.of fun x i => if x = (0, 0) ∧ i = 0 then 2 else if (x = (0, 1) ∨ x = (1, 0)) ∧ i = 1 then 1 else 0 /-- Bužek–Hillery's second operator: `V₂|0⟩ = (|01⟩ + |10⟩)/2`, `V₂|1⟩ = |11⟩`. -/ def bhV₂ : Matrix QQ Q ℂ := Matrix.of fun x i => if (x = (0, 1) ∨ x = (1, 0)) ∧ i = 0 then 1 / 2 else if x = (1, 1) ∧ i = 1 then 1 else 0 /-- The Bužek–Hillery channel as a map: `ρ ↦ (1/6) V₁ ρ V₁ᴴ + (2/3) V₂ ρ V₂ᴴ` (Bužek–Hillery 1996; the Kraus operators are `V₁/√6` and `√(2/3) V₂`). -/ def bhChannel (ρ : Matrix Q Q ℂ) : Matrix QQ QQ ℂ := (1 / 6 : ℂ) • (bhV₁ * ρ * bhV₁ᴴ) + (2 / 3 : ℂ) • (bhV₂ * ρ * bhV₂ᴴ) /-- The asymmetric cloner's first operator: `A₀|0⟩ = (a + b)|00⟩`, `A₀|1⟩ = a|10⟩ + b|01⟩`. -/ def asymA₀ (a b : ℝ) : Matrix QQ Q ℂ := Matrix.of fun x i => if x = (0, 0) ∧ i = 0 then ((a + b : ℝ) : ℂ) else if x = (1, 0) ∧ i = 1 then (a : ℂ) else if x = (0, 1) ∧ i = 1 then (b : ℂ) else 0 /-- The asymmetric cloner's second operator: `A₁|0⟩ = a|01⟩ + b|10⟩`, `A₁|1⟩ = (a + b)|11⟩`. -/ def asymA₁ (a b : ℝ) : Matrix QQ Q ℂ := Matrix.of fun x i => if x = (0, 1) ∧ i = 0 then (a : ℂ) else if x = (1, 0) ∧ i = 0 then (b : ℂ) else if x = (1, 1) ∧ i = 1 then ((a + b : ℝ) : ℂ) else 0 /-- The asymmetric cloning channel with weights `a, b` (not both zero), as a map: `ρ ↦ (A₀ ρ A₀ᴴ + A₁ ρ A₁ᴴ) / (2(a² + ab + b²))` (the optimal asymmetric cloner of Niu–Griffiths 1998 and Cerf 1998 in these coordinates; `a = b` is the Bužek–Hillery channel; the Kraus operators are `A₀, A₁` divided by `√(2(a² + ab + b²))`). -/ def asymChannel (a b : ℝ) (ρ : Matrix Q Q ℂ) : Matrix QQ QQ ℂ := ((2 * (a ^ 2 + a * b + b ^ 2) : ℝ)⁻¹ : ℂ) • (asymA₀ a b * ρ * (asymA₀ a b)ᴴ + asymA₁ a b * ρ * (asymA₁ a b)ᴴ) /-! ## The six states -/ /-- Each Pauli eigenstate is the projector onto its unit vector."
+      note: "Each Pauli eigenstate is the projector onto its unit vector."
     - source: "This development (the six unit vectors)"
       lean: "QubitCloning.pauliVec_unit"
       module: "Solution"
       status: "proved"
       note: "The six vectors are unit vectors."
-    - source: "Gisin-Massar 1997, (12)-(17) and p. 4, at M = 2, with the six-state average (3-design) in place of the Bloch-sphere average; Bruss et al. 1998, (16), within their ansatz"
+    - source: "Gisin-Massar 1997, (12)-(17) and p. 4, at M = 2, with the six-state average (a 2-design) in place of the Bloch-sphere average; Bruss et al. 1998, (16), within their ansatz"
       lean: "QubitCloning.sixAvg_le"
       module: "Solution"
       status: "proved"
@@ -627,7 +661,7 @@ alignment:
       module: "Solution"
       status: "proved"
       note: "No channel clones every pure state with both fidelities above `5/6`: some unit vector has `min (F₁, F₂) ≤ 5/6`."
-    - source: "Buzek-Hillery-Werner 1999, the Theorem at N = 1, and Gisin-Popescu 1999, p. 4, in six-state average form (this development)"
+    - source: "This development (the six-state average form of the universal-NOT bound, from the certificate; cf. Buzek-Hillery-Werner 1999, the Theorem at N = 1, and Gisin-Popescu 1999, p. 4)"
       lean: "QubitCloning.sixAvg_ge_third"
       module: "Solution"
       status: "proved"
@@ -682,7 +716,7 @@ alignment:
       module: "Solution"
       status: "proved"
       note: "`5/6` is the greatest worst-case common fidelity of a universal `1 → 2` qubit cloner: the greatest `t` for which some channel has `t ≤ F₁(ψ)` and `t ≤ F₂(ψ)` for every unit `ψ`."
-    - source: "Fiurasek-Filip-Cerf 2005, (11)-(16) at d = 2, written homogeneously in the weights (a, b) with sqrt(A^2 - AB + B^2) = a^2 + ab + b^2; Hashagen 2017, (6.4a); the six-state average (this development)"
+    - source: "Fiurasek-Filip-Cerf 2005, (11)-(16) at d = 2, written homogeneously in the weights (a, b) with sqrt(A^2 - AB + B^2) = a^2 + ab + b^2, with the six-state average (this development); cf. Hashagen 2017, (6.4a)"
       lean: "QubitCloning.asym_bound"
       module: "Solution"
       status: "proved"
@@ -692,17 +726,17 @@ alignment:
       module: "Solution"
       status: "proved"
       note: "The same bound for worst-case fidelities: if `f₁ ≤ F₁(ψ)` and `f₂ ≤ F₂(ψ)` for every unit `ψ`, then `a b ≤ a (a + 2b) (1 − f₁) + b (2a + b) (1 − f₂)`."
-    - source: "Niu-Griffiths 1998, (4.13); Fiurasek-Filip-Cerf 2005, (19); Cerf 2000, (2.28); Scarani et al. 2005, (27), as a Kraus family"
+    - source: "Niu-Griffiths 1998, (4.13); Fiurasek-Filip-Cerf 2005, (19); Scarani et al. 2005, (27), as a Kraus family; cf. Cerf, J. Mod. Opt. 2000, (2.28)"
       lean: "QubitCloning.asym_isChannel"
       module: "Solution"
       status: "proved"
       note: "The asymmetric cloner is a channel for every `(a, b) ≠ (0, 0)`."
-    - source: "Buzek-Hillery-Bednik 1998, (4) with s_0 = 1 - beta^2; Fiurasek-Filip-Cerf 2005, (22), for every input matrix (this development)"
+    - source: "Fiurasek-Filip-Cerf 2005, (22), for every input matrix (this development); cf. Buzek-Hillery-Bednik 1998, (4) with s_0 = 1 - beta^2"
       lean: "QubitCloning.asym_traceSecond"
       module: "Solution"
       status: "proved"
       note: "Its first marginal is the depolarizing map with shrinking factor `1 − b²/(a² + ab + b²)`."
-    - source: "Buzek-Hillery-Bednik 1998, (4) with s_1 = 1 - alpha^2; Fiurasek-Filip-Cerf 2005, (22), for every input matrix (this development)"
+    - source: "Fiurasek-Filip-Cerf 2005, (22), for every input matrix (this development); cf. Buzek-Hillery-Bednik 1998, (4) with s_1 = 1 - alpha^2"
       lean: "QubitCloning.asym_traceFirst"
       module: "Solution"
       status: "proved"

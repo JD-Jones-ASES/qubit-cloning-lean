@@ -28,7 +28,7 @@ DENIED = [
 
 def main():
     failures = []
-    with tempfile.TemporaryDirectory(prefix="ad-source-guard-") as directory:
+    with tempfile.TemporaryDirectory(prefix="qc-source-guard-") as directory:
         fixture = Path(directory)
         (fixture / "scripts").mkdir()
         (fixture / "QubitCloning").mkdir()

@@ -10,8 +10,8 @@ A *channel from one qubit to two* is a finite Kraus family `K : Fin r → Matrix
 positive trace-preserving map has such a family; the blank qubit is fixed, so this is a `1 → 2` map and not a
 two-qubit machine). For a pure input `ψ` the two *clone fidelities* are `F₁(ψ) = Re ⟨ψ| Tr₂ Λ(ψψ†) |ψ⟩` and
 `F₂(ψ) = Re ⟨ψ| Tr₁ Λ(ψψ†) |ψ⟩`, and `F̄₁, F̄₂` are their averages over the six Pauli eigenstates `(1 ± σ)/2`
-(the octahedron is a 2-design, so these equal the Bloch-sphere averages of Gisin–Massar; that equality is not
-used and not claimed). This file states, and `Solution.lean` proves kernel-only (no `native_decide`):
+(the six states form a 2-design, the octahedron being a spherical 3-design, so these equal the Bloch-sphere
+averages of Gisin–Massar; that equality is not used and not claimed). This file states, and `Solution.lean` proves kernel-only (no `native_decide`):
 
 * **the bound** (Gisin–Massar 1997; Bruß–DiVincenzo–Ekert–Fuchs–Macchiavello–Smolin 1998 within the symmetric
   isotropic ansatz): for every channel `(F̄₁ + F̄₂)/2 ≤ 5/6`, so some unit `ψ` has `min(F₁(ψ), F₂(ψ)) ≤ 5/6`
@@ -26,11 +26,12 @@ used and not claimed). This file states, and `Solution.lean` proves kernel-only 
   so `5/6` is the greatest `t` for which some channel has `t ≤ F₁(ψ), F₂(ψ)` for every unit `ψ`
   (`isGreatest_cloning_fidelity`). Keyl–Werner 1999 prove uniqueness for the worst-case one-clone criterion
   `Δ_one`; under the average-fidelity criterion it is proved here from the certificate;
-* **the floor**: `F̄₁, F̄₂ ≥ 1/3` for every channel, attained (`sixAvg_ge_third`, `exists_sixAvg_eq_third`:
+* **the floor**: `F̄₁, F̄₂ ≥ 1/3` for every channel, attained for the first clone (`sixAvg_ge_third`, `exists_sixAvg_eq_third`:
   the universal-NOT bound of Bužek–Hillery–Werner 1999 and Gisin–Popescu 1999, in the six-state average form);
-* **the asymmetric trade-off** (Niu–Griffiths 1998; Cerf 1998, 2000; Bužek–Hillery–Bednik 1998;
-  Fiurášek–Filip–Cerf 2005 for the operator method in every dimension; the full region in Hashagen 2017 and
-  Nechita–Pellegrini–Rochette 2021): for every channel and all `a, b ≥ 0`,
+* **the asymmetric trade-off** (Fiurášek–Filip–Cerf 2005, §II, the largest-eigenvalue bound in every dimension;
+  Hashagen 2017, (6.4a); the conic of Cerf, J. Mod. Opt. 2000, (2.31), and the curve of Niu–Griffiths 1998, (6.29);
+  Bužek–Hillery–Bednik 1998; the full region in Hashagen 2017 and Nechita–Pellegrini–Rochette 2021): for every
+  channel and all `a, b ≥ 0`,
   `a b ≤ a (a + 2b)(1 − F̄₁) + b (2a + b)(1 − F̄₂)` (`asym_bound`), also with worst-case fidelities in place of the
   averages (`asym_bound_forall`); the family `Λ_{a,b}(ρ) = (A₀ ρ A₀ᴴ + A₁ ρ A₁ᴴ) / (2(a² + ab + b²))` with
   `A₀|0⟩ = (a + b)|00⟩`, `A₀|1⟩ = a|10⟩ + b|01⟩`, `A₁|0⟩ = a|01⟩ + b|10⟩`, `A₁|1⟩ = (a + b)|11⟩` consists of
@@ -43,7 +44,7 @@ used and not claimed). This file states, and `Solution.lean` proves kernel-only 
   and equality along the family (`tradeoff_sqrt`, `tradeoff_forall`, `tradeoff_attained`).
 
 Twenty-seven statements over twenty definitions; `comparator.json` lists no definition holes. The certificates
-are the identities `6 F̄ᵢ(K) = Σᵢ ‖Kᵢ‖² + Σᵢ ⟨kᵢ, Ωᵢ kᵢ⟩` with `Ωᵢ = |Ω⟩⟨Ω|_{R Aᵢ} ⊗ 1`, `|Ω⟩ = |00⟩ + |11⟩`
+are the identities `6 F̄ᵢ(K) = Σⱼ ‖Kⱼ‖² + Σⱼ ⟨kⱼ, Ωᵢ kⱼ⟩` with `Ωᵢ = |Ω⟩⟨Ω|_{R Aᵢ} ⊗ 1`, `|Ω⟩ = |00⟩ + |11⟩`
 (the averaged operators of Gisin–Massar's and Fiurášek–Filip–Cerf's largest-eigenvalue method, written as
 quadratic forms in the Kraus entries), and `(2a + b)(a + 2b) ‖k‖² − ⟨k, (a(a + 2b) Ω₁ + b(2a + b) Ω₂) k⟩
 = (1/3) Σⱼ |⟨(a + 2b) ũⱼ − (2a + b) ṽⱼ, k⟩|² + (2a + b)(a + 2b) ‖Π⊥ k‖²`, polynomial in `a, b`; nothing uses
@@ -84,7 +85,7 @@ def traceFirst (M : Matrix QQ QQ ℂ) : Matrix Q Q ℂ :=
 def proj (ψ : Q → ℂ) : Matrix Q Q ℂ :=
   Matrix.vecMulVec ψ (star ψ)
 
-/-- The fidelity of the pure state `ρ = ψψ†` with a state `σ`: `Re Tr(ρ σ) = ⟨ψ|σ|ψ⟩`. -/
+/-- The fidelity of the pure state `ρ = ψψ†` with a state `σ`: `Re Tr(ρ σ) = Re ⟨ψ|σ|ψ⟩`. -/
 def fidelity (ρ σ : Matrix Q Q ℂ) : ℝ :=
   (Matrix.trace (ρ * σ)).re
 
@@ -147,7 +148,7 @@ def asymA₁ (a b : ℝ) : Matrix QQ Q ℂ :=
 
 /-- The asymmetric cloning channel with weights `a, b` (not both zero), as a map:
 `ρ ↦ (A₀ ρ A₀ᴴ + A₁ ρ A₁ᴴ) / (2(a² + ab + b²))` (the optimal asymmetric cloner of Niu–Griffiths 1998 and
-Cerf 1998 in these coordinates; `a = b` is the Bužek–Hillery channel; the Kraus operators are
+Cerf, J. Mod. Opt. 2000, in these coordinates; `a = b` is the Bužek–Hillery channel; the Kraus operators are
 `A₀, A₁` divided by `√(2(a² + ab + b²))`). -/
 def asymChannel (a b : ℝ) (ρ : Matrix Q Q ℂ) : Matrix QQ QQ ℂ :=
   ((2 * (a ^ 2 + a * b + b ^ 2) : ℝ)⁻¹ : ℂ) •

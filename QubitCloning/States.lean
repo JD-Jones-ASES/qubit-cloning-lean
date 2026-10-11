@@ -5,8 +5,7 @@ public import QubitCloning.Defs
 /-!
 # States
 
-The six states, linearity of the pieces, the vector form of the fidelity (ARCH.md §1). Lane `states`.
-Every public theorem of this module is the `_internal` twin of a Challenge statement (header verbatim) or a desk-pinned helper; helpers of this lane are prefixed `st_`.
+The six states, linearity of the pieces, the vector form of the fidelity. Every public theorem is the `_internal` twin of a Challenge statement (header verbatim) or a helper prefixed `st_`.
 -/
 
 @[expose] public section
@@ -33,7 +32,7 @@ theorem st_sqrt_two_inv :
   rw [← mul_inv, Real.mul_self_sqrt (by norm_num)]
   norm_num
 
-/-- Each Pauli eigenstate is the projector onto its unit vector (the lane's working copy of the pin). -/
+/-- Each Pauli eigenstate is the projector onto its unit vector. -/
 theorem st_proj_pauliVec (s : Fin 6) : proj (pauliVec s) = pauliState s := by
   obtain ⟨e, hv⟩ := st_sqrt_two_inv
   generalize (Real.sqrt 2)⁻¹ = v at hv e
@@ -41,7 +40,7 @@ theorem st_proj_pauliVec (s : Fin 6) : proj (pauliVec s) = pauliState s := by
   fin_cases s <;> fin_cases a <;> fin_cases b <;> apply Complex.ext <;>
     simp [proj, pauliVec, pauliState, Matrix.vecMulVec_apply, e] <;> linarith
 
-/-- The six vectors are unit vectors (the lane's working copy of the pin). -/
+/-- The six vectors are unit vectors. -/
 theorem st_pauliVec_unit (s : Fin 6) : star (pauliVec s) ⬝ᵥ pauliVec s = 1 := by
   obtain ⟨e, hv⟩ := st_sqrt_two_inv
   generalize (Real.sqrt 2)⁻¹ = v at hv e
@@ -168,6 +167,5 @@ theorem proj_pauliVec_internal (s : Fin 6) : proj (pauliVec s) = pauliState s :=
 /-- The six vectors are unit vectors. -/
 theorem pauliVec_unit_internal (s : Fin 6) : star (pauliVec s) ⬝ᵥ pauliVec s = 1 := st_pauliVec_unit s
 
-/-! ## Extras for the neighbouring modules -/
 
 end QubitCloning

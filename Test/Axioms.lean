@@ -32,8 +32,8 @@ run_cmd do
         unless allowed.contains ax do
           rejected := rejected + 1
           logError m!"Unexpected axiom dependency: {name} -> {ax}"
-  unless checked ≥ 60 do
-    logError m!"Axiom audit matched only {checked} project constants; expected at least 60"
+  unless checked ≥ 180 do
+    logError m!"Axiom audit matched only {checked} project constants; expected at least 180"
   for n in [`QubitCloning.proj_pauliVec, `QubitCloning.pauliVec_unit, `QubitCloning.sixAvg_le,
       `QubitCloning.exists_unit_min_le, `QubitCloning.sixAvg_ge_third,
       `QubitCloning.exists_sixAvg_eq_third, `QubitCloning.bh_isChannel, `QubitCloning.bh_trace,

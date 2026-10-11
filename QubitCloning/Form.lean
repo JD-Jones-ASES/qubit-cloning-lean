@@ -5,8 +5,7 @@ public import QubitCloning.States
 /-!
 # Form
 
-The symmetric certificate: the per-Kraus identities and the six-term sum of squares (ARCH.md §2). Lane `form`.
-Every public theorem of this module is the `_internal` twin of a Challenge statement (header verbatim) or a desk-pinned helper; helpers of this lane are prefixed `form_`.
+The symmetric certificate: the per-Kraus identities and the six-term sum of squares. Every public theorem is the `_internal` twin of a Challenge statement (header verbatim) or a helper prefixed `form_`.
 -/
 
 @[expose] public section
@@ -87,7 +86,7 @@ theorem form_six_two (K : Matrix QQ Q ℂ) :
     star_add, Fin.sum_univ_two, Fintype.sum_prod_type]
   ring
 
-/-- The symmetric certificate: the six-term sum of squares (the desk's `probe.py`, H2). -/
+/-- The symmetric certificate: the six-term sum of squares (replayed by `scripts/check_cloning.py`, H2). -/
 theorem form_sos (K : Matrix QQ Q ℂ) :
     6 * (sixAvg₁ ![K] + sixAvg₂ ![K]) =
       5 * ∑ x, ∑ i, Complex.normSq (K x i)
@@ -167,11 +166,6 @@ theorem sixAvg_ge_third_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK :
       linarith
     linarith
 
-/-! ### Extras for the neighbouring modules (lane `form`)
-
-For `Unique` (§4): the sum of squares summed over a channel, its vanishing at the optimum, and the resulting
-form `Kᵢ = xᵢ • bhV₁ + yᵢ • bhV₂`. For `AsymForm` and `BH` (§3, §5): the six-state averages of a channel as
-`1/3` plus a sum of squares. -/
 
 end QubitCloning
 

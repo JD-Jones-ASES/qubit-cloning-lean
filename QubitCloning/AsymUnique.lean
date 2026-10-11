@@ -6,8 +6,7 @@ public import QubitCloning.Asym
 /-!
 # AsymUnique
 
-Uniqueness of the asymmetric optimum (ARCH.md §7). Lane `asymunique`.
-Every public theorem of this module is the `_internal` twin of a Challenge statement (header verbatim) or a desk-pinned helper; helpers of this lane are prefixed `au_`.
+Uniqueness of the asymmetric optimum. Every public theorem is the `_internal` twin of a Challenge statement (header verbatim) or a helper prefixed `au_`.
 -/
 
 @[expose] public section

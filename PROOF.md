@@ -26,7 +26,7 @@ the eight entries, and every identity is closed by `ring` after unfolding (the e
    `(2/3) ρ + (1/6) Tr(ρ)·1` by the four entries (`bh_traceSecond`, `bh_traceFirst`; `bh_trace`), so `F₁ = F₂ = 2/3 + 1/6
    = 5/6` on every unit `ψ` by `st_fidelity_depolarized` (`bh_fidelity`, `bh_sixAvg`). `asymA₀ 1 1 = V₁`, `asymA₁ 1 1 =
    2 V₂` and `(2 · 3)⁻¹ · 4 = 2/3` give `bhChannel = asymChannel 1 1` (`bhChannel_eq_asymChannel`). The floor is attained
-   by the six Kraus operators `(√6)⁻¹ σ ⊗ |j⟩` (`σ ∈ {X, Y, Z}`, `j ∈ {0, 1}`): the first marginal is `(1/3)(XρX + YρY
+   by the six Kraus operators `(√6)⁻¹ σ ⊗ |j⟩` (`σ ∈ {X, XZ, Z}`, `XZ = −iY`, the phase dropping out; `j ∈ {0, 1}`): the first marginal is `(1/3)(XρX + YρY
    + ZρZ) = (2/3) Tr(ρ)·1 − (1/3) ρ`, whose fidelity with each Pauli state is `1/3` (`exists_sixAvg_eq_third`).
 4. **Uniqueness of the symmetric optimum** (`Unique.lean`). Equality `(F̄₁ + F̄₂)/2 = 5/6` forces the total of the
    nonnegative squares of `form_sos` over the family to vanish, so each `Kᵢ` has `Kᵢ (1,1) 0 = Kᵢ (0,0) 1 = 0`,

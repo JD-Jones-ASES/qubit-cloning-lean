@@ -5,8 +5,7 @@ public import QubitCloning.States
 /-!
 # BH
 
-The Bužek–Hillery channel and the universal-NOT witness (ARCH.md §3). Lane `bh`.
-Every public theorem of this module is the `_internal` twin of a Challenge statement (header verbatim) or a desk-pinned helper; helpers of this lane are prefixed `bh_`.
+The Bužek–Hillery channel and the universal-NOT witness. Every public theorem is the `_internal` twin of a Challenge statement (header verbatim) or a helper prefixed `bh_`.
 -/
 
 @[expose] public section
@@ -251,8 +250,5 @@ theorem exists_sixAvg_eq_third_internal :
   simp only [sixAvg₁, h, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
   norm_num
 
-/-! ## For the uniqueness lane: Kraus operators in the span of `V₁, V₂` -/
-
-/-! ## For the asymmetric uniqueness lane: Kraus operators in the span of `A₀, A₁` -/
 
 end QubitCloning

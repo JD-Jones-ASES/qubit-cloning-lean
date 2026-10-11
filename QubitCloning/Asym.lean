@@ -5,8 +5,7 @@ public import QubitCloning.States
 /-!
 # Asym
 
-The asymmetric family: channel, marginals, fidelities, equality (ARCH.md §6). Lane `asym`.
-Every public theorem of this module is the `_internal` twin of a Challenge statement (header verbatim) or a desk-pinned helper; helpers of this lane are prefixed `as_`.
+The asymmetric family: channel, marginals, fidelities, equality. Every public theorem is the `_internal` twin of a Challenge statement (header verbatim) or a helper prefixed `as_`.
 -/
 
 @[expose] public section
@@ -155,6 +154,5 @@ theorem asym_equality_internal {r : ℕ} (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 
   rw [as_sixAvg₁ a b h K hK, as_sixAvg₂ a b h K hK]
   exact as_weights a b h
 
-/-! ### Extras for the neighbouring lanes (`tradeoff`, `asymunique`) -/
 
 end QubitCloning

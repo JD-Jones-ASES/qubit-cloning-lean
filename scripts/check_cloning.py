@@ -248,13 +248,13 @@ for trial in range(30):
     v = quad(TWELVEW, k)
     check(f"H1 form reproduces the six-state sum (trial {trial})", v.im == 0 and v.re == 6 * (six_avg([unvec(k)], 1) + six_avg([unvec(k)], 2)))
 
-# the gate record's claimed 12W (compared, not used)
+# the claimed 12W (compared, not used)
 CLAIM = zeros(8, 8)
 for i, d in enumerate([4, 3, 3, 2, 2, 3, 3, 4]):
     CLAIM[i][i] = G(d)
 for (i, j) in [(0, 5), (0, 6), (1, 7), (2, 7)]:
     CLAIM[i][j] = G(1); CLAIM[j][i] = G(1)
-check("H1 12W equals the gate record's matrix", meq(TWELVEW, CLAIM))
+check("H1 12W equals the claimed matrix", meq(TWELVEW, CLAIM))
 
 # the structural claim 6 W_i = 1 + Omega_i, Omega_1 = |Om><Om|_{R A1} (x) 1_{A2}, Omega_2 = |Om><Om|_{R A2} (x) 1_{A1}
 def omega(which):
@@ -324,7 +324,7 @@ check("H2 v2 in the kernel", all(x == G(0) for x in mv(M5, V2)))
 # the shifted matrix (5 - eps) - 12W is not PSD for every eps > 0 (a kernel vector becomes negative)
 check("H2 5 is the sharp constant", quad(msub(msc(Fr(4999, 1000), eye(8)), TWELVEW), V1).re < 0)
 
-# the gate's six-term SOS, as an identity of forms: 5|k|^2 - 12 q(k) = sum c_t |<w_t, k>|^2
+# the six-term SOS, as an identity of forms: 5|k|^2 - 12 q(k) = sum c_t |<w_t, k>|^2
 # k_{ab,r} = K(a,b) r -> index 4 r + 2 a + b
 def idx(a, b, r):
     return 4 * r + 2 * a + b
@@ -408,7 +408,6 @@ for trial in range(40):
     out = bh_channel(rho)
     f1 = fidelity(rho, trace_out_second(out)); f2 = fidelity(rho, trace_out_first(out))
     check(f"H3 BH fidelities 5/6 (trial {trial})", f1 == Fr(5, 6) * n2 * n2 and f2 == Fr(5, 6) * n2 * n2)
-check("H3 BH six-state averages are 5/6", six_avg([[[x * G(1) for x in row] for row in V1M]], 1) is not None)  # placeholder shape check
 # six-state averages of the BH map through the channel map (not Kraus ops, which need sqrt 6): compute directly
 tot1 = tot2 = Fr(0)
 for rho in PAULI_STATES:
@@ -591,7 +590,7 @@ for trial in range(20):
         lhs = (aw * quad(SIXW1, k).re + bw * quad(SIXW2, k).re) / 6
         check(f"consistency: asymmetric form at t={t} (trial {trial})", lhs <= (1 + 2 * al * be) / 2 * n2)
 
-# ---------------------------------------------------------------- H5': the polynomial SOS identity the AsymForm lane proves (added after the first run; a 3x3 grid in (a, b) pins a bivariate quadratic)
+# ---------------------------------------------------------------- H5': the polynomial SOS identity of the asymmetric certificate (a grid in (a, b) pins a bivariate quadratic)
 # (2a+b)(a+2b) |k|^2 - [a(a+2b) sum_j |<u_j,k>|^2 + b(2a+b) sum_j |<v_j,k>|^2]
 #   = (1/3) sum_j |(a+2b)<u_j,k> - (2a+b)<v_j,k>|^2 + (2a+b)(a+2b) [ |k_011|^2 + |k_100|^2 + |k_000 - k_110 - k_101|^2/3 + |k_111 - k_001 - k_010|^2/3 ]
 # with u_j = |00j> + |11j>, v_j = |0j0> + |1j1> (indices r a1 a2), and the complement vectors as written.
@@ -635,7 +634,7 @@ def dotc(x, y):
 check("H5' complement vectors orthogonal to u_j, v_j", all(dotc(c, w) == G(0) for c in (C1, C2, C3, C4) for w in U + VV))
 check("H5' complement vectors mutually orthogonal", all(dotc(c, d) == G(0) for c in (C1, C2, C3, C4) for d in (C1, C2, C3, C4) if c is not d))
 check("H5' complement norms 1, 1, 3, 3", [dotc(c, c) for c in (C1, C2, C3, C4)] == [G(1), G(1), G(3), G(3)])
-# the per-Kraus identities 6 sixAvg_i(K) = |K|^2 + sum_j |<u_j,k>|^2 (resp. v_j): the same as 6 W_i = 1 + Omega_i, restated for the lanes
+# the per-Kraus identities 6 sixAvg_i(K) = |K|^2 + sum_j |<u_j,k>|^2 (resp. v_j): the same as 6 W_i = 1 + Omega_i, restated entrywise
 for trial in range(10):
     k = [G(random.randint(-3, 3), random.randint(-3, 3)) for _ in range(8)]
     n2 = sum((x * x.conj() for x in k), G())

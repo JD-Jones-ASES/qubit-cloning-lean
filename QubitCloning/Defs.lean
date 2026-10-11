@@ -46,7 +46,7 @@ def traceFirst (M : Matrix QQ QQ ℂ) : Matrix Q Q ℂ :=
 def proj (ψ : Q → ℂ) : Matrix Q Q ℂ :=
   Matrix.vecMulVec ψ (star ψ)
 
-/-- The fidelity of the pure state `ρ = ψψ†` with a state `σ`: `Re Tr(ρ σ) = ⟨ψ|σ|ψ⟩`. -/
+/-- The fidelity of the pure state `ρ = ψψ†` with a state `σ`: `Re Tr(ρ σ) = Re ⟨ψ|σ|ψ⟩`. -/
 def fidelity (ρ σ : Matrix Q Q ℂ) : ℝ :=
   (Matrix.trace (ρ * σ)).re
 
@@ -109,7 +109,7 @@ def asymA₁ (a b : ℝ) : Matrix QQ Q ℂ :=
 
 /-- The asymmetric cloning channel with weights `a, b` (not both zero), as a map:
 `ρ ↦ (A₀ ρ A₀ᴴ + A₁ ρ A₁ᴴ) / (2(a² + ab + b²))` (the optimal asymmetric cloner of Niu–Griffiths 1998 and
-Cerf 1998 in these coordinates; `a = b` is the Bužek–Hillery channel; the Kraus operators are
+Cerf, J. Mod. Opt. 2000, in these coordinates; `a = b` is the Bužek–Hillery channel; the Kraus operators are
 `A₀, A₁` divided by `√(2(a² + ab + b²))`). -/
 def asymChannel (a b : ℝ) (ρ : Matrix Q Q ℂ) : Matrix QQ QQ ℂ :=
   ((2 * (a ^ 2 + a * b + b ^ 2) : ℝ)⁻¹ : ℂ) •

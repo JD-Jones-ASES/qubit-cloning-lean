@@ -6,8 +6,7 @@ public import QubitCloning.Asym
 /-!
 # Tradeoff
 
-the square-root form of the trade-off from the homogeneous bound (ARCH.md §8). Lane `tradeoff`.
-Every public theorem of this module is the `_internal` twin of a Challenge statement (header verbatim) or a desk-pinned helper; helpers of this lane are prefixed `tr_`.
+The square-root form of the trade-off from the homogeneous bound. Every public theorem is the `_internal` twin of a Challenge statement (header verbatim) or a helper prefixed `tr_`.
 -/
 
 @[expose] public section
@@ -17,7 +16,7 @@ namespace QubitCloning
 
 open Matrix
 
-/-- The degenerate case of Cerf's form: if `1 ≤ (2 + t) D` for every `t > 0`, then `1/2 ≤ D`. -/
+/-- The degenerate case of the square-root form: if `1 ≤ (2 + t) D` for every `t > 0`, then `1/2 ≤ D`. -/
 theorem tr_zero_case (D : ℝ) (h : ∀ t : ℝ, 0 < t → 1 ≤ (2 + t) * D) : 1 / 2 ≤ D := by
   by_contra hlt
   rw [not_le] at hlt
@@ -31,7 +30,7 @@ theorem tr_zero_case (D : ℝ) (h : ∀ t : ℝ, 0 < t → 1 ≤ (2 + t) * D) : 
   · have h1 := h 1 one_pos
     linarith
 
-/-- The real lemma behind Cerf's form: if `a b ≤ a (a + 2b) D₁ + b (2a + b) D₂` for all `a, b ≥ 0`, then
+/-- The real lemma behind the square-root form (Scarani–Iblisdir–Gisin–Acín 2005, Eq. (23)): if `a b ≤ a (a + 2b) D₁ + b (2a + b) D₂` for all `a, b ≥ 0`, then
 `D₁, D₂ ≥ 0` and `1/2 ≤ D₁ + D₂ + √(D₁ D₂)`. -/
 theorem tr_of_bounds (D₁ D₂ : ℝ)
     (h : ∀ a b : ℝ, 0 ≤ a → 0 ≤ b → a * b ≤ a * (a + 2 * b) * D₁ + b * (2 * a + b) * D₂) :
@@ -80,7 +79,8 @@ theorem tr_of_bounds (D₁ D₂ : ℝ)
         nlinarith
       linarith
 
-/-- The trade-off in Cerf's form: `F̄₁ + F̄₂ − 3/2 ≤ √((1 − F̄₁)(1 − F̄₂))` for every channel. -/
+/-- The trade-off in square-root form (Scarani–Iblisdir–Gisin–Acín 2005, Eq. (23)):
+`F̄₁ + F̄₂ − 3/2 ≤ √((1 − F̄₁)(1 − F̄₂))` for every channel. -/
 theorem tradeoff_sqrt_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
     sixAvg₁ K + sixAvg₂ K - 3 / 2 ≤ Real.sqrt ((1 - sixAvg₁ K) * (1 - sixAvg₂ K)) := by
   have := (tr_of_bounds (1 - sixAvg₁ K) (1 - sixAvg₂ K)
@@ -120,7 +120,8 @@ theorem tr_sixAvg_asym {r : ℕ} (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) (
     push_cast
     ring
 
-/-- The asymmetric cloners with `a, b ≥ 0` lie on the trade-off curve: equality in Cerf's form. -/
+/-- The asymmetric cloners with `a, b ≥ 0` lie on the trade-off curve: equality in the square-root form
+(the curve of Niu–Griffiths 1998, Eq. (6.29)). -/
 theorem tradeoff_attained_internal {r : ℕ} (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h : a ^ 2 + a * b + b ^ 2 ≠ 0)
     (K : Fin r → Matrix QQ Q ℂ) (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) :
     sixAvg₁ K + sixAvg₂ K - 3 / 2 = Real.sqrt ((1 - sixAvg₁ K) * (1 - sixAvg₂ K)) := by
@@ -135,6 +136,5 @@ theorem tradeoff_attained_internal {r : ℕ} (a b : ℝ) (ha : 0 ≤ a) (hb : 0 
     mul_inv_cancel₀ (mul_ne_zero two_ne_zero h)
   linear_combination (-1 / 2 : ℝ) * hc
 
-/-! ## Extras for the neighbouring modules (exact statements of their pins, from black boxes) -/
 
 end QubitCloning
