@@ -2,6 +2,7 @@ module
 
 public import QubitCloning.Stability
 public import QubitCloning.BH
+public import QubitCloning.AsymUnique
 
 /-!
 # Quantitative uniqueness of the optimum as a channel
@@ -141,22 +142,6 @@ def cs_T (K : Matrix QQ Q ℂ) (ρ : Matrix Q Q ℂ) : Matrix QQ QQ ℂ :=
 theorem cs_split (K : Matrix QQ Q ℂ) : sb_project K + cs_R K = K := by
   simp [cs_R]
 
-theorem cs_expand_gram (P R : Matrix QQ Q ℂ) (x y : ℂ) :
-    (x • P + y • R)ᴴ * (x • P + y • R) =
-      (star x * x) • (Pᴴ * P) + (star x * y) • (Pᴴ * R) + (star y * x) • (Rᴴ * P)
-        + (star y * y) • (Rᴴ * R) := by
-  simp only [conjTranspose_add, conjTranspose_smul, Matrix.add_mul, Matrix.mul_add, Matrix.smul_mul,
-    Matrix.mul_smul, smul_add, smul_smul]
-  module
-
-theorem cs_expand_kraus (P R : Matrix QQ Q ℂ) (ρ : Matrix Q Q ℂ) (x y : ℂ) :
-    (x • P + y • R) * ρ * (x • P + y • R)ᴴ =
-      (x * star x) • (P * ρ * Pᴴ) + (x * star y) • (P * ρ * Rᴴ) + (y * star x) • (R * ρ * Pᴴ)
-        + (y * star y) • (R * ρ * Rᴴ) := by
-  simp only [conjTranspose_add, conjTranspose_smul, Matrix.add_mul, Matrix.mul_add, Matrix.smul_mul,
-    Matrix.mul_smul, smul_add, smul_smul]
-  module
-
 theorem cs_gram_term (K : Matrix QQ Q ℂ) :
     Kᴴ * K = (sb_x K * star (sb_x K)) • (bhV₁ᴴ * bhV₁) + (sb_y K * star (sb_x K)) • (bhV₁ᴴ * bhV₂)
       + (sb_x K * star (sb_y K)) • (bhV₂ᴴ * bhV₁) + (sb_y K * star (sb_y K)) • (bhV₂ᴴ * bhV₂)
@@ -166,7 +151,7 @@ theorem cs_gram_term (K : Matrix QQ Q ℂ) :
     simp only [cs_U, conjTranspose_add, Matrix.add_mul, Matrix.mul_add]
     abel
   rw [cs_split] at h
-  rw [h, sb_project, cs_expand_gram, mul_comm (star (sb_x K)) (sb_x K),
+  rw [h, sb_project, au_expand_gram, mul_comm (star (sb_x K)) (sb_x K),
     mul_comm (star (sb_x K)) (sb_y K), mul_comm (star (sb_y K)) (sb_x K),
     mul_comm (star (sb_y K)) (sb_y K)]
 
@@ -180,7 +165,7 @@ theorem cs_kraus_term (K : Matrix QQ Q ℂ) (ρ : Matrix Q Q ℂ) :
     simp only [cs_T, conjTranspose_add, Matrix.add_mul, Matrix.mul_add]
     abel
   rw [cs_split] at h
-  rw [h, sb_project, cs_expand_kraus]
+  rw [h, sb_project, au_expand_kraus]
 
 /-- `‖K‖² = ‖P‖² + ‖R‖²` entrywise: the projection is orthogonal. -/
 theorem cs_pyth (K : Matrix QQ Q ℂ) :
