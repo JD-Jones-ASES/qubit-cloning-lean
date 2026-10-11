@@ -135,4 +135,67 @@ theorem tradeoff_attained_internal {r : ℕ} (a b : ℝ) (ha : 0 ≤ a) (hb : 0 
     mul_inv_cancel₀ (mul_ne_zero two_ne_zero h)
   linear_combination (-1 / 2 : ℝ) * hc
 
+/-! ## Extras for the neighbouring modules (exact statements of their pins, from black boxes) -/
+
+/-- `st_le_sixAvg₁` from `st_F₁_pauliVec` and `pauliVec_unit_internal`. -/
+theorem tr_le_sixAvg₁ {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (f : ℝ)
+    (h : ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → f ≤ F₁ K ψ) : f ≤ sixAvg₁ K := by
+  have hs : ∀ s ∈ (Finset.univ : Finset (Fin 6)),
+      f ≤ fidelity (pauliState s) (traceSecond (krausApply K (pauliState s))) := fun s _ => by
+    rw [← st_F₁_pauliVec K s]
+    exact h _ (pauliVec_unit_internal s)
+  have := Finset.card_nsmul_le_sum _ _ _ hs
+  simp only [Finset.card_univ, Fintype.card_fin, nsmul_eq_mul] at this
+  push_cast at this
+  rw [sixAvg₁]
+  linarith
+
+/-- `st_le_sixAvg₂` from `st_F₂_pauliVec` and `pauliVec_unit_internal`. -/
+theorem tr_le_sixAvg₂ {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (f : ℝ)
+    (h : ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → f ≤ F₂ K ψ) : f ≤ sixAvg₂ K := by
+  have hs : ∀ s ∈ (Finset.univ : Finset (Fin 6)),
+      f ≤ fidelity (pauliState s) (traceFirst (krausApply K (pauliState s))) := fun s _ => by
+    rw [← st_F₂_pauliVec K s]
+    exact h _ (pauliVec_unit_internal s)
+  have := Finset.card_nsmul_le_sum _ _ _ hs
+  simp only [Finset.card_univ, Fintype.card_fin, nsmul_eq_mul] at this
+  push_cast at this
+  rw [sixAvg₂]
+  linarith
+
+/-- `asym_bound_forall_internal` from `asym_bound_internal` and `st_le_sixAvg₁/₂`. -/
+theorem tr_asym_bound_forall {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (ha : 0 ≤ a)
+    (hb : 0 ≤ b) (f₁ f₂ : ℝ) (h : ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → f₁ ≤ F₁ K ψ ∧ f₂ ≤ F₂ K ψ) :
+    a * b ≤ a * (a + 2 * b) * (1 - f₁) + b * (2 * a + b) * (1 - f₂) := by
+  have h1 := st_le_sixAvg₁ K f₁ (fun ψ hψ => (h ψ hψ).1)
+  have h2 := st_le_sixAvg₂ K f₂ (fun ψ hψ => (h ψ hψ).2)
+  have hB := asym_bound_internal K hK a b ha hb
+  have c1 : 0 ≤ a * (a + 2 * b) := by positivity
+  have c2 : 0 ≤ b * (2 * a + b) := by positivity
+  nlinarith [mul_le_mul_of_nonneg_left h1 c1, mul_le_mul_of_nonneg_left h2 c2]
+
+/-- `asym_fidelity_internal` from the two marginals (`asym_traceSecond_internal`, `asym_traceFirst_internal`) and
+`st_fidelity_depolarized`. -/
+theorem tr_asym_fidelity {r : ℕ} (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) (K : Fin r → Matrix QQ Q ℂ)
+    (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) (ψ : Q → ℂ) (hψ : star ψ ⬝ᵥ ψ = 1) :
+    F₁ K ψ = 1 - b ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)) ∧
+      F₂ K ψ = 1 - a ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)) := by
+  constructor
+  · rw [F₁, hK, asym_traceSecond_internal a b h, st_fidelity_depolarized ψ hψ]
+    generalize a ^ 2 + a * b + b ^ 2 = s
+    ring
+  · rw [F₂, hK, asym_traceFirst_internal a b h, st_fidelity_depolarized ψ hψ]
+    generalize a ^ 2 + a * b + b ^ 2 = s
+    ring
+
+/-- `asym_equality_internal` from the six-state averages of the family (`tr_sixAvg_asym`). -/
+theorem tr_asym_equality {r : ℕ} (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) (K : Fin r → Matrix QQ Q ℂ)
+    (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) :
+    a * b = a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) := by
+  obtain ⟨hS1, hS2⟩ := tr_sixAvg_asym a b h K hK
+  rw [hS1, hS2]
+  have hc : (2 * (a ^ 2 + a * b + b ^ 2)) * (2 * (a ^ 2 + a * b + b ^ 2))⁻¹ = 1 :=
+    mul_inv_cancel₀ (mul_ne_zero two_ne_zero h)
+  linear_combination (-(a * b)) * hc
+
 end QubitCloning
