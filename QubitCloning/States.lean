@@ -294,4 +294,85 @@ theorem st_six_two (K : Matrix QQ Q ℂ) :
   rw [e, hc]
   simp only [st_star_mul_self, Complex.add_re, Complex.re_sum, Complex.ofReal_re]
 
+/-- The symmetric certificate (the statement of `form_sos`), from `st_six_one` and `st_six_two`. -/
+theorem st_sos (K : Matrix QQ Q ℂ) :
+    6 * (sixAvg₁ ![K] + sixAvg₂ ![K]) =
+      5 * ∑ x, ∑ i, Complex.normSq (K x i)
+        - (Complex.normSq (K (0, 0) 0 - K (0, 1) 1 - K (1, 0) 1) + 2 * Complex.normSq (K (0, 1) 0 - K (1, 1) 1 / 2)
+          + 2 * Complex.normSq (K (1, 0) 0 - K (1, 1) 1 / 2) + 3 * Complex.normSq (K (1, 1) 0)
+          + 3 * Complex.normSq (K (0, 0) 1) + Complex.normSq (K (0, 1) 1 - K (1, 0) 1)) := by
+  rw [mul_add, st_six_one, st_six_two]
+  simp only [Fintype.sum_prod_type, Fin.sum_univ_two, Complex.normSq_apply, Complex.add_re, Complex.add_im,
+    Complex.sub_re, Complex.sub_im, Complex.div_ofNat_re, Complex.div_ofNat_im]
+  ring
+
+/-- The six-state averages of a channel are at least `1/3` (the statement of `sixAvg_ge_third`). -/
+theorem st_sixAvg_ge_third {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
+    1 / 3 ≤ sixAvg₁ K ∧ 1 / 3 ≤ sixAvg₂ K := by
+  have hN := st_isChannel_normSq_sum K hK
+  constructor
+  · have h : ∀ i, (∑ x, ∑ j, Complex.normSq (K i x j)) / 6 ≤ sixAvg₁ ![K i] := by
+      intro i
+      have h6 := st_six_one (K i)
+      have hu : 0 ≤ ∑ j, Complex.normSq (K i (0, j) 0 + K i (1, j) 1) :=
+        Finset.sum_nonneg (fun j _ => Complex.normSq_nonneg _)
+      linarith
+    rw [st_sixAvg₁_eq_sum]
+    have hs := Finset.sum_le_sum (fun i (_ : i ∈ Finset.univ) => h i)
+    rw [← Finset.sum_div, hN] at hs
+    linarith
+  · have h : ∀ i, (∑ x, ∑ j, Complex.normSq (K i x j)) / 6 ≤ sixAvg₂ ![K i] := by
+      intro i
+      have h6 := st_six_two (K i)
+      have hu : 0 ≤ ∑ j, Complex.normSq (K i (j, 0) 0 + K i (j, 1) 1) :=
+        Finset.sum_nonneg (fun j _ => Complex.normSq_nonneg _)
+      linarith
+    rw [st_sixAvg₂_eq_sum]
+    have hs := Finset.sum_le_sum (fun i (_ : i ∈ Finset.univ) => h i)
+    rw [← Finset.sum_div, hN] at hs
+    linarith
+
+/-- Gisin–Massar's bound in the six-state form (the statement of `sixAvg_le`), from `st_sos`. -/
+theorem st_sixAvg_le {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
+    (sixAvg₁ K + sixAvg₂ K) / 2 ≤ 5 / 6 := by
+  have hN := st_isChannel_normSq_sum K hK
+  have h : ∀ i, sixAvg₁ ![K i] + sixAvg₂ ![K i] ≤ 5 * (∑ x, ∑ j, Complex.normSq (K i x j)) / 6 := by
+    intro i
+    have h6 := st_sos (K i)
+    have n1 := Complex.normSq_nonneg (K i (0, 0) 0 - K i (0, 1) 1 - K i (1, 0) 1)
+    have n2 := Complex.normSq_nonneg (K i (0, 1) 0 - K i (1, 1) 1 / 2)
+    have n3 := Complex.normSq_nonneg (K i (1, 0) 0 - K i (1, 1) 1 / 2)
+    have n4 := Complex.normSq_nonneg (K i (1, 1) 0)
+    have n5 := Complex.normSq_nonneg (K i (0, 0) 1)
+    have n6 := Complex.normSq_nonneg (K i (0, 1) 1 - K i (1, 0) 1)
+    linarith
+  rw [st_sixAvg₁_eq_sum, st_sixAvg₂_eq_sum, ← Finset.sum_add_distrib]
+  have hs := Finset.sum_le_sum (fun i (_ : i ∈ Finset.univ) => h i)
+  rw [← Finset.sum_div, ← Finset.mul_sum, hN] at hs
+  linarith
+
+
+/-- Some unit vector has `min (F₁, F₂) ≤ 5/6` (the statement of `exists_unit_min_le`), from `st_sixAvg_le`. -/
+theorem st_exists_unit_min_le {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
+    ∃ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 ∧ min (F₁ K ψ) (F₂ K ψ) ≤ 5 / 6 := by
+  by_contra hc
+  push Not at hc
+  have h1 : ∀ s ∈ (Finset.univ : Finset (Fin 6)),
+      5 / 6 < fidelity (pauliState s) (traceSecond (krausApply K (pauliState s))) := by
+    intro s _
+    rw [← st_F₁_pauliVec]
+    exact lt_of_lt_of_le (hc _ (st_pauliVec_unit s)) (min_le_left _ _)
+  have h2 : ∀ s ∈ (Finset.univ : Finset (Fin 6)),
+      5 / 6 < fidelity (pauliState s) (traceFirst (krausApply K (pauliState s))) := by
+    intro s _
+    rw [← st_F₂_pauliVec]
+    exact lt_of_lt_of_le (hc _ (st_pauliVec_unit s)) (min_le_right _ _)
+  have s1 := Finset.sum_lt_sum_of_nonempty Finset.univ_nonempty h1
+  have s2 := Finset.sum_lt_sum_of_nonempty Finset.univ_nonempty h2
+  rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul] at s1 s2
+  push_cast at s1 s2
+  have hle := st_sixAvg_le K hK
+  unfold sixAvg₁ sixAvg₂ at hle
+  linarith
+
 end QubitCloning
