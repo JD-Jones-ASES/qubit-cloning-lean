@@ -251,4 +251,68 @@ theorem exists_sixAvg_eq_third_internal :
   simp only [sixAvg₁, h, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
   norm_num
 
+/-! ## For the uniqueness lane: Kraus operators in the span of `V₁, V₂` -/
+
+/-- The Gram matrix of `x V₁ + y V₂`: `V₁ᴴV₁ = diag(4, 2)`, `V₂ᴴV₂ = diag(1/2, 1)`, `V₁ᴴV₂ = E₁₀`. -/
+theorem bh_span_gram (x y : ℂ) :
+    (x • bhV₁ + y • bhV₂)ᴴ * (x • bhV₁ + y • bhV₂) =
+      !![4 * (star x * x) + 1 / 2 * (star y * y), star y * x;
+        star x * y, 2 * (star x * x) + star y * y] := by
+  rw [Matrix.conjTranspose_add, Matrix.conjTranspose_smul, Matrix.conjTranspose_smul, bh_V₁_conjTranspose,
+    bh_V₂_conjTranspose]
+  ext i j
+  simp only [Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two, Matrix.add_apply, Matrix.smul_apply,
+    Matrix.transpose_apply, smul_eq_mul]
+  fin_cases i <;> fin_cases j <;> simp [bhV₁, bhV₂] <;> ring
+
+/-- One term of the map of `x V₁ + y V₂`, expanded. -/
+theorem bh_span_apply (x y : ℂ) (ρ : Matrix Q Q ℂ) :
+    (x • bhV₁ + y • bhV₂) * ρ * (x • bhV₁ + y • bhV₂)ᴴ =
+      (x * star x) • (bhV₁ * ρ * bhV₁ᴴ) + (x * star y) • (bhV₁ * ρ * bhV₂ᴴ) +
+        (y * star x) • (bhV₂ * ρ * bhV₁ᴴ) + (y * star y) • (bhV₂ * ρ * bhV₂ᴴ) := by
+  simp only [Matrix.conjTranspose_add, Matrix.conjTranspose_smul, Matrix.add_mul, Matrix.mul_add,
+    Matrix.smul_mul, Matrix.mul_smul]
+  module
+
+/-- The five vanishing conditions of the symmetric certificate put a Kraus operator in the span of `V₁, V₂`. -/
+theorem bh_eq_span_of_entries (K : Matrix QQ Q ℂ) (h₁ : K (1, 1) 0 = 0) (h₂ : K (0, 0) 1 = 0)
+    (h₃ : K (1, 0) 1 = K (0, 1) 1) (h₄ : K (0, 0) 0 = 2 * K (0, 1) 1) (h₅ : K (0, 1) 0 = K (1, 1) 1 / 2)
+    (h₆ : K (1, 0) 0 = K (1, 1) 1 / 2) :
+    K = K (0, 1) 1 • bhV₁ + K (1, 1) 1 • bhV₂ := by
+  ext ⟨a, b⟩ i
+  fin_cases a <;> fin_cases b <;> fin_cases i <;>
+    simp [bhV₁, bhV₂, h₁, h₂, h₃, h₄, h₅, h₆] <;> ring
+
+/-- A channel whose Kraus operators all lie in the span of `V₁, V₂` is the Bužek–Hillery channel: trace
+preservation forces `Σ |xᵢ|² = 1/6`, `Σ |yᵢ|² = 2/3` and `Σ conj(xᵢ) yᵢ = 0`. -/
+theorem bh_krausApply_eq_of_span {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hC : IsChannel K) (x y : Fin r → ℂ)
+    (hK : ∀ i, K i = x i • bhV₁ + y i • bhV₂) : ∀ ρ, krausApply K ρ = bhChannel ρ := by
+  have hG : ∑ i, (K i)ᴴ * K i = ∑ i, !![4 * (star (x i) * x i) + 1 / 2 * (star (y i) * y i),
+      star (y i) * x i; star (x i) * y i, 2 * (star (x i) * x i) + star (y i) * y i] :=
+    Finset.sum_congr rfl (fun i _ => by rw [hK i, bh_span_gram])
+  rw [IsChannel, hG, Matrix.one_fin_two] at hC
+  have h00 := congrFun (congrFun hC 0) 0
+  have h01 := congrFun (congrFun hC 0) 1
+  have h10 := congrFun (congrFun hC 1) 0
+  have h11 := congrFun (congrFun hC 1) 1
+  simp only [Matrix.sum_apply, Matrix.of_apply, Matrix.cons_val_zero, Matrix.cons_val_one] at h00 h01 h10 h11
+  rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.mul_sum] at h00
+  rw [Finset.sum_add_distrib, ← Finset.mul_sum] at h11
+  have hX : ∑ i, x i * star (x i) = 1 / 6 := by
+    rw [Finset.sum_congr rfl (fun i _ => mul_comm (x i) (star (x i)))]
+    linear_combination (1 / 3 : ℂ) * h00 - (1 / 6 : ℂ) * h11
+  have hY : ∑ i, y i * star (y i) = 2 / 3 := by
+    rw [Finset.sum_congr rfl (fun i _ => mul_comm (y i) (star (y i)))]
+    linear_combination (-2 / 3 : ℂ) * h00 + (4 / 3 : ℂ) * h11
+  have hXY : ∑ i, x i * star (y i) = 0 := by
+    rw [Finset.sum_congr rfl (fun i _ => mul_comm (x i) (star (y i)))]
+    exact h01
+  have hYX : ∑ i, y i * star (x i) = 0 := by
+    rw [Finset.sum_congr rfl (fun i _ => mul_comm (y i) (star (x i)))]
+    exact h10
+  intro ρ
+  rw [krausApply, Finset.sum_congr rfl (fun i _ => by rw [hK i, bh_span_apply])]
+  simp only [Finset.sum_add_distrib, ← Finset.sum_smul]
+  rw [hX, hY, hXY, hYX, zero_smul, zero_smul, add_zero, add_zero, bhChannel]
+
 end QubitCloning
