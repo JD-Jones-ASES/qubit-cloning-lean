@@ -141,11 +141,13 @@ theorem tradeoff_full_sqrt {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
   tradeoff_full_sqrt_internal K hK
 
 theorem signed_asym_bound {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ)
-    (hP : 0 ≤ (2 * a + b) * (a + 2 * b)) : a * b ≤ a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) :=
+    (hP : 0 ≤ (2 * a + b) * (a + 2 * b)) :
+    a * b ≤ a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) :=
   signed_asym_bound_internal K hK a b hP
 
-theorem eq_asym_of_signed_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (hP : 0 < (2 * a + b) * (a + 2 * b))
-    (ha : a ≠ 0) (hb : b ≠ 0) (h : a * b = a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K)) :
+theorem eq_asym_of_signed_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ)
+    (hP : 0 < (2 * a + b) * (a + 2 * b)) (ha : a ≠ 0) (hb : b ≠ 0)
+    (h : a * b = a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K)) :
     ∀ ρ, krausApply K ρ = asymChannel a b ρ :=
   eq_asym_of_signed_equality_internal K hK a b hP ha hb h
 
@@ -182,5 +184,44 @@ theorem kraus_span_stability {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
       ∑ i, ∑ z, ∑ j,
         Complex.normSq (K i z j - (x i • bhV₁ + y i • bhV₂) z j) ≤ 6 * ε :=
   kraus_span_stability_internal K hK ε hε
+
+theorem tradeoff_full_attained {r : ℕ} (a b : ℝ) (hP : 0 ≤ (2 * a + b) * (a + 2 * b))
+    (hs : a ^ 2 + a * b + b ^ 2 ≠ 0) (K : Fin r → Matrix QQ Q ℂ)
+    (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) :
+    3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 =
+      Real.sqrt ((3 * sixAvg₁ K - 1) * (3 * sixAvg₂ K - 1)) :=
+  tradeoff_full_attained_internal a b hP hs K hK
+
+theorem eq_asym_of_tradeoff_full_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : 3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 =
+      Real.sqrt ((3 * sixAvg₁ K - 1) * (3 * sixAvg₂ K - 1)))
+    (h₁ : sixAvg₁ K ≠ 1) (h₂ : sixAvg₂ K ≠ 1) :
+    ∃ a b : ℝ, a ≠ 0 ∧ b ≠ 0 ∧ 0 ≤ (2 * a + b) * (a + 2 * b) ∧
+      ∀ ρ, krausApply K ρ = asymChannel a b ρ :=
+  eq_asym_of_tradeoff_full_equality_internal K hK h h₁ h₂
+
+theorem eq_asym_of_floor₂ {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h₁ : sixAvg₁ K = 5 / 6) (h₂ : sixAvg₂ K = 1 / 3) :
+    ∀ ρ, krausApply K ρ = asymChannel 2 (-1) ρ :=
+  eq_asym_of_floor₂_internal K hK h₁ h₂
+
+theorem eq_asym_of_floor₁ {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h₁ : sixAvg₁ K = 1 / 3) (h₂ : sixAvg₂ K = 5 / 6) :
+    ∀ ρ, krausApply K ρ = asymChannel (-1) 2 ρ :=
+  eq_asym_of_floor₁_internal K hK h₁ h₂
+
+theorem sixAvg₂_eq_half_of_sixAvg₁_eq_one {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : sixAvg₁ K = 1) : sixAvg₂ K = 1 / 2 :=
+  sixAvg₂_eq_half_of_sixAvg₁_eq_one_internal K hK h
+
+theorem sixAvg₁_eq_half_of_sixAvg₂_eq_one {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
+    (h : sixAvg₂ K = 1) : sixAvg₁ K = 1 / 2 :=
+  sixAvg₁_eq_half_of_sixAvg₂_eq_one_internal K hK h
+
+theorem channel_stability {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (ε : ℝ)
+    (hε : 5 / 6 - ε ≤ (sixAvg₁ K + sixAvg₂ K) / 2) (ρ : Matrix Q Q ℂ) :
+    Real.sqrt (∑ x, ∑ y, Complex.normSq ((krausApply K ρ - bhChannel ρ) x y)) ≤
+      200 * Real.sqrt ε * Real.sqrt (∑ i, ∑ j, Complex.normSq (ρ i j)) :=
+  channel_stability_internal K hK ε hε ρ
 
 end QubitCloning

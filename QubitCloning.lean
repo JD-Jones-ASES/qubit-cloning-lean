@@ -12,3 +12,4 @@ public import QubitCloning.Tradeoff
 public import QubitCloning.Signed
 public import QubitCloning.FullTradeoff
 public import QubitCloning.Stability
+public import QubitCloning.FullEquality
