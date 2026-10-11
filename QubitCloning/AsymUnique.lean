@@ -253,4 +253,39 @@ theorem eq_asym_of_equality_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (
     rw [hxy i, au_expand_kraus]
   rw [hexp, sxx, sxy, syx, syy, zero_smul, zero_smul, add_zero, add_zero, asymChannel, smul_add]
 
+/-- Equality in the asymmetric bound characterizes the asymmetric cloner: for `a, b > 0`, a channel attains
+`a b = a (a + 2b) (1 − F̄₁) + b (2a + b) (1 − F̄₂)` exactly when it is `Λ_{a,b}` as a map. -/
+theorem au_equality_iff {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (ha : 0 < a)
+    (hb : 0 < b) :
+    a * b = a * (a + 2 * b) * (1 - sixAvg₁ K) + b * (2 * a + b) * (1 - sixAvg₂ K) ↔
+      ∀ ρ, krausApply K ρ = asymChannel a b ρ := by
+  refine ⟨eq_asym_of_equality_internal K hK a b ha hb, fun h' => ?_⟩
+  have hs : a ^ 2 + a * b + b ^ 2 ≠ 0 := by positivity
+  exact asym_equality_internal a b hs K h'
+
+/-- The asymmetric analogue of `eq_bh_of_forall`: for `a, b > 0`, a channel cloning every pure state with
+fidelities at least those of `Λ_{a,b}`, `1 − b²/(2(a² + ab + b²))` and `1 − a²/(2(a² + ab + b²))`, is `Λ_{a,b}`
+as a map. -/
+theorem au_eq_asym_of_forall {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) (ha : 0 < a)
+    (hb : 0 < b)
+    (h : ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → 1 - b ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)) ≤ F₁ K ψ ∧
+      1 - a ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)) ≤ F₂ K ψ) :
+    ∀ ρ, krausApply K ρ = asymChannel a b ρ := by
+  apply eq_asym_of_equality_internal K hK a b ha hb
+  have h1 := st_le_sixAvg₁ K _ fun ψ hψ => (h ψ hψ).1
+  have h2 := st_le_sixAvg₂ K _ fun ψ hψ => (h ψ hψ).2
+  have hbd := asym_bound_internal K hK a b ha.le hb.le
+  have hα : 0 ≤ a * (a + 2 * b) := by positivity
+  have hβ : 0 ≤ b * (2 * a + b) := by positivity
+  have k1 : a * (a + 2 * b) * (1 - sixAvg₁ K) ≤ a * (a + 2 * b) * (b ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2))) :=
+    mul_le_mul_of_nonneg_left (by linarith) hα
+  have k2 : b * (2 * a + b) * (1 - sixAvg₂ K) ≤ b * (2 * a + b) * (a ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2))) :=
+    mul_le_mul_of_nonneg_left (by linarith) hβ
+  have hs : 0 < a ^ 2 + a * b + b ^ 2 := by positivity
+  have key : a * (a + 2 * b) * (b ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)))
+      + b * (2 * a + b) * (a ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2))) = a * b := by
+    field_simp
+    ring
+  linarith
+
 end QubitCloning
