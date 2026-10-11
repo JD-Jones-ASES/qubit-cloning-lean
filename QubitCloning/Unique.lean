@@ -110,7 +110,7 @@ theorem un_eq_bh_of_span {r : ℕ} (x y : Fin r → ℂ) (hK : IsChannel fun i =
   have g₁₀ := congrFun (congrFun hK 1) 0
   have g₀₁ := congrFun (congrFun hK 0) 1
   simp only [Matrix.sum_apply, un_gram₀₀, un_gram₁₁, un_gram₁₀, un_gram₀₁, Matrix.one_apply_eq,
-    Matrix.one_apply_ne (show (1 : Q) ≠ 0 by decide), Matrix.one_apply_ne (show (0 : Q) ≠ 1 by decide)]
+    Matrix.one_apply_ne (one_ne_zero : (1 : Q) ≠ 0), Matrix.one_apply_ne (zero_ne_one : (0 : Q) ≠ 1)]
     at g₀₀ g₁₁ g₁₀ g₀₁
   rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.sum_div] at g₀₀
   rw [Finset.sum_add_distrib, ← Finset.mul_sum] at g₁₁
@@ -127,6 +127,57 @@ theorem un_eq_bh_of_span {r : ℕ} (x y : Fin r → ℂ) (hK : IsChannel fun i =
   simp only [krausApply, un_expand, Finset.sum_add_distrib, ← Finset.sum_smul]
   rw [hX, hY, hXY, hYX]
   simp only [zero_smul, add_zero, bhChannel]
+
+/-- The converse of the weight computation: a family `x V₁ + y V₂` with `Σ|xᵢ|² = 1/6`, `Σ|yᵢ|² = 2/3` and
+`Σ conj xᵢ yᵢ = 0` is a channel. -/
+theorem un_isChannel_of_span {r : ℕ} (x y : Fin r → ℂ) (hX : ∑ i, star (x i) * x i = 1 / 6)
+    (hY : ∑ i, star (y i) * y i = 2 / 3) (hXY : ∑ i, star (x i) * y i = 0) :
+    IsChannel fun i => x i • bhV₁ + y i • bhV₂ := by
+  have hYX : ∑ i, star (y i) * x i = 0 := by
+    have h := congrArg star hXY
+    rw [star_sum, star_zero] at h
+    rw [← h]
+    exact Finset.sum_congr rfl fun i _ => by rw [star_mul', star_star, mul_comm]
+  unfold IsChannel
+  refine Matrix.ext fun a b => ?_
+  rw [Matrix.sum_apply]
+  revert a b
+  simp only [Fin.forall_fin_two, un_gram₀₀, un_gram₁₁, un_gram₁₀, un_gram₀₁, Matrix.one_apply_eq,
+    Matrix.one_apply_ne (one_ne_zero : (1 : Q) ≠ 0), Matrix.one_apply_ne (zero_ne_one : (0 : Q) ≠ 1)]
+  refine ⟨⟨?_, ?_⟩, ?_, ?_⟩
+  · rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.sum_div, hX, hY]
+    norm_num
+  · exact hYX
+  · exact hXY
+  · rw [Finset.sum_add_distrib, ← Finset.mul_sum, hX, hY]
+    norm_num
+
+/-- The Bužek–Hillery map has a two-operator Kraus family, `(√6)⁻¹ V₁` and `2 (√6)⁻¹ V₂` (the statement of
+`bh_isChannel_internal`, proved here from `un_isChannel_of_span` and `un_eq_bh_of_span`). -/
+theorem un_bh_isChannel :
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ ∀ ρ, krausApply K ρ = bhChannel ρ := by
+  have h6 : Real.sqrt 6 * Real.sqrt 6 = 6 := Real.mul_self_sqrt (by norm_num)
+  have hc : star (((Real.sqrt 6)⁻¹ : ℝ) : ℂ) * (((Real.sqrt 6)⁻¹ : ℝ) : ℂ) = 1 / 6 := by
+    rw [← starRingEnd_apply, Complex.conj_ofReal, ← Complex.ofReal_mul, ← mul_inv, h6]
+    push_cast
+    norm_num
+  have hd : star (((2 * (Real.sqrt 6)⁻¹ : ℝ)) : ℂ) * ((2 * (Real.sqrt 6)⁻¹ : ℝ) : ℂ) = 2 / 3 := by
+    have h : (2 * (Real.sqrt 6)⁻¹) * (2 * (Real.sqrt 6)⁻¹) = (2 / 3 : ℝ) := by
+      rw [show (2 * (Real.sqrt 6)⁻¹) * (2 * (Real.sqrt 6)⁻¹) = 4 * (Real.sqrt 6 * Real.sqrt 6)⁻¹ by ring, h6]
+      norm_num
+    rw [← starRingEnd_apply, Complex.conj_ofReal, ← Complex.ofReal_mul, h]
+    push_cast
+    ring
+  have hK : IsChannel fun i => ![(((Real.sqrt 6)⁻¹ : ℝ) : ℂ), 0] i • bhV₁
+      + ![0, ((2 * (Real.sqrt 6)⁻¹ : ℝ) : ℂ)] i • bhV₂ := by
+    apply un_isChannel_of_span
+    · simp only [Fin.sum_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one, star_zero, mul_zero, add_zero]
+      exact hc
+    · simp only [Fin.sum_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one, star_zero, zero_mul, zero_add]
+      exact hd
+    · simp only [Fin.sum_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one, star_zero, mul_zero, zero_mul,
+        add_zero]
+  exact ⟨_, hK, un_eq_bh_of_span _ _ hK⟩
 
 /-- Equality in the bound forces the channel: a channel whose six-state mean fidelity is `5/6` is the
 Bužek–Hillery channel as a map. -/
@@ -161,7 +212,7 @@ theorem isGreatest_cloning_fidelity_internal :
     IsGreatest {t : ℝ | ∃ (r : ℕ) (K : Fin r → Matrix QQ Q ℂ), IsChannel K ∧
       ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → t ≤ F₁ K ψ ∧ t ≤ F₂ K ψ} (5 / 6) := by
   constructor
-  · obtain ⟨K, hK, hmap⟩ := bh_isChannel_internal
+  · obtain ⟨K, hK, hmap⟩ := un_bh_isChannel
     exact ⟨2, K, hK, fun ψ hψ =>
       ⟨(bh_fidelity_internal K hmap ψ hψ).1.ge, (bh_fidelity_internal K hmap ψ hψ).2.ge⟩⟩
   · rintro t ⟨r, K, hK, ht⟩
