@@ -31,21 +31,6 @@ def sb_project (K : Matrix QQ Q ℂ) : Matrix QQ Q ℂ :=
 def sb_distanceSq (K : Matrix QQ Q ℂ) : ℝ :=
   ∑ x, ∑ i, Complex.normSq (K x i - sb_project K x i)
 
-/-- Orthogonal projection minimizes the squared distance. The factors `6` and
-`3/2` are the squared Hilbert–Schmidt norms of `bhV₁` and `bhV₂`. -/
-theorem sb_projection_distance (K : Matrix QQ Q ℂ) (x y : ℂ) :
-    ∑ z, ∑ i, Complex.normSq (K z i - (x • bhV₁ + y • bhV₂) z i) =
-      sb_distanceSq K + 6 * Complex.normSq (x - sb_x K) +
-        (3 / 2) * Complex.normSq (y - sb_y K) := by
-  simp only [bhV₁, Fin.isValue, smul_of, bhV₂, one_div, Matrix.add_apply, of_apply, Pi.smul_apply, smul_eq_mul,
-    mul_ite, mul_one, mul_zero, Complex.normSq_apply, Complex.sub_re, Complex.add_re, Complex.sub_im, Complex.add_im,
-    Fin.sum_univ_two, and_true, zero_ne_one, and_false, ↓reduceIte, one_ne_zero, Fintype.sum_prod_type, Prod.mk.injEq,
-    false_or, Complex.zero_re, add_zero, Complex.zero_im, or_false, zero_add, Complex.mul_re, Complex.re_ofNat,
-    Complex.im_ofNat, sub_zero, Complex.mul_im, Complex.inv_re, div_self_mul_self',
-    Complex.inv_im, neg_zero, zero_div, sb_distanceSq, sb_project, sb_x, sb_y, Complex.div_ofNat_re, zero_mul,
-    Complex.div_ofNat_im]
-  ring
-
 /-- The symmetric certificate is twice the squared distance to `span{V₁, V₂}` plus four squares. -/
 theorem sb_coercivity_identity (K : Matrix QQ Q ℂ) :
     5 * ∑ x, ∑ i, Complex.normSq (K x i) -
