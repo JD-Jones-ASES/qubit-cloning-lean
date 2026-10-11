@@ -198,4 +198,74 @@ theorem tr_asym_equality {r : ℕ} (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0)
     mul_inv_cancel₀ (mul_ne_zero two_ne_zero h)
   linear_combination (-(a * b)) * hc
 
+/-- `asym_traceSecond_internal` by the entrywise computation (ARCH §6). -/
+theorem tr_asym_traceSecond (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) (ρ : Matrix Q Q ℂ) :
+    traceSecond (asymChannel a b ρ) =
+      ((1 - b ^ 2 / (a ^ 2 + a * b + b ^ 2) : ℝ) : ℂ) • ρ +
+        ((b ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)) : ℝ) : ℂ) • Matrix.trace ρ • (1 : Matrix Q Q ℂ) := by
+  have hC : ((a : ℂ) ^ 2 + a * b + b ^ 2) ≠ 0 := by exact_mod_cast h
+  have hv : ((a : ℂ) ^ 2 + a * b + b ^ 2) * ((a : ℂ) ^ 2 + a * b + b ^ 2)⁻¹ = 1 := mul_inv_cancel₀ hC
+  rw [div_eq_mul_inv, div_eq_mul_inv, mul_inv]
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [asymChannel, traceSecond, asymA₀, asymA₁, Matrix.mul_apply, Fin.sum_univ_two, Matrix.trace,
+      Matrix.conjTranspose_apply]
+  · linear_combination (ρ 0 0) * hv
+  · linear_combination (ρ 0 1) * hv
+  · linear_combination (ρ 1 0) * hv
+  · linear_combination (ρ 1 1) * hv
+
+/-- `asym_traceFirst_internal` by the entrywise computation (ARCH §6). -/
+theorem tr_asym_traceFirst (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) (ρ : Matrix Q Q ℂ) :
+    traceFirst (asymChannel a b ρ) =
+      ((1 - a ^ 2 / (a ^ 2 + a * b + b ^ 2) : ℝ) : ℂ) • ρ +
+        ((a ^ 2 / (2 * (a ^ 2 + a * b + b ^ 2)) : ℝ) : ℂ) • Matrix.trace ρ • (1 : Matrix Q Q ℂ) := by
+  have hC : ((a : ℂ) ^ 2 + a * b + b ^ 2) ≠ 0 := by exact_mod_cast h
+  have hv : ((a : ℂ) ^ 2 + a * b + b ^ 2) * ((a : ℂ) ^ 2 + a * b + b ^ 2)⁻¹ = 1 := mul_inv_cancel₀ hC
+  rw [div_eq_mul_inv, div_eq_mul_inv, mul_inv]
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [asymChannel, traceFirst, asymA₀, asymA₁, Matrix.mul_apply, Fin.sum_univ_two, Matrix.trace,
+      Matrix.conjTranspose_apply]
+  · linear_combination (ρ 0 0) * hv
+  · linear_combination (ρ 0 1) * hv
+  · linear_combination (ρ 1 0) * hv
+  · linear_combination (ρ 1 1) * hv
+
+/-- `as_gram`: `A₀ᴴ A₀ + A₁ᴴ A₁ = 2(a² + ab + b²) · 1`. -/
+theorem tr_as_gram (a b : ℝ) :
+    (asymA₀ a b)ᴴ * asymA₀ a b + (asymA₁ a b)ᴴ * asymA₁ a b =
+      ((2 * (a ^ 2 + a * b + b ^ 2) : ℝ) : ℂ) • (1 : Matrix Q Q ℂ) := by
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [asymA₀, asymA₁, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
+      Matrix.conjTranspose_apply]
+  all_goals ring
+
+/-- `asym_isChannel_internal`: the Kraus family `A₀, A₁` scaled by `(√(2(a² + ab + b²)))⁻¹`. -/
+theorem tr_asym_isChannel (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 ≠ 0) :
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ ∀ ρ, krausApply K ρ = asymChannel a b ρ := by
+  have hs0 : 0 ≤ a ^ 2 + a * b + b ^ 2 := by nlinarith [sq_nonneg (a + b / 2), sq_nonneg b]
+  have hne : 2 * (a ^ 2 + a * b + b ^ 2) ≠ 0 := mul_ne_zero two_ne_zero h
+  have hc2 : (Real.sqrt (2 * (a ^ 2 + a * b + b ^ 2)))⁻¹ * (Real.sqrt (2 * (a ^ 2 + a * b + b ^ 2)))⁻¹ =
+      (2 * (a ^ 2 + a * b + b ^ 2))⁻¹ := by
+    rw [← mul_inv, Real.mul_self_sqrt (by linarith)]
+  generalize (Real.sqrt (2 * (a ^ 2 + a * b + b ^ 2)))⁻¹ = c at hc2
+  have hcC : star (c : ℂ) * (c : ℂ) = ((2 * (a ^ 2 + a * b + b ^ 2) : ℝ) : ℂ)⁻¹ := by
+    rw [Complex.star_def, Complex.conj_ofReal, ← Complex.ofReal_mul, hc2, Complex.ofReal_inv]
+  have hcC' : (c : ℂ) * star (c : ℂ) = ((2 * (a ^ 2 + a * b + b ^ 2) : ℝ) : ℂ)⁻¹ := by
+    rw [mul_comm, hcC]
+  refine ⟨![(c : ℂ) • asymA₀ a b, (c : ℂ) • asymA₁ a b], ?_, ?_⟩
+  · unfold IsChannel
+    rw [Fin.sum_univ_two]
+    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.conjTranspose_smul, Matrix.smul_mul,
+      Matrix.mul_smul, smul_smul]
+    rw [← smul_add, tr_as_gram, smul_smul, hcC', inv_mul_cancel₀ (by exact_mod_cast hne), one_smul]
+  · intro ρ
+    unfold krausApply asymChannel
+    rw [Fin.sum_univ_two]
+    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.conjTranspose_smul, Matrix.smul_mul,
+      Matrix.mul_smul, smul_smul]
+    rw [hcC, ← smul_add]
+
 end QubitCloning
