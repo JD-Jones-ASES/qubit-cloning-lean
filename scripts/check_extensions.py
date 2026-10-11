@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent exact replay of the cloning consult extensions.
+"""Replay, in rational arithmetic, of the identities behind FullTradeoff, Signed and Stability.
 
 Uses only Python's standard library and Fraction arithmetic. Quadratic-form
 identities are checked as complete rational coefficient matrices, rather than
@@ -9,8 +9,8 @@ the corresponding complex Hermitian identities, applied to real and imaginary
 parts independently. Concrete channel fidelities are computed directly on all
 six complex Pauli density matrices, with real/imaginary parts kept separate.
 
-This is an independent mathematical replay, not a substitute for Lean kernel
-checking. Run with: python scripts/check_extensions.py
+This replay is not a substitute for the Lean kernel check.
+Run with: python -X utf8 -I scripts/check_extensions.py
 """
 
 from fractions import Fraction as F
@@ -292,8 +292,11 @@ for a, b, f1, f2 in WITNESSES:
         check(f"E4 full-range curved boundary attained at ({a},{b})",
               full_left >= 0 and full_left ** 2 == full_rad)
 
-check("E4 clone/anticlone support value is exactly 1",
-      3 * F(13, 14) - 5 * F(5, 14) == 1)
+f1_31, f2_31 = averages(3, -1)
+check("E4 the signed support at (3,-1) is attained: 3 F1 - 5 F2 = 1",
+      3 * f1_31 - 5 * f2_31 == 1)
+check("E4 a forged fidelity pair (13/14, 6/14) at (3,-1) is rejected (negative control)",
+      averages(3, -1) != (F(13, 14), F(6, 14)))
 check("E4 BH Choi matrix is the canonical projector", choi(1, 1) == P)
 
 # Trace-preservation constraints on the signed support are nondegenerate.
@@ -308,8 +311,8 @@ check("E4 signed equality support has nonsingular TP equations",
       T00[0][0] * T11[1][1] - T00[1][1] * T11[0][0] == -84)
 
 
-# E5. Sharpness of the stability coefficient, including arbitrarily small
-# rational parameters of the already defined asymmetric family.
+# E5. The constant 6 of the Kraus-space bound is attained along the asymmetric
+# family at (1 + t, 1 - t), including small rational t.
 for t in [F(1, 2), F(1, 10), F(1, 100), F(1, 10000)]:
     a, b = 1 + t, 1 - t
     f1, f2 = averages(a, b)
@@ -318,16 +321,17 @@ for t in [F(1, 2), F(1, 10), F(1, 100), F(1, 10000)]:
     check(f"E5 exact near-optimal deficit and imbalance at t={t}",
           epsilon == t ** 2 / (3 * (3 + t ** 2)) and
           f1 - f2 == 2 * t / (3 + t ** 2))
-    check(f"E5 sharp distance coefficient 6 at t={t}",
+    check(f"E5 the Kraus-space distance is exactly 6 epsilon at t={t}",
           residual == 6 * epsilon and epsilon > 0)
 
-# A point satisfying the old error-form inequality can violate the new one.
+# A pair allowed by the square-root form (its left side is negative there) is
+# excluded by the full-range form.
 fake_f1, fake_f2 = F(9, 10), F(1, 3)
 fake_left = 3 * (fake_f1 + fake_f2) - F(7, 2)
 fake_rad = (3 * fake_f1 - 1) * (3 * fake_f2 - 1)
-check("E5 full-range bound detects (9/10,1/3) (negative control)",
-      fake_left > 0 and fake_left ** 2 > fake_rad and
-      (1 - fake_f1) + (1 - fake_f2) >= F(1, 2))
+check("E5 (9/10, 1/3) passes the square-root form but fails the full-range form",
+      fake_f1 + fake_f2 - F(3, 2) <= 0 and
+      fake_left > 0 and fake_left ** 2 > fake_rad)
 
 print(f"{CHECKS} exact extension checks, {len(FAILURES)} failures")
 print("VERDICT: PASS" if not FAILURES else "VERDICT: FAIL")

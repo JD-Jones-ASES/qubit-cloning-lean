@@ -82,7 +82,7 @@ def check_replay():
                    for _, result in results)
         details = []
         for mode, result in results:
-            lines = (result.stdout + result.stderr).strip().splitlines()
+            lines = result.stdout.strip().splitlines() or result.stderr.strip().splitlines()
             details.append(f"{mode}: " + ("; ".join(lines[-2:]) if lines else
                                           f"exited with status {result.returncode}, no output"))
         ok &= step(f"{script} (standard-library replay under -I and -O -I)", good,
