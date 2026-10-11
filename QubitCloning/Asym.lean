@@ -155,4 +155,115 @@ theorem asym_equality_internal {r : ℕ} (a b : ℝ) (h : a ^ 2 + a * b + b ^ 2 
   rw [as_sixAvg₁ a b h K hK, as_sixAvg₂ a b h K hK]
   exact as_weights a b h
 
+/-! ### Extras for the neighbouring lanes (`tradeoff`, `asymunique`) -/
+
+/-- The asymmetric cloners lie on the trade-off curve (the statement of `tradeoff_attained_internal`, proved here
+from `as_sixAvg₁`, `as_sixAvg₂`): `F̄₁ + F̄₂ − 3/2 = ab/(2s) = √((1 − F̄₁)(1 − F̄₂))`. -/
+theorem as_tradeoff_attained {r : ℕ} (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h : a ^ 2 + a * b + b ^ 2 ≠ 0)
+    (K : Fin r → Matrix QQ Q ℂ) (hK : ∀ ρ, krausApply K ρ = asymChannel a b ρ) :
+    sixAvg₁ K + sixAvg₂ K - 3 / 2 = Real.sqrt ((1 - sixAvg₁ K) * (1 - sixAvg₂ K)) := by
+  rw [as_sixAvg₁ a b h K hK, as_sixAvg₂ a b h K hK]
+  have hs := as_pos a b h
+  generalize hS : a ^ 2 + a * b + b ^ 2 = S at hs h ⊢
+  have key : (1 - (1 - b ^ 2 / (2 * S))) * (1 - (1 - a ^ 2 / (2 * S))) = (a * b / (2 * S)) ^ 2 := by
+    ring
+  rw [key, Real.sqrt_sq (div_nonneg (mul_nonneg ha hb) (by linarith))]
+  field_simp
+  subst hS
+  ring
+
+/-- The Gram block `A₀ᴴ A₀ = diag((a + b)², a² + b²)`. -/
+theorem as_gram₀₀ (a b : ℝ) :
+    (asymA₀ a b)ᴴ * asymA₀ a b = !![(((a + b) ^ 2 : ℝ) : ℂ), 0; 0, ((a ^ 2 + b ^ 2 : ℝ) : ℂ)] := by
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [asymA₀, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
+      Matrix.conjTranspose_apply] <;> ring
+
+/-- The Gram block `A₀ᴴ A₁ = 2ab E₁₀`. -/
+theorem as_gram₀₁ (a b : ℝ) :
+    (asymA₀ a b)ᴴ * asymA₁ a b = !![0, 0; ((2 * a * b : ℝ) : ℂ), 0] := by
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [asymA₀, asymA₁, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
+      Matrix.conjTranspose_apply]
+  ring
+
+/-- The Gram block `A₁ᴴ A₀ = 2ab E₀₁`. -/
+theorem as_gram₁₀ (a b : ℝ) :
+    (asymA₁ a b)ᴴ * asymA₀ a b = !![0, ((2 * a * b : ℝ) : ℂ); 0, 0] := by
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [asymA₀, asymA₁, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
+      Matrix.conjTranspose_apply]
+  ring
+
+/-- The Gram block `A₁ᴴ A₁ = diag(a² + b², (a + b)²)`. -/
+theorem as_gram₁₁ (a b : ℝ) :
+    (asymA₁ a b)ᴴ * asymA₁ a b = !![((a ^ 2 + b ^ 2 : ℝ) : ℂ), 0; 0, (((a + b) ^ 2 : ℝ) : ℂ)] := by
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [asymA₁, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
+      Matrix.conjTranspose_apply] <;> ring
+
+/-- The second half of the uniqueness of the asymmetric optimum (ARCH.md §7): for `a, b ≠ 0`, a channel whose
+Kraus operators lie in the span of `A₀, A₁` is the asymmetric cloner as a map. -/
+theorem as_eq_asymChannel_of_span {r : ℕ} (a b : ℝ) (ha : a ≠ 0) (hb : b ≠ 0) (K : Fin r → Matrix QQ Q ℂ)
+    (x y : Fin r → ℂ) (hxy : ∀ i, K i = x i • asymA₀ a b + y i • asymA₁ a b) (hK : IsChannel K) :
+    ∀ ρ, krausApply K ρ = asymChannel a b ρ := by
+  unfold IsChannel at hK
+  have E : (∑ i, star (x i) * x i) • ((asymA₀ a b)ᴴ * asymA₀ a b) +
+      (∑ i, star (x i) * y i) • ((asymA₀ a b)ᴴ * asymA₁ a b) +
+      (∑ i, star (y i) * x i) • ((asymA₁ a b)ᴴ * asymA₀ a b) +
+      (∑ i, star (y i) * y i) • ((asymA₁ a b)ᴴ * asymA₁ a b) = 1 := by
+    rw [← hK]
+    simp only [Finset.sum_smul, ← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [hxy i]
+    simp only [conjTranspose_add, conjTranspose_smul, Matrix.add_mul, Matrix.mul_add, Matrix.smul_mul,
+      Matrix.mul_smul, smul_add, smul_smul]
+    module
+  rw [as_gram₀₀, as_gram₀₁, as_gram₁₀, as_gram₁₁] at E
+  generalize hX : ∑ i, star (x i) * x i = X at E
+  generalize hZ : ∑ i, star (x i) * y i = Z at E
+  generalize hW : ∑ i, star (y i) * x i = W at E
+  generalize hY : ∑ i, star (y i) * y i = Y at E
+  have e00 := congrFun (congrFun E 0) 0
+  have e11 := congrFun (congrFun E 1) 1
+  have e10 := congrFun (congrFun E 1) 0
+  have e01 := congrFun (congrFun E 0) 1
+  simp at e00 e11
+  simp [ha, hb] at e10 e01
+  have hab : (2 * (a : ℂ) * (b : ℂ)) ≠ 0 := by simp [ha, hb]
+  have hXY0 : (X - Y) * (2 * (a : ℂ) * (b : ℂ)) = 0 := by linear_combination e00 - e11
+  have hXY : X - Y = 0 := (mul_eq_zero.mp hXY0).resolve_right hab
+  have hX2 : X * (2 * ((a : ℂ) ^ 2 + (a : ℂ) * (b : ℂ) + (b : ℂ) ^ 2)) = 1 := by
+    linear_combination e00 + ((a : ℂ) ^ 2 + (b : ℂ) ^ 2) * hXY
+  intro ρ
+  have hkr : krausApply K ρ =
+      (∑ i, x i * star (x i)) • (asymA₀ a b * ρ * (asymA₀ a b)ᴴ) +
+      (∑ i, x i * star (y i)) • (asymA₀ a b * ρ * (asymA₁ a b)ᴴ) +
+      (∑ i, y i * star (x i)) • (asymA₁ a b * ρ * (asymA₀ a b)ᴴ) +
+      (∑ i, y i * star (y i)) • (asymA₁ a b * ρ * (asymA₁ a b)ᴴ) := by
+    unfold krausApply
+    simp only [Finset.sum_smul, ← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [hxy i]
+    simp only [conjTranspose_add, conjTranspose_smul, Matrix.add_mul, Matrix.mul_add, Matrix.smul_mul,
+      Matrix.mul_smul, smul_add, smul_smul]
+    module
+  have c1 : ∑ i, x i * star (x i) = X :=
+    (Finset.sum_congr rfl fun i _ => mul_comm _ _).trans hX
+  have c2 : ∑ i, x i * star (y i) = 0 :=
+    (Finset.sum_congr rfl fun i _ => mul_comm _ _).trans (hW.trans e01)
+  have c3 : ∑ i, y i * star (x i) = 0 :=
+    (Finset.sum_congr rfl fun i _ => mul_comm _ _).trans (hZ.trans e10)
+  have c4 : ∑ i, y i * star (y i) = X :=
+    (Finset.sum_congr rfl fun i _ => mul_comm _ _).trans (hY.trans (sub_eq_zero.mp hXY).symm)
+  rw [hkr, c1, c2, c3, c4, zero_smul, zero_smul, add_zero, add_zero, ← smul_add]
+  unfold asymChannel
+  congr 1
+  rw [eq_inv_of_mul_eq_one_left hX2]
+  simp
+
 end QubitCloning
