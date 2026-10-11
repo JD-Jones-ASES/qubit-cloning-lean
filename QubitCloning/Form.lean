@@ -263,5 +263,51 @@ theorem form_sixAvg₂_channel {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : I
   rw [st_sixAvg₂_eq_sum, Finset.mul_sum, ← h2, ← Finset.sum_add_distrib]
   exact Finset.sum_congr rfl fun i _ => form_six_two (K i)
 
+/-- `AsymForm`'s `af_weighted_eq`, from `form_sixAvg₁_channel` and `form_sixAvg₂_channel`. -/
+theorem form_af_weighted_eq {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) (a b : ℝ) :
+    6 * (a * (a + 2 * b) * sixAvg₁ K + b * (2 * a + b) * sixAvg₂ K) =
+      2 * (a * (a + 2 * b) + b * (2 * a + b))
+        + ∑ i, (a * (a + 2 * b) * ∑ j, Complex.normSq (K i (0, j) 0 + K i (1, j) 1)
+          + b * (2 * a + b) * ∑ j, Complex.normSq (K i (j, 0) 0 + K i (j, 1) 1)) := by
+  have h1 := form_sixAvg₁_channel K hK
+  have h2 := form_sixAvg₂_channel K hK
+  rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.mul_sum]
+  linear_combination (a * (a + 2 * b)) * h1 + (b * (2 * a + b)) * h2
+
+/-- `AsymForm`'s `af_sos`: the asymmetric certificate, a polynomial identity in `a, b` and the entries. -/
+theorem form_af_sos (a b : ℝ) (K : Matrix QQ Q ℂ) :
+    (2 * a + b) * (a + 2 * b) * ∑ x, ∑ i, Complex.normSq (K x i)
+        - a * (a + 2 * b) * ∑ j, Complex.normSq (K (0, j) 0 + K (1, j) 1)
+        - b * (2 * a + b) * ∑ j, Complex.normSq (K (j, 0) 0 + K (j, 1) 1) =
+      (1 / 3) * ∑ j, Complex.normSq (((a + 2 * b : ℝ) : ℂ) * (K (0, j) 0 + K (1, j) 1)
+          - ((2 * a + b : ℝ) : ℂ) * (K (j, 0) 0 + K (j, 1) 1))
+        + (2 * a + b) * (a + 2 * b) * (Complex.normSq (K (1, 1) 0) + Complex.normSq (K (0, 0) 1)
+          + Complex.normSq (K (0, 0) 0 - K (1, 0) 1 - K (0, 1) 1) / 3
+          + Complex.normSq (K (1, 1) 1 - K (0, 1) 0 - K (1, 0) 0) / 3) := by
+  simp only [Fin.sum_univ_two, Fintype.sum_prod_type, Complex.normSq_apply, Complex.add_re, Complex.add_im,
+    Complex.sub_re, Complex.sub_im, Complex.re_ofReal_mul, Complex.im_ofReal_mul]
+  ring
+
+/-- The first clone's σ_x flip, the second clone left in `|0⟩`: `|0⟩ ↦ |10⟩`, `|1⟩ ↦ |00⟩`. -/
+def form_flipX : Matrix QQ Q ℂ :=
+  Matrix.of fun x i => if (x = (1, 0) ∧ i = 0) ∨ (x = (0, 0) ∧ i = 1) then 1 else 0
+
+theorem form_flipX_isChannel : IsChannel ![form_flipX] := by
+  unfold IsChannel
+  ext a b
+  fin_cases a <;> fin_cases b <;>
+    simp [form_flipX, Matrix.sum_apply, Matrix.mul_apply]
+
+/-- `BH`'s `exists_sixAvg_eq_third` with a one-operator witness: the σ_x flip of the first clone has
+six-state average `1/3` (fidelity `0` on the four `σ_z`, `σ_y` states and `1` on the two `σ_x` states). -/
+theorem form_exists_sixAvg_eq_third :
+    ∃ (r : ℕ) (K : Fin r → Matrix QQ Q ℂ), IsChannel K ∧ sixAvg₁ K = 1 / 3 := by
+  refine ⟨1, ![form_flipX], form_flipX_isChannel, ?_⟩
+  have hu : ∑ i : Fin 1, ∑ j, Complex.normSq (![form_flipX] i (0, j) 0 + ![form_flipX] i (1, j) 1) = 0 := by
+    simp [form_flipX]
+  have h := form_sixAvg₁_channel ![form_flipX] form_flipX_isChannel
+  rw [hu] at h
+  linarith
+
 end QubitCloning
 
