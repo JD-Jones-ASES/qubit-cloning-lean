@@ -312,4 +312,72 @@ theorem tr_F₂_pauliVec {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (s : Fin 6) :
     F₂ K (pauliVec s) = fidelity (pauliState s) (traceFirst (krausApply K (pauliState s))) := by
   rw [F₂, tr_proj_pauliVec]
 
+/-- `st_fidelity_proj`: the fidelity of a projector with `σ` is `Re (ψ† σ ψ)`. -/
+theorem tr_fidelity_proj (ψ : Q → ℂ) (σ : Matrix Q Q ℂ) :
+    fidelity (proj ψ) σ = (star ψ ⬝ᵥ (σ *ᵥ ψ)).re := by
+  rw [fidelity, proj, Matrix.vecMulVec_mul, Matrix.trace_vecMulVec, dotProduct_comm,
+    ← Matrix.dotProduct_mulVec]
+
+/-- `st_krausApply_eq_sum`. -/
+theorem tr_krausApply_eq_sum {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (ρ : Matrix Q Q ℂ) :
+    krausApply K ρ = ∑ i, krausApply ![K i] ρ := by
+  simp [krausApply]
+
+/-- `st_traceSecond_sum`. -/
+theorem tr_traceSecond_sum {ι : Type} (s : Finset ι) (M : ι → Matrix QQ QQ ℂ) :
+    traceSecond (∑ i ∈ s, M i) = ∑ i ∈ s, traceSecond (M i) := by
+  ext a b
+  simp only [traceSecond, Matrix.of_apply, Matrix.sum_apply]
+  exact Finset.sum_comm
+
+/-- `st_traceFirst_sum`. -/
+theorem tr_traceFirst_sum {ι : Type} (s : Finset ι) (M : ι → Matrix QQ QQ ℂ) :
+    traceFirst (∑ i ∈ s, M i) = ∑ i ∈ s, traceFirst (M i) := by
+  ext a b
+  simp only [traceFirst, Matrix.of_apply, Matrix.sum_apply]
+  exact Finset.sum_comm
+
+/-- `st_traceSecond_smul`. -/
+theorem tr_traceSecond_smul (c : ℂ) (M : Matrix QQ QQ ℂ) : traceSecond (c • M) = c • traceSecond M := by
+  ext a b
+  simp only [traceSecond, Matrix.of_apply, Matrix.smul_apply, smul_eq_mul, Finset.mul_sum]
+
+/-- `st_traceFirst_smul`. -/
+theorem tr_traceFirst_smul (c : ℂ) (M : Matrix QQ QQ ℂ) : traceFirst (c • M) = c • traceFirst M := by
+  ext a b
+  simp only [traceFirst, Matrix.of_apply, Matrix.smul_apply, smul_eq_mul, Finset.mul_sum]
+
+/-- `st_fidelity_sum`. -/
+theorem tr_fidelity_sum {ι : Type} (s : Finset ι) (ρ : Matrix Q Q ℂ) (σ : ι → Matrix Q Q ℂ) :
+    fidelity ρ (∑ i ∈ s, σ i) = ∑ i ∈ s, fidelity ρ (σ i) := by
+  simp only [fidelity, Finset.mul_sum, Matrix.trace_sum, Complex.re_sum]
+
+/-- `st_sixAvg₁_eq_sum`. -/
+theorem tr_sixAvg₁_eq_sum {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) :
+    sixAvg₁ K = ∑ i, sixAvg₁ ![K i] := by
+  simp only [sixAvg₁, ← Finset.sum_div]
+  congr 1
+  simp only [fun ρ => tr_krausApply_eq_sum K ρ, tr_traceSecond_sum, tr_fidelity_sum]
+  exact Finset.sum_comm
+
+/-- `st_sixAvg₂_eq_sum`. -/
+theorem tr_sixAvg₂_eq_sum {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) :
+    sixAvg₂ K = ∑ i, sixAvg₂ ![K i] := by
+  simp only [sixAvg₂, ← Finset.sum_div]
+  congr 1
+  simp only [fun ρ => tr_krausApply_eq_sum K ρ, tr_traceFirst_sum, tr_fidelity_sum]
+  exact Finset.sum_comm
+
+/-- `st_isChannel_normSq_sum`: the trace of `Σ Kᵢᴴ Kᵢ = 1`. -/
+theorem tr_isChannel_normSq_sum {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K) :
+    ∑ i, ∑ x, ∑ j, Complex.normSq (K i x j) = 2 := by
+  have ht := congrArg Matrix.trace hK
+  rw [Matrix.trace_sum, Matrix.trace_one] at ht
+  have e : ∀ i, Matrix.trace ((K i)ᴴ * K i) = ((∑ x, ∑ j, Complex.normSq (K i x j) : ℝ) : ℂ) := by
+    intro i
+    rw [Finset.sum_comm]
+    simp [Matrix.trace, Matrix.mul_apply, Complex.normSq_eq_conj_mul_self]
+  simp only [e] at ht
+  exact_mod_cast ht
+
 end QubitCloning
