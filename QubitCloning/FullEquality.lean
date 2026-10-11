@@ -8,7 +8,7 @@ public import QubitCloning.FullTradeoff
 
 Along the asymmetric family with `(2a + b)(a + 2b) ≥ 0` the full-range trade-off
 `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))` is an equality. Conversely, equality away from the
-perfect-clone endpoints forces a member of the family: with `U = Σ|u|²`, `V = Σ|v|²`, `C = Σ Re(ū v)`
+perfect-clone points forces a member of the family: with `U = Σ|u|²`, `V = Σ|v|²`, `C = Σ Re(ū v)`
 equality gives `C = √(UV)` and `U + V − C = 3`, so the summed Gram identity makes every square vanish,
 and `Σ |√V u − √U v|² = 2UV − 2√(UV) C = 0` puts the Kraus operators in the kernel of the
 asymmetric certificate at `a = (2√U − √V)/3`, `b = (2√V − √U)/3`. The floor companions
@@ -178,7 +178,7 @@ theorem eq_asym_of_floor₁_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (
     push_cast
     ring
 
-/-- Equality in the full-range trade-off away from the perfect-clone endpoints forces a member of the
+/-- Equality in the full-range trade-off away from the perfect-clone points `(1, 1/2)` and `(1/2, 1)` forces a member of the
 asymmetric family with both weights nonzero and `(2a + b)(a + 2b) ≥ 0`: the boundary arc of the region
 is the family. -/
 theorem eq_asym_of_tradeoff_full_equality_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)

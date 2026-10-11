@@ -3,7 +3,7 @@ module
 public import Mathlib
 
 /-!
-# Universal 1 → 2 qubit cloning: (F₁ + F₂)/2 ≤ 5/6 with the Bužek–Hillery channel as its unique optimum and its stability, the universal-NOT floor 1/3 and its companion 5/6, the trade-off 3(F₁ + F₂) − 7/2 ≤ √((3F₁ − 1)(3F₂ − 1)) with its equality family, and the anticloning bound 3F₁ − 5F₂ ≤ 1
+# Universal 1 → 2 qubit cloning: (F̄₁ + F̄₂)/2 ≤ 5/6 with the Bužek–Hillery channel as its unique optimum and its stability, the universal-NOT floor 1/3 and its companion 5/6, the trade-off 3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1)) with its equality family, and the anticloning bound 3F̄₁ − 5F̄₂ ≤ 1
 
 A *channel from one qubit to two* is a finite Kraus family `K : Fin r → Matrix (Fin 2 × Fin 2) (Fin 2) ℂ` with
 `Σᵢ Kᵢᴴ Kᵢ = 1`, acting by `ρ ↦ Σᵢ Kᵢ ρ Kᵢᴴ` (the Choi–Kraus theorem, not proved here, says every completely
@@ -42,10 +42,10 @@ averages of Gisin–Massar; that equality is not used and not claimed). This fil
   (`bhChannel_eq_asymChannel`); hence the square-root form `√((1 − F̄₁)(1 − F̄₂)) ≥ F̄₁ + F̄₂ − 3/2`
   (Scarani–Iblisdir–Gisin–Acín 2005, Eq. (23); the equality curve of Niu–Griffiths (6.29)), its worst-case form,
   and equality along the family (`tradeoff_sqrt`, `tradeoff_forall`, `tradeoff_attained`);
-* **the full-range trade-off** (the necessity half of Nechita–Pellegrini–Rochette 2021, Theorem 6, at `d = 2`, and
-  of Hashagen 2017, Theorem 6.4, in entanglement fidelity; proved here by a Gram identity in the Kraus entries): for
-  every channel `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))` (`tradeoff_full_sqrt`), which binds where a clone's
-  average fidelity is below `1/2` and excludes `(1, 1/3)`; along `Λ_{a,b}` with `(2a + b)(a + 2b) ≥ 0` it is an
+* **the full-range trade-off** (with the floor, the necessity half of Nechita–Pellegrini–Rochette 2021, Theorem 6,
+  at `d = 2`, and of Hashagen 2017, Theorem 6.4, in entanglement fidelity; proved here by a Gram identity in the Kraus
+  entries): for every channel `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))` (`tradeoff_full_sqrt`), which also binds
+  where a clone's average fidelity is below `1/2` (where the square-root form is vacuous) and excludes `(1, 1/3)`; along `Λ_{a,b}` with `(2a + b)(a + 2b) ≥ 0` it is an
   equality (`tradeoff_full_attained`), and equality with `F̄₁, F̄₂ ≠ 1` holds only for such a member with `a, b ≠ 0`
   (`eq_asym_of_tradeoff_full_equality`); a perfect average clone forces the other output's average fidelity to `1/2`
   (`sixAvg₂_eq_half_of_sixAvg₁_eq_one`, `sixAvg₁_eq_half_of_sixAvg₂_eq_one`; Hashagen 2017, p. 20);
@@ -58,10 +58,10 @@ averages of Gisin–Massar; that equality is not used and not claimed). This fil
   clone and anti-clone of Scarani–Iblisdir–Gisin–Acín 2005, (12)–(15) — and only by it, as `(1/3, 5/6)` is by
   `Λ_{−1,2}` (`floor_companion_attained`, `eq_asym_of_floor₂`, `eq_asym_of_floor₁`);
 * **stability of the optimum**: if `(F̄₁ + F̄₂)/2 ≥ 5/6 − ε`, every Kraus family lies within total squared
-  Hilbert–Schmidt distance `6ε` of `span{V₁, V₂}` (`kraus_span_stability`; the constant `6` is the spectral gap of the
-  symmetric certificate, attained along `Λ_{1+t,1−t}`), and the channel is within Frobenius distance `200 √ε ‖ρ‖_F`
-  of `Λ_BH` on every input `ρ` (`channel_stability`; the proof gives `78√3`; the rate `√ε` is attained along the same
-  family).
+  Frobenius distance `6ε` of `span{V₁, V₂}` (`kraus_span_stability`; `6` is `12` over the spectral gap `2` of the
+  symmetric certificate off its kernel, and the replay checks that it is attained along `Λ_{1+t,1−t}`), and the channel
+  is within Frobenius distance `200 √ε ‖ρ‖_F` of `Λ_BH` on every input `ρ` (`channel_stability`; the proof gives `78√3`;
+  the replay checks that the rate `√ε` is attained along the same family; neither remark is a compared statement).
 
 Forty-four statements over twenty definitions; `comparator.json` lists no definition holes. The certificates
 are the identities `6 F̄ᵢ(K) = Σⱼ ‖Kⱼ‖² + Σⱼ ⟨kⱼ, Ωᵢ kⱼ⟩` with `Ωᵢ = |Ω⟩⟨Ω|_{R Aᵢ} ⊗ 1`, `|Ω⟩ = |00⟩ + |11⟩`
@@ -318,7 +318,7 @@ theorem tradeoff_attained {r : ℕ} (a b : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (h
 /-! ## The full-range average-fidelity trade-off -/
 
 /-- For every channel, `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))`: the full-range trade-off, which
-binds where a clone's average fidelity is below `1/2` (the square-root form does not). -/
+also binds where a clone's average fidelity is below `1/2`, where the square-root form is vacuous. -/
 theorem tradeoff_full_sqrt {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
     (hK : IsChannel K) :
     3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 ≤
@@ -347,7 +347,8 @@ theorem clone_anticlone_bound {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : Is
 /-- `Λ_{3,−1}` is a two-operator channel with the average fidelities `(13/14, 5/14)`, where
 `3F̄₁ − 5F̄₂ = 1`. -/
 theorem clone_anticlone_attained :
-    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ sixAvg₁ K = 13 / 14 ∧ sixAvg₂ K = 5 / 14 := sorry
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ (∀ ρ, krausApply K ρ = asymChannel 3 (-1) ρ) ∧
+      sixAvg₁ K = 13 / 14 ∧ sixAvg₂ K = 5 / 14 := sorry
 
 /-- A channel with `3F̄₁ − 5F̄₂ = 1` is `Λ_{3,−1}` as a map. -/
 theorem eq_clone_anticlone_of_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
@@ -367,7 +368,8 @@ theorem sixAvg₂_le_of_sixAvg₁_eq_third {r : ℕ} (K : Fin r → Matrix QQ Q 
 /-- `Λ_{2,−1}` is a two-operator channel with `F̄₁ = 5/6` and `F̄₂ = 1/3`, and with `F₁(ψ) = 5/6`,
 `F₂(ψ) = 1/3` on every unit `ψ`: the universal-NOT floor on the second clone with `5/6` on the first. -/
 theorem floor_companion_attained :
-    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ sixAvg₁ K = 5 / 6 ∧ sixAvg₂ K = 1 / 3 ∧
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ (∀ ρ, krausApply K ρ = asymChannel 2 (-1) ρ) ∧
+      sixAvg₁ K = 5 / 6 ∧ sixAvg₂ K = 1 / 3 ∧
       ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → F₁ K ψ = 5 / 6 ∧ F₂ K ψ = 1 / 3 := sorry
 
 /-! ## Quantitative stability of the optimal Kraus space -/
@@ -391,7 +393,7 @@ theorem tradeoff_full_attained {r : ℕ} (a b : ℝ) (hP : 0 ≤ (2 * a + b) * (
     3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 =
       Real.sqrt ((3 * sixAvg₁ K - 1) * (3 * sixAvg₂ K - 1)) := sorry
 
-/-- Equality in the full-range trade-off away from the perfect-clone endpoints forces a member of the
+/-- Equality in the full-range trade-off away from the perfect-clone points `(1, 1/2)` and `(1/2, 1)` forces a member of the
 asymmetric family with both weights nonzero and `(2a + b)(a + 2b) ≥ 0`: the boundary arc of the region
 is the family. -/
 theorem eq_asym_of_tradeoff_full_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)

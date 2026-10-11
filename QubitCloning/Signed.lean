@@ -75,9 +75,10 @@ theorem clone_anticlone_bound_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
 /-- `Λ_{3,−1}` is a two-operator channel with the average fidelities `(13/14, 5/14)`, where
 `3F̄₁ − 5F̄₂ = 1`. -/
 theorem clone_anticlone_attained_internal :
-    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ sixAvg₁ K = 13 / 14 ∧ sixAvg₂ K = 5 / 14 := by
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ (∀ ρ, krausApply K ρ = asymChannel 3 (-1) ρ) ∧
+      sixAvg₁ K = 13 / 14 ∧ sixAvg₂ K = 5 / 14 := by
   obtain ⟨K, hK, hmap⟩ := asym_isChannel_internal 3 (-1) (by norm_num)
-  refine ⟨K, hK, ?_, ?_⟩
+  refine ⟨K, hK, hmap, ?_, ?_⟩
   · have h := as_sixAvg₁ 3 (-1) (by norm_num) K hmap
     norm_num at h
     exact h
@@ -95,10 +96,11 @@ theorem eq_clone_anticlone_of_equality_internal {r : ℕ} (K : Fin r → Matrix 
 /-- `Λ_{2,−1}` is a two-operator channel with `F̄₁ = 5/6` and `F̄₂ = 1/3`, and with `F₁(ψ) = 5/6`,
 `F₂(ψ) = 1/3` on every unit `ψ`: the universal-NOT floor on the second clone with `5/6` on the first. -/
 theorem floor_companion_attained_internal :
-    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ sixAvg₁ K = 5 / 6 ∧ sixAvg₂ K = 1 / 3 ∧
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ (∀ ρ, krausApply K ρ = asymChannel 2 (-1) ρ) ∧
+      sixAvg₁ K = 5 / 6 ∧ sixAvg₂ K = 1 / 3 ∧
       ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → F₁ K ψ = 5 / 6 ∧ F₂ K ψ = 1 / 3 := by
   obtain ⟨K, hK, hmap⟩ := asym_isChannel_internal 2 (-1) (by norm_num)
-  refine ⟨K, hK, ?_, ?_, ?_⟩
+  refine ⟨K, hK, hmap, ?_, ?_, ?_⟩
   · have h := as_sixAvg₁ 2 (-1) (by norm_num) K hmap
     norm_num at h
     exact h

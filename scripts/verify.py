@@ -7,7 +7,7 @@ In order: the pins (lean-toolchain and the Mathlib revision of lake-manifest.jso
 ones), the source guard and its subprocess controls for prohibited Lake options, the definition
 comparison between Challenge.lean and QubitCloning/Defs.lean, the
 statement comparison between Challenge.lean and Solution.lean, the standard-library replays
-scripts/check_cloning.py and scripts/check_extensions.py (every identity, exact where rational,
+scripts/check_cloning.py and scripts/check_extensions.py (every identity, in rational arithmetic where rational,
 each under isolated Python and optimized isolated Python), the metadata (formalization.yaml parses;
 its title length, main results and alignment against comparator.json, every alignment status proved; no
 definition holes; no original-proof source), the Lean build of every target (including the Test audit, which fails on
@@ -129,6 +129,8 @@ def check_yaml():
                             "source")
     except (KeyError, TypeError, ValueError) as error:
         return step("formalization.yaml", False, f"malformed: {error!r}")
+    if not (data.get("project") or {}).get("responsible_maintainers"):
+        problems.append("project.responsible_maintainers must be a nonempty list (the registry's contract)")
     schema = ROOT / "scripts" / "formalization.schema.json"
     if schema.exists():
         try:

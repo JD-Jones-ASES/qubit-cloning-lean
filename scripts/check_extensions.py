@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Replay, in rational arithmetic, of the identities behind FullTradeoff, Signed and Stability.
+"""Replay, in rational arithmetic, of the identities behind FullTradeoff, Signed, Stability and FullEquality.
 
 Uses only Python's standard library and Fraction arithmetic. Quadratic-form
 identities are checked as complete rational coefficient matrices, rather than
@@ -172,7 +172,7 @@ for a, b in [(3, -1), (-1, 3), (-3, 1), (2, -1), (-1, 2),
               dot(C1, matvec(m, C1)) == p and p < 0)
 
 
-# E3. Canonical projection and its exact Pythagorean and gap identities.
+# E3. Canonical projection and its Pythagorean and gap identities.
 V1 = vadd(vscale(2, basis(0, 0, 0)), basis(1, 0, 1), basis(1, 1, 0))
 V2 = vadd(vscale(F(1, 2), basis(0, 0, 1)),
           vscale(F(1, 2), basis(0, 1, 0)), basis(1, 1, 1))
@@ -183,7 +183,7 @@ check("E3 optimal-space basis norms and orthogonality",
       dot(V1, V1) == 6 and dot(V2, V2) == F(3, 2) and dot(V1, V2) == 0)
 check("E3 orthogonal projector, all coefficients",
       P == transpose(P) and mul(P, P) == P and trace(P) == 2)
-check("E3 exact coercivity Q = 2(I-P) + complement",
+check("E3 coercivity identity Q = 2(I-P) + complement",
       Q == add(scale(2, R), COMPLEMENT))
 check("E3 coercivity remainder is PSD", is_psd(add(Q, scale(-2, R))))
 
@@ -313,16 +313,22 @@ check("E4 signed equality support has nonsingular TP equations",
 
 # E5. The constant 6 of the Kraus-space bound is attained along the asymmetric
 # family at (1 + t, 1 - t), including small rational t.
+RHO0 = [[F(1), F(0)], [F(0), F(0)]]
 for t in [F(1, 2), F(1, 10), F(1, 100), F(1, 10000)]:
     a, b = 1 + t, 1 - t
     f1, f2 = averages(a, b)
     epsilon = F(5, 6) - (f1 + f2) / 2
     residual = trace(mul(R, choi(a, b)))
-    check(f"E5 exact near-optimal deficit and imbalance at t={t}",
+    check(f"E5 near-optimal deficit and imbalance at t={t}",
           epsilon == t ** 2 / (3 * (3 + t ** 2)) and
           f1 - f2 == 2 * t / (3 + t ** 2))
-    check(f"E5 the Kraus-space distance is exactly 6 epsilon at t={t}",
+    check(f"E5 the Kraus-space distance is 6 epsilon at t={t}",
           residual == 6 * epsilon and epsilon > 0)
+    diff = add(action(a, b, RHO0), scale(-1, action(1, 1, RHO0)))
+    nsq = sum((x * x for row in diff for x in row), F(0))
+    check(f"E5 the Frobenius distance to the Buzek-Hillery output at |0><0| is "
+          f"sqrt(2(7t^2+9)/(3(3+t^2))) sqrt(epsilon) at t={t}",
+          nsq == 2 * (7 * t ** 2 + 9) / (3 * (3 + t ** 2)) * epsilon)
 
 # A pair allowed by the square-root form (its left side is negative there) is
 # excluded by the full-range form.

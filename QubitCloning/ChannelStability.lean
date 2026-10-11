@@ -7,7 +7,7 @@ public import QubitCloning.AsymUnique
 /-!
 # Quantitative uniqueness of the optimum as a channel
 
-If the six-state mean fidelity of a channel is at least `5/6 - ε`, then on every input `ρ` its output is within
+If the six-state mean fidelity of a channel is at least `5/6 − ε`, then on every input `ρ` its output is within
 Frobenius distance `200 √ε ‖ρ‖_F` of the Bužek–Hillery output. Each Kraus operator splits as `Kᵢ = Pᵢ + Rᵢ`, with
 `Pᵢ = sb_project Kᵢ` in the span of `bhV₁, bhV₂` and `Σᵢ ‖Rᵢ‖² ≤ 6ε` (`sb_channel_coercivity`); trace
 preservation fixes the coefficients of the `Pᵢ` up to the error matrix `E = Σᵢ (PᵢᴴRᵢ + RᵢᴴPᵢ + RᵢᴴRᵢ)`, and

@@ -70,18 +70,20 @@ the eight entries, and every identity is closed by `ring` after unfolding (the r
    `C ≤ √(UV)` (`fr_cauchy`), and halving is `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))` (`tradeoff_full_sqrt`). In
    `X = 3F̄₁ − 1`, `Y = 3F̄₂ − 1` the equality curve is the ellipse `X² + XY + Y² − 3(X + Y) + 9/4 = 0`, tangent to the
    floors at `(5/6, 1/3)` and `(1/3, 5/6)`; the inequality binds on its arc `X + Y ≥ 3/2`. At `F̄₂ = 1/3` the right side
-   is `0`, so `F̄₁ ≤ 5/6` (`sixAvg₁_le_of_sixAvg₂_eq_third`, and the mirror). This is the necessity half of
-   Nechita–Pellegrini–Rochette's Theorem 6 at `d = 2` (Hashagen's Theorem 6.4 in entanglement fidelity); the
-   Gram-identity route is this development's.
+   is `0`, so `F̄₁ ≤ 5/6` (`sixAvg₁_le_of_sixAvg₂_eq_third`, and the mirror). With the floor `sixAvg_ge_third` this is the
+   necessity half of Nechita–Pellegrini–Rochette's Theorem 6 at `d = 2` (Hashagen's Theorem 6.4 in entanglement
+   fidelity); the Gram-identity route is this development's.
 10. **Signed weights** (`Signed.lean`). The identity `af_sos` of step 5 holds for all real `a, b`, and its right side
     is nonnegative as soon as `P = (2a + b)(a + 2b) ≥ 0`, so the computation of step 5 (`af_bound_of_nonneg`) gives
     `ab ≤ a(a + 2b)(1 − F̄₁) + b(2a + b)(1 − F̄₂)` under `P ≥ 0` alone (`signed_asym_bound`; `asym_bound` is the case
-    `a, b ≥ 0`); at `(1, −1)`, where `P < 0`, it fails for a channel with `F̄₁ = F̄₂ = 1/3`. For `P > 0` equality makes
+    `a, b ≥ 0`); at `(1, −1)`, where `P < 0`, it fails for the isometry `|0⟩ ↦ |11⟩`, `|1⟩ ↦ |00⟩`, which has
+    `F̄₁ = F̄₂ = 1/3` (replayed, not a compared statement). For `P > 0` equality makes
     every square of `af_sos` vanish, which gives the span conditions of step 7, and its trace-preservation solve needs
     only `ab ≠ 0` (`au_eq_asym_of_span`; `eq_asym_of_signed_equality`). At `(3, −1)`, `P = 5` and the bound reads
     `3F̄₁ − 5F̄₂ ≤ 1` (`clone_anticlone_bound`), attained by `Λ_{3,−1}` (`s = 7`, `F̄₁ = 13/14`, `F̄₂ = 5/14`;
     `clone_anticlone_attained`) and only by it (`eq_clone_anticlone_of_equality`). `Λ_{2,−1}` (`s = 3`) has
-    `F₁ = 5/6`, `F₂ = 1/3` on every unit `ψ` (`floor_companion_attained`); at `(2, −1)`, `P = 0` and the bound is the
+    `F₁ = 5/6`, `F₂ = 1/3` on every unit `ψ` (`floor_companion_attained`; the Bužek–Hillery clone and anti-clone of
+    Scarani–Iblisdir–Gisin–Acín 2005, (12)–(15)); at `(2, −1)`, `P = 0` and the bound is the
     floor. These bounds concern the averages themselves: a lower bound on `F̄ᵢ` cannot be substituted into them.
 11. **Stability in the Kraus space** (`Stability.lean`). With `x(K) = (2k₀₀₀ + k₁₀₁ + k₁₁₀)/6` and
     `y(K) = (k₀₀₁ + k₀₁₀ + 2k₁₁₁)/3`, `xV₁ + yV₂` is the orthogonal projection of `K` onto `span{V₁, V₂}`
@@ -92,7 +94,9 @@ the eight entries, and every identity is closed by `ring` after unfolding (the r
     is attained along `Λ_{1+t,1−t}`, where `ε = t²/(3(3 + t²))` and the distance is `6ε` (checked by
     `scripts/check_extensions.py`; not a compared statement).
 12. **The equality cases** (`FullEquality.lean`). Along `Λ_{a,b}`, `X = (2a + b)²/2s`, `Y = (a + 2b)²/2s`, so for
-    `P ≥ 0` both sides of step 9 equal `P/2s` (`tradeoff_full_attained`). Conversely, equality makes both steps of
+    `P ≥ 0` both sides of step 9 equal `P/2s` (`tradeoff_full_attained`; the arc is Nechita–Pellegrini–Rochette's
+    Theorem 5 at `d = 2` and Hashagen's (6.4b); that the family covers the arc is replayed, not formalized). Conversely,
+    equality makes both steps of
     step 9 equalities: the summed Gram identity vanishes, so its four squares vanish for every `Kᵢ`, and `C = √U√V`,
     so `Σᵢⱼ |√V uⱼ(Kᵢ) − √U vⱼ(Kᵢ)|² = 2UV − 2√U√V C = 0`; with `a = (2√U − √V)/3`, `b = (2√V − √U)/3` (`2a + b = √U`,
     `a + 2b = √V`, `P = √U√V`) these are the span conditions of step 7, so the channel is `Λ_{a,b}`, and `a = 0` would
@@ -100,7 +104,8 @@ the eight entries, and every identity is closed by `ring` after unfolding (the r
     `F̄ᵢ ≠ 1` is needed: `ρ ↦ ρ ⊗ σ` attains `(1, 1/2)` for every state `σ`. At `(5/6, 1/3)`, `V = 0`, so `v ≡ 0`,
     `C = 0` and the summed Gram identity is `6 − 6 = 0`: the span conditions hold at `(2, −1)`, and the channel is
     `Λ_{2,−1}` (`eq_asym_of_floor₂`; `eq_asym_of_floor₁` the mirror). At `F̄₁ = 1`, `X = 2` and step 9 reads
-    `(Y − 1/2)² ≤ 0`, so `F̄₂ = 1/2` (`sixAvg₂_eq_half_of_sixAvg₁_eq_one`, and the mirror).
+    `(Y − 1/2)² ≤ 0`, so `F̄₂ = 1/2` (`sixAvg₂_eq_half_of_sixAvg₁_eq_one`, and the mirror; for every channel in
+    Hashagen 2017, v2 p. 20, via Nielsen 2002, (3)).
 13. **Stability as a channel** (`ChannelStability.lean`). Write `Kᵢ = Pᵢ + Rᵢ` with `Pᵢ = xᵢV₁ + yᵢV₂` the projection
     of step 11, so `D = Σᵢ ‖Rᵢ‖² ≤ 6ε` and `Σᵢ ‖Pᵢ‖² = 2 − D`. Trace preservation reads `Σᵢ PᵢᴴPᵢ + E = 1` with
     `E = Σᵢ (PᵢᴴRᵢ + RᵢᴴPᵢ + RᵢᴴRᵢ)`, and by the products of step 4 `Σᵢ PᵢᴴPᵢ = [[4X + Y/2, Z], [Z̄, 2X + Y]]`
@@ -109,4 +114,5 @@ the eight entries, and every identity is closed by `ring` after unfolding (the r
     Σᵢ (PᵢρRᵢᴴ + RᵢρPᵢᴴ + RᵢρRᵢᴴ)`; with `‖E‖_F ≤ S = Σᵢ (2‖Pᵢ‖‖Rᵢ‖ + ‖Rᵢ‖²)` and `‖AρBᴴ‖_F ≤ ‖A‖_F ‖ρ‖_F ‖B‖_F`
     (Mathlib's Frobenius norm) the difference is at most `13S ‖ρ‖_F` (`cs_delta_le`), and Cauchy–Schwarz with `D ≤ 2`
     gives `S ≤ 3√2 · √D` (`cs_S_le`): at most `78√3 · √ε ‖ρ‖_F ≤ 200 √ε ‖ρ‖_F` (`channel_stability`). The order `√ε`
-    cannot be lowered: along `Λ_{1+t,1−t}`, at `ρ = |0⟩⟨0|`, the distance divided by `√ε` tends to `√2` as `t → 0`.
+    cannot be lowered: along `Λ_{1+t,1−t}`, at `ρ = |0⟩⟨0|`, the distance divided by `√ε` tends to `√2` as `t → 0`
+    (checked by `scripts/check_extensions.py`; not a compared statement).

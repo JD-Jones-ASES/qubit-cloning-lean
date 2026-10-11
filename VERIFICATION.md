@@ -40,7 +40,7 @@ fully specified in the Challenge, so the comparator checks the Solution's values
 | 25 | `tradeoff_sqrt` — The trade-off in square-root form (Scarani–Iblisdir–Gisin–Acín 2005, Eq. (23)): `F̄₁ + F̄₂ − 3/2 ≤ √((1 − F̄₁)(1 − F̄₂))` for every channel | QubitCloning/Tradeoff.lean |
 | 26 | `tradeoff_forall` — The trade-off for worst-case fidelities: if `f₁ ≤ F₁(ψ)` and `f₂ ≤ F₂(ψ)` for every unit `ψ`, then `f₁ + f₂ − 3/2 ≤ √((1 − f₁)(1 − f₂))` | QubitCloning/Tradeoff.lean |
 | 27 | `tradeoff_attained` — The asymmetric cloners with `a, b ≥ 0` lie on the trade-off curve: equality in the square-root form (the curve of Niu–Griffiths 1998, Eq. (6.29)) | QubitCloning/Tradeoff.lean |
-| 28 | `tradeoff_full_sqrt` — For every channel, `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))`: the full-range trade-off, which binds where a clone's average fidelity is below `1/2` (the square-root form does not) | QubitCloning/FullTradeoff.lean |
+| 28 | `tradeoff_full_sqrt` — For every channel, `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))`: the full-range trade-off, which also binds where a clone's average fidelity is below `1/2`, where the square-root form is vacuous | QubitCloning/FullTradeoff.lean |
 | 29 | `signed_asym_bound` — For every channel and all real `a, b` with `(2a + b)(a + 2b) ≥ 0`, `ab ≤ a(a + 2b)(1 − F̄₁) + b(2a + b)(1 − F̄₂)`: the bound `asym_bound` with `0 ≤ a`, `0 ≤ b` replaced by `(2a + b)(a + 2b) ≥ 0` | QubitCloning/Signed.lean |
 | 30 | `eq_asym_of_signed_equality` — For real `a, b ≠ 0` with `(2a + b)(a + 2b) > 0`, a channel with equality in the signed bound at `(a, b)` is `Λ_{a,b}` as a map | QubitCloning/Signed.lean |
 | 31 | `clone_anticlone_bound` — For every channel, `3F̄₁ − 5F̄₂ ≤ 1` (the signed bound at the weights `(3, −1)`) | QubitCloning/Signed.lean |
@@ -51,7 +51,7 @@ fully specified in the Challenge, so the comparator checks the Solution's values
 | 36 | `floor_companion_attained` — `Λ_{2,−1}` is a two-operator channel with `F̄₁ = 5/6` and `F̄₂ = 1/3`, and with `F₁(ψ) = 5/6`, `F₂(ψ) = 1/3` on every unit `ψ`: the universal-NOT floor on the second clone with `5/6` on the first | QubitCloning/Signed.lean |
 | 37 | `kraus_span_stability` — If `(F̄₁ + F̄₂)/2 ≥ 5/6 − ε`, there are coefficients `xᵢ, yᵢ` with `Σᵢ ‖Kᵢ − xᵢV₁ − yᵢV₂‖² ≤ 6ε`: every Kraus family of a near-optimal channel is near the Bužek–Hillery Kraus space | QubitCloning/Stability.lean |
 | 38 | `tradeoff_full_attained` — Along the asymmetric family with `(2a + b)(a + 2b) ≥ 0` the full-range trade-off is an equality: both sides equal `(2a + b)(a + 2b)/(2(a² + ab + b²))` | QubitCloning/FullEquality.lean |
-| 39 | `eq_asym_of_tradeoff_full_equality` — Equality in the full-range trade-off away from the perfect-clone endpoints forces a member of the asymmetric family with both weights nonzero and `(2a + b)(a + 2b) ≥ 0`: the boundary arc of the region is the family | QubitCloning/FullEquality.lean |
+| 39 | `eq_asym_of_tradeoff_full_equality` — Equality in the full-range trade-off away from the perfect-clone points `(1, 1/2)` and `(1/2, 1)` forces a member of the asymmetric family with both weights nonzero and `(2a + b)(a + 2b) ≥ 0`: the boundary arc of the region is the family | QubitCloning/FullEquality.lean |
 | 40 | `eq_asym_of_floor₂` — The companion of the universal-NOT floor on the second clone is unique: `F̄₁ = 5/6` and `F̄₂ = 1/3` force `Λ_{2,−1}` as a map | QubitCloning/FullEquality.lean |
 | 41 | `eq_asym_of_floor₁` — The companion of the universal-NOT floor on the first clone is unique: `F̄₁ = 1/3` and `F̄₂ = 5/6` force `Λ_{−1,2}` as a map | QubitCloning/FullEquality.lean |
 | 42 | `sixAvg₂_eq_half_of_sixAvg₁_eq_one` — A perfect first clone on average forces the second output's average fidelity to be `1/2` | QubitCloning/FullEquality.lean |
@@ -71,7 +71,7 @@ fully specified in the Challenge, so the comparator checks the Solution's values
 - **Statements.** `scripts/check_definitions.py` compares every definition block of Challenge.lean with
   `QubitCloning/Defs.lean` character for character and the imports; `scripts/check_statements.py` compares every theorem
   header of Challenge.lean with Solution.lean; verify.py prints every definition with `pp.all` from both modules and
-  requires identical output, and prints every compared theorem's type with Palomar's `core_notation_audit.lean`
+  every compared theorem's type from the Challenge and the Solution, and requires identical output, and prints every compared theorem's type with Palomar's `core_notation_audit.lean`
   (64 rows: the forty-four theorems and the twenty definitions, exit 0).
 - **The replay.** `scripts/check_cloning.py` (standard library only, Gaussian rationals, 582 checks, `VERDICT: PASS`,
   also under `python -O`): the six states as projectors; the six-state sums as quadratic forms `6Wᵢ = 1 + Ωᵢ` by
@@ -82,13 +82,13 @@ fully specified in the Challenge, so the comparator checks the Solution's values
   least constant, the trace-preservation solve), its agreement with the Bužek–Hillery channel at the symmetric point, the
   largest-eigenvalue formula at non-conic weights, the universal-NOT witness, and the polynomial sum of squares of the
   asymmetric certificate on a 4 × 4 grid of weights.
-- **The extension replay.** `scripts/check_extensions.py` (standard library only, rational arithmetic, 62 checks,
+- **The extension replay.** `scripts/check_extensions.py` (standard library only, rational arithmetic, 66 checks,
   `VERDICT: PASS`, also under `python -O`): the Gram identity of `FullTradeoff.lean` and the signed certificate as
   coefficient matrices (the latter in each of `a²`, `ab`, `b²`), with the signed form positive semidefinite where
   `(2a + b)(a + 2b) ≥ 0` and not elsewhere at sample weights; the projection onto `span{V₁, V₂}`, the coercivity identity
   and its gap `2`; the signed channels at rational weights (complete positivity and trace preservation, the six-state
   averages, the full-range bound and its equality); the point `(13/14, 5/14)`; the nonsingular trace-preservation
-  equations; the distance `6ε` along `Λ_{1+t,1−t}`; and perturbed inputs that the checks must reject.
+  equations; the distance `6ε` and the Frobenius distance to the Bužek–Hillery output at `|0⟩⟨0|` along `Λ_{1+t,1−t}`; and perturbed inputs that the checks must reject.
 - **Metadata.** `formalization.yaml` parses, its title is within 300 characters, and its `status.main_results` and
   `alignment` list the compared theorems in `comparator.json`'s order with every status `proved`. verify.py validates
   it against the registry's v0.4 schema only when a copy is present at `scripts/formalization.schema.json`, and none is

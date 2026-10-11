@@ -156,7 +156,8 @@ theorem clone_anticlone_bound {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : Is
   clone_anticlone_bound_internal K hK
 
 theorem clone_anticlone_attained :
-    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ sixAvg₁ K = 13 / 14 ∧ sixAvg₂ K = 5 / 14 :=
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ (∀ ρ, krausApply K ρ = asymChannel 3 (-1) ρ) ∧
+      sixAvg₁ K = 13 / 14 ∧ sixAvg₂ K = 5 / 14 :=
   clone_anticlone_attained_internal
 
 theorem eq_clone_anticlone_of_equality {r : ℕ} (K : Fin r → Matrix QQ Q ℂ) (hK : IsChannel K)
@@ -173,7 +174,8 @@ theorem sixAvg₂_le_of_sixAvg₁_eq_third {r : ℕ} (K : Fin r → Matrix QQ Q 
   sixAvg₂_le_of_sixAvg₁_eq_third_internal K hK h
 
 theorem floor_companion_attained :
-    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ sixAvg₁ K = 5 / 6 ∧ sixAvg₂ K = 1 / 3 ∧
+    ∃ K : Fin 2 → Matrix QQ Q ℂ, IsChannel K ∧ (∀ ρ, krausApply K ρ = asymChannel 2 (-1) ρ) ∧
+      sixAvg₁ K = 5 / 6 ∧ sixAvg₂ K = 1 / 3 ∧
       ∀ ψ : Q → ℂ, star ψ ⬝ᵥ ψ = 1 → F₁ K ψ = 5 / 6 ∧ F₂ K ψ = 1 / 3 :=
   floor_companion_attained_internal
 

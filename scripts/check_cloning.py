@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Standard-library replay of the identities behind the compared statements of Challenge.lean (the finder/checker
-split: the Lean development is the trust chain, this script the independent second implementation). Gaussian
+split: the Lean development is the trust chain, this script a second implementation). Gaussian
 rationals (pairs of Fractions) and explicit matrices as nested lists; nothing imported beyond fractions, itertools,
 random and sys. Every number is computed from the definitions: the six Pauli states, the Kraus action, the partial
 traces and the fidelities exactly as Challenge.lean defines them (index 4r + 2a + b for the entry K (a, b) r); the
 matrices and vectors the proofs use are compared against these computations, never used as inputs. Checks: the
-six-state sums as quadratic forms (6 W_i = 1 + Omega_i); the symmetric certificate 5 - 12W >= 0 with its exact LDL,
+six-state sums as quadratic forms (6 W_i = 1 + Omega_i); the symmetric certificate 5 - 12W >= 0 with its rational LDL,
 kernel and the six-term sum of squares; trace preservation pinning the Bužek-Hillery Choi matrix; the
 Bužek-Hillery channel, marginals and fidelities; the asymmetric family at eight rational points of the conic
 (channel, marginals, fidelities, equality, the certificate's LDL and kernel, the trace-preservation solve); the
@@ -322,7 +322,7 @@ def mv(M, v):
 check("H2 v1 in the kernel", all(x == G(0) for x in mv(M5, V1)))
 check("H2 v2 in the kernel", all(x == G(0) for x in mv(M5, V2)))
 # the shifted matrix (5 - eps) - 12W is not PSD for every eps > 0 (a kernel vector becomes negative)
-check("H2 5 is the sharp constant", quad(msub(msc(Fr(4999, 1000), eye(8)), TWELVEW), V1).re < 0)
+check("H2 the constant 5 cannot be lowered", quad(msub(msc(Fr(4999, 1000), eye(8)), TWELVEW), V1).re < 0)
 
 # the six-term SOS, as an identity of forms: 5|k|^2 - 12 q(k) = sum c_t |<w_t, k>|^2
 # k_{ab,r} = K(a,b) r -> index 4 r + 2 a + b
@@ -472,8 +472,8 @@ for t in TS:
         check(f"H5 kernel dimension 2 at t={t} (al, be > 0) else as expected", (nz == 2) if (al > 0 and be > 0) else (nz >= 2))
     check(f"H5 w0 in the kernel at t={t}", all(x == G(0) for x in mv(Mab, w0)))
     check(f"H5 w1 in the kernel at t={t}", all(x == G(0) for x in mv(Mab, w1)))
-    # sharpness: the constant cannot be lowered
-    check(f"H5 the constant is sharp at t={t}", quad(msub(Mab, msc(Fr(1, 10 ** 6), eye(8))), w0).re < 0)
+    # the constant cannot be lowered
+    check(f"H5 the constant cannot be lowered at t={t}", quad(msub(Mab, msc(Fr(1, 10 ** 6), eye(8))), w0).re < 0)
     # uniqueness: Tr_out of the Gram of w0, w1 and the trace-preservation solve
     if al > 0 and be > 0:
         T00, T11_, T01 = tr_out(outer(w0, w0)), tr_out(outer(w1, w1)), tr_out(outer(w0, w1))
@@ -530,7 +530,7 @@ for (a_, b_, s_) in [(3, 8, 7), (5, 8, 7), (7, 15, 13), (1, 1, 1), (8, 3, 7), (0
     if res is not None:
         nz = sum(1 for d in res[1] if d == G(0))
         check(f"H5 kernel dimension at ({a_},{b_}) is 2", nz == 2)
-    check(f"H5 lambda_max sharp at ({a_},{b_})", ldl(msub(Mw, msc(Fr(1, 10 ** 6), eye(8)))) is None or any(d.re < 0 for d in ldl(msub(Mw, msc(Fr(1, 10 ** 6), eye(8))))[1]))
+    check(f"H5 lambda_max cannot be lowered at ({a_},{b_})", ldl(msub(Mw, msc(Fr(1, 10 ** 6), eye(8)))) is None or any(d.re < 0 for d in ldl(msub(Mw, msc(Fr(1, 10 ** 6), eye(8))))[1]))
 
 # ---------------------------------------------------------------- the universal-NOT floor: 6 sixAvg_i(K) = sum_i |k_i|^2 + sum_i <k_i, Omega_i k_i> >= sum |k_i|^2 = 2
 check("H2 Omega_1 is PSD (a nonnegative form)", all(d.im == 0 and d.re >= 0 for d in ldl(OM1)[1]))

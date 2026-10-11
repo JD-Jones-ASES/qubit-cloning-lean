@@ -57,7 +57,7 @@ theorem fr_cauchy {ι : Type*} [Fintype ι] (u v : ι → ℂ) :
       rw [Real.sqrt_mul (Finset.sum_nonneg fun j _ => sq_nonneg _)]
 
 /-- For every channel, `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))`: the full-range trade-off, which
-binds where a clone's average fidelity is below `1/2` (the square-root form does not). -/
+also binds where a clone's average fidelity is below `1/2`, where the square-root form is vacuous. -/
 theorem tradeoff_full_sqrt_internal {r : ℕ} (K : Fin r → Matrix QQ Q ℂ)
     (hK : IsChannel K) :
     3 * (sixAvg₁ K + sixAvg₂ K) - 7 / 2 ≤

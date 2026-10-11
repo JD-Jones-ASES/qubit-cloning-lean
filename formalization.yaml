@@ -42,8 +42,8 @@ project:
     symmetrized channels); a = b is the Buzek-Hillery channel; hence the square-root form
     sqrt((1 - F1-bar)(1 - F2-bar)) >= F1-bar + F2-bar - 3/2 (Scarani-Iblisdir-Gisin-Acin 2005, (23)), its
     worst-case form, and equality along the family for a, b >= 0 (the curve of Niu-Griffiths (6.29)). For every
-    channel 3(F1-bar + F2-bar) - 7/2 <= sqrt((3F1-bar - 1)(3F2-bar - 1)), binding also where a clone is below 1/2 (the
-    necessity half of Nechita-Pellegrini-Rochette 2021, Theorem 6, at d = 2 for the six-state averages; Hashagen 2017,
+    channel 3(F1-bar + F2-bar) - 7/2 <= sqrt((3F1-bar - 1)(3F2-bar - 1)), binding also where a clone is below 1/2 (with the
+    floor, the necessity half of Nechita-Pellegrini-Rochette 2021, Theorem 6, at d = 2 for the six-state averages; Hashagen 2017,
     Theorem 6.4, in entanglement fidelity), proved by a Gram identity in the Kraus entries and Cauchy-Schwarz, with
     equality along the family when (2a + b)(a + 2b) >= 0 and, with neither clone perfect, only there; a perfect clone
     on average leaves the other at 1/2 (Hashagen 2017, p. 20, via Nielsen 2002, (3)); the asymmetric bound holds for
@@ -67,6 +67,7 @@ project:
   url: "https://github.com/JD-Jones-ASES/qubit-cloning-lean"
   license: "MIT"
   authors: ["JD Jones"]
+  responsible_maintainers: ["JD Jones"]
   contact: "https://github.com/JD-Jones-ASES/qubit-cloning-lean/issues"
 
 classification:
@@ -318,9 +319,11 @@ sources:
     author_endorsement: "not-contacted"
     note: >-
       The full region of the Haar-average fidelities (Definition 2) in the singlet-fraction plane, negative singlet
-      fractions included. tradeoff_full_sqrt is the necessity half of their Theorem 6 at d = 2 (p = 2F - 1), for the
-      six-state averages, proved here by a Gram identity in the Kraus entries and Cauchy-Schwarz rather than by their
-      route; the realization of every point is not formalized, that of the boundary arc is tradeoff_full_attained. At
+      fractions included. tradeoff_full_sqrt with sixAvg_ge_third (the floors p_i >= -1/3) is the necessity half of
+      their Theorem 6 at d = 2 (p = 2F - 1), for the six-state averages, proved here by a Gram identity in the Kraus
+      entries and Cauchy-Schwarz rather than by their route; the realization of every point is not formalized (the
+      family with (2a + b)(a + 2b) >= 0 lies on the boundary arc, tradeoff_full_attained; that it covers the arc is
+      replayed, not formalized). At
       d = 2 their Theorem 5 is the squared square-root form, equivalently the squared full-range trade-off, for the
       restricted family only: its ellipse excludes points of Theorem 6's region such as (1/3, 1/3) and (1/2, 1/3).
       They claim no uniqueness.
@@ -453,7 +456,7 @@ related_formalizations:
       The Lean development of Fei-Wang (arXiv:2609.35986): asymptotic global-fidelity cloning of mixed states, a
       finite converse for flat projectors; a different figure of merit, unregistered as of 2026-10-11. No code is
       shared.
-  - id: "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/CloningMachine.lean"
+  - id: "https://github.com/the-omega-institute/trureturing/blob/8904b50/D5/S3/Quantum/CloningMachine.lean"
     relationship: "other"
     note: >-
       The spectrum {1/3, 2/3} and the entropy of the machine qubit of the universal symmetric 1 -> 2 cloner, from
@@ -725,8 +728,9 @@ automation:
         reading of the papers as printed pages, the statements and their check against them, the replay of the
         identities in the standard library, the Lean proofs, the prior-art searches and the repository text,
         by Claude Fable 5.1 and Claude Opus 5.5 subagents in Claude Code, with the proofs audited in separate
-        passes; a pre-submission consult by GPT (OpenAI) on the tree at 378b68d (2026-10-11) proposed three modules,
-        checked here with the full verification gate before adoption. Lean v4.35.0-rc2 and Mathlib v4.35.0-rc2 (commit
+        passes. GPT (OpenAI) was used in the process, for a pre-submission consult on the tree at 378b68d
+        (2026-10-11); its proposals (ten statements, three Lean modules and the extension replay) were checked here
+        with the full verification gate before adoption. Lean v4.35.0-rc2 and Mathlib v4.35.0-rc2 (commit
         065356127b1dc0016f66b7283ce0ce2c4055aa55) are pinned by the committed manifest and lake update is never run;
         there are no GitHub Actions workflows. There is no native_decide and no decide +kernel: the proofs are
         polynomial identities in the real and imaginary parts of the Kraus entries closed by ring and
@@ -765,8 +769,8 @@ fidelity:
     nonnegativity of 1 - f_i being a consequence. The full-range and signed statements concern the six-state
     averages themselves: a lower bound on F-bar_i cannot be substituted into them, so they have no worst-case forms
     here; the realization of every point of the region (the sufficiency half of Nechita-Pellegrini-Rochette's
-    Theorem 6, negative singlet fractions included) is not formalized, only that of its boundary arc
-    (tradeoff_full_attained). The stability is in the Frobenius norm: kraus_span_stability bounds the total squared
+    Theorem 6, negative singlet fractions included) is not formalized; the family with (2a + b)(a + 2b) >= 0 lies on
+    its boundary arc (tradeoff_full_attained), and that it covers the arc is replayed, not formalized. The stability is in the Frobenius norm: kraus_span_stability bounds the total squared
     distance of the Kraus operators to span{V1, V2}, and channel_stability the Frobenius distance of the outputs
     from the Buzek-Hillery channel's on every input matrix; the trace-norm and diamond-norm forms are not
     formalized.
@@ -786,7 +790,7 @@ review:
     sums of squares in the Kraus entries, the homogeneous weight form, and the uniqueness statements under the
     average-fidelity criterion (Keyl-Werner's uniqueness is for the trace-norm one-clone criterion, Werner's for
     the global criterion, Hashagen's within symmetrized channels), and, in the extension, a Gram-identity proof of
-    the full-range trade-off (the necessity half of Nechita-Pellegrini-Rochette's Theorem 6 at d = 2), the signed
+    the full-range trade-off (with the floor, the necessity half of Nechita-Pellegrini-Rochette's Theorem 6 at d = 2), the signed
     bounds with the anticloning line, the equality cases over all channels, the floor companion's uniqueness and the
     stability bounds. No earlier kernel check of any of these
     statements was found by the dated searches (Palomar's feed and day index, Mathlib, formal-conjectures,
@@ -937,11 +941,11 @@ alignment:
       module: "Solution"
       status: "proved"
       note: "The asymmetric cloners with `a, b ≥ 0` lie on the trade-off curve: equality in the square-root form (the curve of Niu–Griffiths 1998, Eq. (6.29))."
-    - source: "Nechita-Pellegrini-Rochette 2021, Theorem 6, (10), at d = 2: its necessity half for the six-state averages; the Gram-identity proof is this development's; cf. Hashagen 2017, Theorem 6.4"
+    - source: "Nechita-Pellegrini-Rochette 2021, Theorem 6, (10), at d = 2: its necessity half, with sixAvg_ge_third, for the six-state averages; the Gram-identity proof is this development's; cf. Hashagen 2017, Theorem 6.4"
       lean: "QubitCloning.tradeoff_full_sqrt"
       module: "Solution"
       status: "proved"
-      note: "For every channel, `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))`: the full-range trade-off, which binds where a clone's average fidelity is below `1/2`."
+      note: "For every channel, `3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1))`: the full-range trade-off, which also binds where a clone's average fidelity is below `1/2`."
     - source: "This development (the certificate af_sos with signed weights; Fiurasek-Filip-Cerf 2005, (11), take weights in [0, 1]); the supporting lines of the region of Nechita-Pellegrini-Rochette 2021, Theorem 6"
       lean: "QubitCloning.signed_asym_bound"
       module: "Solution"
@@ -1007,12 +1011,12 @@ alignment:
       module: "Solution"
       status: "proved"
       note: "The companion of the universal-NOT floor on the first clone is unique: `F̄₁ = 1/3` and `F̄₂ = 5/6` force `Λ_{−1,2}` as a map."
-    - source: "Hashagen 2017, v2 p. 20 (a perfect clone has Choi state |Omega><Omega| (x) sigma, the other overlap 1/d^2), at d = 2 in average form via Nielsen 2002, (3); proved here from tradeoff_full_sqrt"
+    - source: "This development (from tradeoff_full_sqrt at F1-bar = 1); cf. Hashagen 2017, v2 p. 20 (a perfect clone has Choi state |Omega><Omega| (x) sigma, the other overlap 1/d^2), at d = 2 via Nielsen 2002, (3)"
       lean: "QubitCloning.sixAvg₂_eq_half_of_sixAvg₁_eq_one"
       module: "Solution"
       status: "proved"
       note: "A perfect first clone on average forces the second output's average fidelity to be `1/2`."
-    - source: "Hashagen 2017, v2 p. 20 (a perfect clone has Choi state |Omega><Omega| (x) sigma, the other overlap 1/d^2), at d = 2 in average form via Nielsen 2002, (3); proved here from tradeoff_full_sqrt"
+    - source: "This development (from tradeoff_full_sqrt at F1-bar = 1); cf. Hashagen 2017, v2 p. 20 (a perfect clone has Choi state |Omega><Omega| (x) sigma, the other overlap 1/d^2), at d = 2 via Nielsen 2002, (3)"
       lean: "QubitCloning.sixAvg₁_eq_half_of_sixAvg₂_eq_one"
       module: "Solution"
       status: "proved"
