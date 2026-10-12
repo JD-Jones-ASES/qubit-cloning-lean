@@ -1,4 +1,4 @@
-# Universal 1 → 2 qubit cloning: (F̄₁ + F̄₂)/2 ≤ 5/6 with the Bužek–Hillery channel as its unique optimum and its stability, the universal-NOT floor 1/3 and its companion 5/6, the trade-off 3(F̄₁ + F̄₂) − 7/2 ≤ √((3F̄₁ − 1)(3F̄₂ − 1)) with its equality family, and the anticloning bound 3F̄₁ − 5F̄₂ ≤ 1
+# Optimal universal 1 → 2 qubit cloning at fidelity 5/6, the universal-NOT, and asymmetric cloning
 
 A channel from one qubit to two is a finite Kraus family `K : Fin r → Matrix (Fin 2 × Fin 2) (Fin 2) ℂ` with
 `Σᵢ Kᵢᴴ Kᵢ = 1`, acting by `ρ ↦ Σᵢ Kᵢ ρ Kᵢᴴ` (the blank qubit is fixed: a `1 → 2` map). For a pure input `ψ` the clone
